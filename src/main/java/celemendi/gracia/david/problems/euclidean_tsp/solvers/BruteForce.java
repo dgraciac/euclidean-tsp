@@ -30,6 +30,7 @@ public class BruteForce implements _2DEuclideanTSPSolver {
     public void compute(_2DEuclideanTSP computationalProblem) {
         List<Point> pointList = computationalProblem.getPointList();
         calculateDistances(pointList);
-        //TODO use Util.permute. Publish utilities to maven repository
+        celemendi.gracia.david.utilities.Util.permute(pointList);
+        //TODO use Util.permute.
     }
 }

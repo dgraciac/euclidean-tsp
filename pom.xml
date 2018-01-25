@@ -25,6 +25,11 @@
             <artifactId>jts-core</artifactId>
             <version>1.15.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>celemendi.gracia.david.utilities</groupId>
+            <artifactId>utilities</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>
