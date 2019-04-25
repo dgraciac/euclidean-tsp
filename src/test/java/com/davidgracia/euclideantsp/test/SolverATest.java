@@ -19,7 +19,6 @@ class SolverATest {
     }
 
     @Test
-    @Disabled
     void
     instance1() {
         Tour optimalTour = _2DEuclideanTSPInstances.INSTANCE_1_SOLUTION;
