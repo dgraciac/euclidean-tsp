@@ -43,6 +43,10 @@ public class Tour {
         return point;
     }
 
+    public List<_2DPoint> getPoints() {
+        return points;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

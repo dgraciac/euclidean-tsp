@@ -6,7 +6,7 @@ public class _2DPoint {
     public final double x;
     public final double y;
 
-    public _2DPoint(int x, int y) {
+    public _2DPoint(double x, double y) {
         this.x = x;
         this.y = y;
     }

@@ -1,8 +1,10 @@
 package com.davidgracia.euclideantsp;
 
+import java.util.List;
+
 public class BruteForce extends _2DEuclideanTSPSolver {
 
-    public Tour compute(_2DEuclideanTSPInstance instance){
+    public Tour compute(_2DEuclideanTSPInstance instance) {
 
         _2DPoint[] points = new _2DPoint[instance.points.size()];
         instance.points.toArray(points);
@@ -19,7 +21,7 @@ public class BruteForce extends _2DEuclideanTSPSolver {
             if (indexes[i] < i) {
                 swap(points, i % 2 == 0 ? 0 : indexes[i], i);
                 Tour tour = new Tour(points);
-                if(tour.getDistance() < bestTour.getDistance()) bestTour = tour;
+                if (tour.getDistance() < bestTour.getDistance()) bestTour = tour;
                 indexes[i]++;
                 i = 0;
             } else {

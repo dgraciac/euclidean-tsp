@@ -55,4 +55,13 @@ public class _2DEuclideanTSPInstances {
                     new _2DPoint(10, 4),
                     new _2DPoint(4, 6))
     );
+
+    public static final Tour INSTANCE_4_SOLUTION = new Tour(
+            new _2DPoint(0.0, 4.0),
+            new _2DPoint(4.0, 5.0),
+            new _2DPoint(4.0, 6.0),
+            new _2DPoint(10.0, 4.0),
+            new _2DPoint(3.0, 0.0),
+            new _2DPoint(3.0, 3.0)
+    );
 }
