@@ -1,25 +1,25 @@
 package com.davidgracia.euclideantsp.solvers;
 
-import com.davidgracia.euclideantsp._2DEuclideanTSPInstance;
-import com.davidgracia.euclideantsp._2DPoint;
+import com.davidgracia.euclideantsp.Euclidean2DTSPInstance;
+import org.locationtech.jts.geom.Coordinate;
 
-public class BruteForce implements _2DEuclideanTSPSolver {
-    public Tour compute(_2DEuclideanTSPInstance instance) {
-        _2DPoint[] points = new _2DPoint[instance.points.size()];
-        instance.points.toArray(points);
+public class BruteForce implements Euclidean2DTSPSolver {
+    public Tour compute(Euclidean2DTSPInstance instance) {
+        Coordinate[] coordinates = new Coordinate[instance.coordinates.size()];
+        instance.coordinates.toArray(coordinates);
 
-        int[] indexes = new int[points.length];
-        for (int i = 0; i < points.length; i++) {
+        int[] indexes = new int[coordinates.length];
+        for (int i = 0; i < coordinates.length; i++) {
             indexes[i] = 0;
         }
 
-        Tour bestTour = new Tour(points);
+        Tour bestTour = new Tour(coordinates);
 
         int i = 0;
-        while (i < points.length) {
+        while (i < coordinates.length) {
             if (indexes[i] < i) {
-                swap(points, i % 2 == 0 ? 0 : indexes[i], i);
-                Tour tour = new Tour(points);
+                swap(coordinates, i % 2 == 0 ? 0 : indexes[i], i);
+                Tour tour = new Tour(coordinates);
                 if (tour.getDistance() < bestTour.getDistance()) bestTour = tour;
                 indexes[i]++;
                 i = 0;
@@ -31,8 +31,8 @@ public class BruteForce implements _2DEuclideanTSPSolver {
         return bestTour;
     }
 
-    private void swap(_2DPoint[] input, int a, int b) {
-        _2DPoint tmp = input[a];
+    private void swap(Coordinate[] input, int a, int b) {
+        Coordinate tmp = input[a];
         input[a] = input[b];
         input[b] = tmp;
     }

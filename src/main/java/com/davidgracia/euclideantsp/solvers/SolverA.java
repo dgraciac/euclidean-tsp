@@ -1,23 +1,22 @@
 package com.davidgracia.euclideantsp.solvers;
 
-import com.davidgracia.euclideantsp._2DEuclideanTSPInstance;
-import com.davidgracia.euclideantsp._2DPoint;
+import com.davidgracia.euclideantsp.Euclidean2DTSPInstance;
 import org.locationtech.jts.algorithm.ConvexHull;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SolverA implements _2DEuclideanTSPSolver {
+public class SolverA implements Euclidean2DTSPSolver {
+
     @Override
-    public Tour compute(_2DEuclideanTSPInstance instance) {
-        Coordinate[] coordinates = instance.points.stream()
-                .map(PointMapper::toPoint)
-                .map(Point::getCoordinate)
-                .toArray(Coordinate[]::new);
+    public Tour compute(Euclidean2DTSPInstance instance) {
+        Coordinate[] coordinates = instance.coordinates.toArray(new Coordinate[instance.coordinates.size()]);
 
         ConvexHull convexHullNoGeom = new ConvexHull(coordinates, new GeometryFactory());
         Geometry convexHull = convexHullNoGeom.getConvexHull();
@@ -31,6 +30,10 @@ public class SolverA implements _2DEuclideanTSPSolver {
         while (!listOfUnconnectedCoordinates.isEmpty()) {
             if (listOfUnconnectedCoordinates.size() > 2) {
 
+            //} else if (listOfUnconnectedCoordinates.size() > 1) {
+/*                List<Coordinate> remainingCoordinates = new ArrayList<>(listOfUnconnectedCoordinates);
+                Tour candidateTour = TourMapper.toTour(listOfConnectedCoordinates);
+                candidateTour.insertPathAtCheapestPosition(remainingCoordinates);*/
             } else {
                 Coordinate coordinate = listOfUnconnectedCoordinates.get(0);
                 int position = findCheapestPositionInTheCurrentTour(listOfConnectedCoordinates, coordinate);
@@ -39,9 +42,7 @@ public class SolverA implements _2DEuclideanTSPSolver {
             }
         }
 
-        _2DPoint[] _2DPoints = listOfConnectedCoordinates.stream().map(coordinate -> new _2DPoint(coordinate.x, coordinate.y)).toArray(_2DPoint[]::new);
-
-        return new Tour(_2DPoints);
+        return new Tour(listOfConnectedCoordinates);
     }
 
     private List<Coordinate> getListOfConnectedCoordinates(Geometry convexHull) {

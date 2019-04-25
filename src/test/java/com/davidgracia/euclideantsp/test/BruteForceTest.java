@@ -1,11 +1,11 @@
 package com.davidgracia.euclideantsp.test;
 
+import com.davidgracia.euclideantsp.Euclidean2DTSPInstances;
 import com.davidgracia.euclideantsp.solvers.BruteForce;
 import com.davidgracia.euclideantsp.solvers.Tour;
-import com.davidgracia.euclideantsp._2DEuclideanTSPInstances;
-import com.davidgracia.euclideantsp._2DPoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.List;
 
@@ -22,60 +22,60 @@ class BruteForceTest {
 
     @Test void
     instance1() {
-        Tour optimalTour = _2DEuclideanTSPInstances.INSTANCE_1_SOLUTION;
-        Tour tour = algorithm.compute(_2DEuclideanTSPInstances.INSTANCE_1);
+        Tour optimalTour = Euclidean2DTSPInstances.INSTANCE_1_SOLUTION;
+        Tour tour = algorithm.compute(Euclidean2DTSPInstances.INSTANCE_1);
         System.out.println(tour);
         assertThat(tour).isEqualTo(optimalTour);
     }
 
     @Test void
     instance2() {
-        Tour optimalTour = _2DEuclideanTSPInstances.INSTANCE_2_SOLUTION;
-        Tour tour = algorithm.compute(_2DEuclideanTSPInstances.INSTANCE_2);
+        Tour optimalTour = Euclidean2DTSPInstances.INSTANCE_2_SOLUTION;
+        Tour tour = algorithm.compute(Euclidean2DTSPInstances.INSTANCE_2);
         System.out.println(tour);
         assertThat(tour).isEqualTo(optimalTour);
     }
 
     @Test void
     instance3() {
-        Tour optimalTour = _2DEuclideanTSPInstances.INSTANCE_3_SOLUTION;
-        Tour tour = algorithm.compute(_2DEuclideanTSPInstances.INSTANCE_3);
+        Tour optimalTour = Euclidean2DTSPInstances.INSTANCE_3_SOLUTION;
+        Tour tour = algorithm.compute(Euclidean2DTSPInstances.INSTANCE_3);
         System.out.println(tour);
         assertThat(tour).isEqualTo(optimalTour);
     }
 
     @Test void
     instance4() {
-        Tour optimalTour = _2DEuclideanTSPInstances.INSTANCE_4_SOLUTION;
-        Tour tour = algorithm.compute(_2DEuclideanTSPInstances.INSTANCE_4);
+        Tour optimalTour = Euclidean2DTSPInstances.INSTANCE_4_SOLUTION;
+        Tour tour = algorithm.compute(Euclidean2DTSPInstances.INSTANCE_4);
         System.out.println(tour);
         assertThat(tour).isEqualTo(optimalTour);
     }
 
     @Test void
     instance5() {
-        Tour optimalTour = _2DEuclideanTSPInstances.INSTANCE_5_SOLUTION;
-        Tour tour = algorithm.compute(_2DEuclideanTSPInstances.INSTANCE_5);
+        Tour optimalTour = Euclidean2DTSPInstances.INSTANCE_5_SOLUTION;
+        Tour tour = algorithm.compute(Euclidean2DTSPInstances.INSTANCE_5);
         System.out.println(tour);
         assertThat(tour).isEqualTo(optimalTour);
     }
 
     @Test void
     instance6() {
-        Tour optimalTour = _2DEuclideanTSPInstances.INSTANCE_6_SOLUTION;
-        Tour tour = algorithm.compute(_2DEuclideanTSPInstances.INSTANCE_6);
+        Tour optimalTour = Euclidean2DTSPInstances.INSTANCE_6_SOLUTION;
+        Tour tour = algorithm.compute(Euclidean2DTSPInstances.INSTANCE_6);
         System.out.println(tour);
         assertThat(tour).isEqualTo(optimalTour);
     }
 
     private void printSolutionInJava(Tour tour) {
-        List<_2DPoint> points = tour.getPoints();
+        List<Coordinate> points = tour.getCoordinates();
 
         for (int i = 0; i < points.size() - 1; i++) {
-            _2DPoint point = points.get(i);
-            System.out.println("new " + _2DPoint.class.getSimpleName() + "(" + point.x + ", " + point.y + "),");
+            Coordinate point = points.get(i);
+            System.out.println("new " + Coordinate.class.getSimpleName() + "(" + point.x + ", " + point.y + "),");
         }
-        _2DPoint point = points.get(points.size() - 1);
-        System.out.println("new " + _2DPoint.class.getSimpleName() + "(" + point.x + ", " + point.y + ")");
+        Coordinate point = points.get(points.size() - 1);
+        System.out.println("new " + Coordinate.class.getSimpleName() + "(" + point.x + ", " + point.y + ")");
     }
 }
