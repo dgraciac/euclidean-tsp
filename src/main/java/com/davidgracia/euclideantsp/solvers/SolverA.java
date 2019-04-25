@@ -31,8 +31,6 @@ public class SolverA implements _2DEuclideanTSPSolver {
         while (!listOfUnconnectedCoordinates.isEmpty()) {
             if (listOfUnconnectedCoordinates.size() > 2) {
 
-            } else if (listOfUnconnectedCoordinates.size() > 1) {
-//                listOfUnconnectedCoordinates.get(0)
             } else {
                 Coordinate coordinate = listOfUnconnectedCoordinates.get(0);
                 int position = findCheapestPositionInTheCurrentTour(listOfConnectedCoordinates, coordinate);

@@ -42,4 +42,12 @@ class SolverATest {
         System.out.println(tour);
     }
 
+    @Test void
+    instance4() {
+        Tour optimalTour = _2DEuclideanTSPInstances.INSTANCE_4_SOLUTION;
+        Tour tour = algorithm.compute(_2DEuclideanTSPInstances.INSTANCE_4);
+        assertThat(tour).isEqualTo(optimalTour);
+        System.out.println(tour);
+    }
+
 }
