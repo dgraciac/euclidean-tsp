@@ -1,10 +1,10 @@
-package com.davidgracia.euclideantsp.test;
+package com.davidgracia.euclideantsp;
 
 import java.util.Objects;
 
 public class _2DPoint {
-    public final int x;
-    public final int y;
+    public final double x;
+    public final double y;
 
     public _2DPoint(int x, int y) {
         this.x = x;
@@ -23,5 +23,10 @@ public class _2DPoint {
     @Override
     public int hashCode() {
         return Objects.hash(x, y);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ")";
     }
 }
