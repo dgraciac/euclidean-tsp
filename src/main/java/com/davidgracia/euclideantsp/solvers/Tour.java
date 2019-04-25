@@ -71,6 +71,6 @@ public class Tour {
 
     @Override
     public String toString() {
-        return "Tour{" + points + ", d=" + distance + "}";
+        return "Tour{" + points + ", d=" + getDistance() + "}";
     }
 }
