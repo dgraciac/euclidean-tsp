@@ -1,5 +1,6 @@
-package com.davidgracia.euclideantsp;
+package com.davidgracia.euclideantsp.solvers;
 
+import com.davidgracia.euclideantsp._2DPoint;
 import org.locationtech.jts.geom.*;
 
 import java.util.*;
@@ -29,18 +30,12 @@ public class Tour {
 
     private double calculateDistance(List<_2DPoint> _2DPoints) {
         double distance = 0;
-        List<Point> points = _2DPoints.stream().map(this::toPoint).collect(Collectors.toUnmodifiableList());
+        List<Point> points = _2DPoints.stream().map(PointMapper::toPoint).collect(Collectors.toUnmodifiableList());
         for (int i = 0; i < points.size() - 1; i++) {
             distance += points.get(i).distance(points.get(i + 1));
         }
         distance += points.get(points.size() - 1).distance(points.get(0));
         return distance;
-    }
-
-    private Point toPoint(_2DPoint _2DPoint) {
-        Coordinate coordinate = new CoordinateXY(_2DPoint.x, _2DPoint.y);
-        Point point = new GeometryFactory().createPoint(coordinate);
-        return point;
     }
 
     public List<_2DPoint> getPoints() {

@@ -1,11 +1,10 @@
-package com.davidgracia.euclideantsp;
+package com.davidgracia.euclideantsp.solvers;
 
-import java.util.List;
+import com.davidgracia.euclideantsp._2DEuclideanTSPInstance;
+import com.davidgracia.euclideantsp._2DPoint;
 
-public class BruteForce extends _2DEuclideanTSPSolver {
-
+public class BruteForce implements _2DEuclideanTSPSolver {
     public Tour compute(_2DEuclideanTSPInstance instance) {
-
         _2DPoint[] points = new _2DPoint[instance.points.size()];
         instance.points.toArray(points);
 

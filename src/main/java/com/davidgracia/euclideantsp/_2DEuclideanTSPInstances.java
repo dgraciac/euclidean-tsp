@@ -1,5 +1,7 @@
 package com.davidgracia.euclideantsp;
 
+import com.davidgracia.euclideantsp.solvers.Tour;
+
 import java.util.Arrays;
 
 public class _2DEuclideanTSPInstances {

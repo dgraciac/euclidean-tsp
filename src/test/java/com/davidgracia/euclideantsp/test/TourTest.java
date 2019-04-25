@@ -1,6 +1,6 @@
 package com.davidgracia.euclideantsp.test;
 
-import com.davidgracia.euclideantsp.Tour;
+import com.davidgracia.euclideantsp.solvers.Tour;
 import com.davidgracia.euclideantsp._2DPoint;
 import org.junit.jupiter.api.Test;
 
