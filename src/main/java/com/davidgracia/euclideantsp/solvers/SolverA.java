@@ -25,13 +25,13 @@ public class SolverA implements _2DEuclideanTSPSolver {
 
 
         Set<Coordinate> setOfConnectedCoordinates = Set.copyOf(listOfConnectedCoordinates);
-        Set<Coordinate> setOfUnconnectedCoordinates = Set.of(coordinates).stream().filter(coordinate -> !setOfConnectedCoordinates.contains(coordinate)).collect(Collectors.toSet());
-        List<Coordinate> listOfUnconnectedCoordinates = new ArrayList<>(setOfUnconnectedCoordinates);
+        List<Coordinate> listOfUnconnectedCoordinates = Set.of(coordinates).stream()
+                .filter(coordinate -> !setOfConnectedCoordinates.contains(coordinate)).distinct().collect(Collectors.toList());
 
         while (!listOfUnconnectedCoordinates.isEmpty()) {
-            if (listOfConnectedCoordinates.size() > 2) {
+            if (listOfUnconnectedCoordinates.size() > 2) {
 
-            } else if (listOfConnectedCoordinates.size() > 1) {
+            } else if (listOfUnconnectedCoordinates.size() > 1) {
 //                listOfUnconnectedCoordinates.get(0)
             } else {
                 Coordinate coordinate = listOfUnconnectedCoordinates.get(0);
