@@ -15,9 +15,8 @@ public class TSPInstancesProvider implements ArgumentsProvider {
                 Arguments.of(Euclidean2DTSPInstances.INSTANCE_3),
                 Arguments.of(Euclidean2DTSPInstances.INSTANCE_4),
                 Arguments.of(Euclidean2DTSPInstances.INSTANCE_5),
-                Arguments.of(Euclidean2DTSPInstances.INSTANCE_6)
-                //,
-                //Arguments.of(Euclidean2DTSPInstances.INSTANCE_7)
+                Arguments.of(Euclidean2DTSPInstances.INSTANCE_6),
+                Arguments.of(Euclidean2DTSPInstances.INSTANCE_7)
         );
     }
 }

@@ -6,30 +6,28 @@ import java.util.*;
 
 public class Tour {
     private final List<Coordinate> coordinates;
-    private static final double NOT_CALCULATED_YET = -1;
-    private double distance;
+    private final double distance;
 
     public Tour(Coordinate coordinate, Coordinate... otherCoordinates) {
         List<Coordinate> tempCoordinates = new ArrayList<>();
         tempCoordinates.add(coordinate);
         tempCoordinates.addAll(Arrays.asList(otherCoordinates));
         coordinates = Collections.unmodifiableList(tempCoordinates);
-        distance = NOT_CALCULATED_YET;
+        distance = DistanceCalculator.calculateTourLength(this.coordinates);
     }
 
     Tour(Coordinate[] coordinates) {
         this.coordinates = List.of(coordinates);
-        distance = NOT_CALCULATED_YET;
+        distance = DistanceCalculator.calculateTourLength(this.coordinates);
     }
 
     Tour(List<Coordinate> listOfConnectedCoordinates) {
         coordinates = Collections.unmodifiableList(listOfConnectedCoordinates);
-        distance = NOT_CALCULATED_YET;
+        distance = DistanceCalculator.calculateTourLength(this.coordinates);
     }
 
     public double getDistance() {
-        return distance == NOT_CALCULATED_YET ?
-                distance = DistanceCalculator.calculateTourLength(this.coordinates) : distance;
+        return distance;
     }
 
     public List<Coordinate> getCoordinates() {
@@ -57,7 +55,21 @@ public class Tour {
         return areEquals;
     }
 
-    Tour cheapestTourAfterInsertingCoordinate(Coordinate coordinate) {
+    Tour cheapestTourAfterInsertingBestCoordinateOf(List<Coordinate> coordinates) {
+        double minimumDistance = Double.POSITIVE_INFINITY;
+        Tour cheapestTour = null;
+        for (Coordinate coordinate : coordinates) {
+            Tour tour = cheapestTourAfterInsertingCoordinate(coordinate);
+            double candidateTourDistance = tour.getDistance();
+            if(candidateTourDistance < minimumDistance) {
+                minimumDistance = candidateTourDistance;
+                cheapestTour = tour;
+            }
+        }
+        return cheapestTour;
+    }
+
+    private Tour cheapestTourAfterInsertingCoordinate(Coordinate coordinate) {
         int position = CheapestTourFinder.findCheapestPositionForGivenCoordinate(this.coordinates, coordinate);
         return buildTourMerging(coordinates, coordinate, position);
     }

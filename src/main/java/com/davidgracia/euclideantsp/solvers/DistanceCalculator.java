@@ -6,8 +6,8 @@ import org.locationtech.jts.geom.LineString;
 
 import java.util.List;
 
-public class DistanceCalculator {
-    public static double calculateTourLength(List<Coordinate> coordinates) {
+class DistanceCalculator {
+    static double calculateTourLength(List<Coordinate> coordinates) {
         GeometryFactory geometryFactory = new GeometryFactory();
         LineString lineString = geometryFactory.createLineString(coordinates.toArray(new Coordinate[0]));
         return lineString.getLength() + lineString.getEndPoint().distance(lineString.getStartPoint());
