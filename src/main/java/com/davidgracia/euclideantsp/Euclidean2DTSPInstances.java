@@ -13,10 +13,7 @@ public class Euclidean2DTSPInstances {
                     new Coordinate(1, 0))
     );
 
-    public static final Tour INSTANCE_1_SOLUTION = new Tour(
-            new Coordinate(0, 1),
-            new Coordinate(0, 0),
-            new Coordinate(1, 0));
+    public static final double INSTANCE_1_SOLUTION = 3.414213562373095;
 
     public static final Euclidean2DTSPInstance INSTANCE_2 = new Euclidean2DTSPInstance(
             Arrays.asList(
@@ -26,11 +23,7 @@ public class Euclidean2DTSPInstances {
                     new Coordinate(1, 2))
     );
 
-    public static final Tour INSTANCE_2_SOLUTION = new Tour(
-            new Coordinate(0, 0),
-            new Coordinate(1, 0),
-            new Coordinate(2, 0),
-            new Coordinate(1, 2));
+    public static final double INSTANCE_2_SOLUTION = 6.47213595499958;
 
 
     public static final Euclidean2DTSPInstance INSTANCE_3 = new Euclidean2DTSPInstance(
@@ -42,12 +35,7 @@ public class Euclidean2DTSPInstances {
                     new Coordinate(3, 3))
     );
 
-    public static final Tour INSTANCE_3_SOLUTION = new Tour(
-            new Coordinate(1, 0),
-            new Coordinate(0, 2),
-            new Coordinate(1, 3),
-            new Coordinate(2, 4),
-            new Coordinate(3, 3));
+    public static final double INSTANCE_3_SOLUTION = 10.084259940083063;
 
     public static final Euclidean2DTSPInstance INSTANCE_4 = new Euclidean2DTSPInstance(
             Arrays.asList(
@@ -59,14 +47,7 @@ public class Euclidean2DTSPInstances {
                     new Coordinate(4, 6))
     );
 
-    public static final Tour INSTANCE_4_SOLUTION = new Tour(
-            new Coordinate(0.0, 4.0),
-            new Coordinate(4.0, 5.0),
-            new Coordinate(4.0, 6.0),
-            new Coordinate(10.0, 4.0),
-            new Coordinate(3.0, 0.0),
-            new Coordinate(3.0, 3.0)
-    );
+    public static final double INSTANCE_4_SOLUTION = 25.672196354421345;
 
     public static final Euclidean2DTSPInstance INSTANCE_5 = new Euclidean2DTSPInstance(
             Arrays.asList(
@@ -78,14 +59,7 @@ public class Euclidean2DTSPInstances {
                     new Coordinate(4, 2))
     );
 
-    public static final Tour INSTANCE_5_SOLUTION = new Tour(
-            new Coordinate(7.0, 4.0),
-            new Coordinate(7.0, 0.0),
-            new Coordinate(0.0, 0.0),
-            new Coordinate(0.0, 4.0),
-            new Coordinate(3.0, 2.0),
-            new Coordinate(4.0, 2.0)
-    );
+    public static final double INSTANCE_5_SOLUTION = 23.211102550927976;
 
     public static final Euclidean2DTSPInstance INSTANCE_6 = new Euclidean2DTSPInstance(
             Arrays.asList(
@@ -97,13 +71,6 @@ public class Euclidean2DTSPInstances {
                     new Coordinate(6, 2))
     );
 
-    public static final Tour INSTANCE_6_SOLUTION = new Tour(
-            new Coordinate(7.0, 4.0),
-            new Coordinate(0.0, 4.0),
-            new Coordinate(1.0, 2.0),
-            new Coordinate(0.0, 0.0),
-            new Coordinate(7.0, 0.0),
-            new Coordinate(6.0, 2.0)
-    );
+    public static final double INSTANCE_6_SOLUTION = 22.94427190999916;
 
 }

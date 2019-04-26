@@ -5,6 +5,7 @@ import org.locationtech.jts.geom.Coordinate;
 import java.util.List;
 
 public class Util {
+    // TODO cheapest global
     public static int findCheapestPositionForGivenMerge(List<Coordinate> coordinates, Coordinate coordinate) {
         double minimumDistance = Double.POSITIVE_INFINITY;
         int position = -1;
