@@ -46,10 +46,10 @@ public class SolverA implements Euclidean2DTSPSolver {
                 listOfUnconnectedCoordinates.remove(0);
                 listOfUnconnectedCoordinates.remove(0);
             } else {
-                Coordinate coordinate = listOfUnconnectedCoordinates.get(0);
-                int position = findCheapestPositionInTheCurrentTour(listOfConnectedCoordinates, coordinate);
-                listOfConnectedCoordinates.add(position, coordinate);
-                listOfUnconnectedCoordinates.remove(coordinate);
+                Coordinate coordinateToMerge = listOfUnconnectedCoordinates.get(0);
+                int position = Util.findCheapestPositionForGivenMerge(listOfConnectedCoordinates, coordinateToMerge);
+                listOfConnectedCoordinates.add(position, coordinateToMerge);
+                listOfUnconnectedCoordinates.remove(coordinateToMerge);
             }
         }
 
@@ -65,26 +65,5 @@ public class SolverA implements Euclidean2DTSPSolver {
             coordinates.remove(lastElement);
         }
         return coordinates;
-    }
-
-    private int findCheapestPositionInTheCurrentTour(List<Coordinate> coordinates, Coordinate coordinate) {
-        double minimumDistance = Double.POSITIVE_INFINITY;
-        int position = -1;
-        for (int i = 0; i < coordinates.size() - 1; i++) {
-            Coordinate firstCoordinate = coordinates.get(i);
-            Coordinate secondCoordinate = coordinates.get(i + 1);
-            double distance = firstCoordinate.distance(coordinate) + coordinate.distance(secondCoordinate);
-            if (distance < minimumDistance) {
-                minimumDistance = distance;
-                position = i + 1;
-            }
-        }
-        Coordinate lastCoordinate = coordinates.get(coordinates.size() - 1);
-        Coordinate firstCoordinate = coordinates.get(0);
-        double distance = lastCoordinate.distance(coordinate) + coordinate.distance(firstCoordinate);
-        if (distance < minimumDistance) {
-            position = 0;
-        }
-        return position;
     }
 }
