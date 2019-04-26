@@ -1,8 +1,6 @@
 package com.davidgracia.euclideantsp.solvers;
 
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
 
 import java.util.*;
 
@@ -59,47 +57,39 @@ public class Tour {
         return areEquals;
     }
 
-    Tour newTourAfterInsertingCoordinateAtCheapestPosition(Coordinate coordinate) {
-        // TODO cheapest global
-        int position = Util.findCheapestPositionForGivenMerge(this.coordinates, coordinate);
+    Tour cheapestTourAfterInsertingCoordinate(Coordinate coordinate) {
+        int position = Util.findCheapestPositionForGivenCoordinate(this.coordinates, coordinate);
         return buildTourMerging(coordinates, coordinate, position);
     }
 
-    private Tour buildTourMerging(List<Coordinate> coordinates, Coordinate coordinate, int position) {
+    private Tour buildTourMerging(List<Coordinate> coordinates, Coordinate coordinateToMerge, int position) {
         List<Coordinate> coordinatesForNewTour = new ArrayList<>(coordinates);
-        coordinatesForNewTour.add(position, coordinate);
+        coordinatesForNewTour.add(position, coordinateToMerge);
         return new Tour(coordinatesForNewTour);
     }
 
-    private Tour buildTourMerging(List<Coordinate> firstCoordinates, List<Coordinate> secondCoordinates, int position) {
+    private Tour buildTourMerging(List<Coordinate> firstCoordinates, List<Coordinate> coordinatesToMerge, int position) {
         List<Coordinate> coordinatesForNewTour = new ArrayList<>(firstCoordinates);
-        coordinatesForNewTour.addAll(position, secondCoordinates);
+        coordinatesForNewTour.addAll(position, coordinatesToMerge);
         return new Tour(coordinatesForNewTour);
     }
 
-    Tour newTourAfterInsertingPathAtCheapestPositionDirectionSensitive(List<Coordinate> coordinates) {
-        GeometryFactory geometryFactory = new GeometryFactory();
-        LineString lineString = geometryFactory.createLineString(coordinates.toArray(new Coordinate[0]));
-
-        double minimumDistance = Double.POSITIVE_INFINITY;
-        int position = -1;
-        for (int i = 0; i < this.coordinates.size() - 1; i++) {
-            Coordinate firstConnectedCoordinate = this.coordinates.get(i);
-            Coordinate secondConnectedCoordinate = this.coordinates.get(i + 1);
-            double distance = firstConnectedCoordinate.distance(lineString.getStartPoint().getCoordinate())
-                    + lineString.getEndPoint().getCoordinate().distance(secondConnectedCoordinate);
-            if (distance < minimumDistance) {
-                minimumDistance = distance;
-                position = i + 1;
-            }
-        }
-        double distance = this.coordinates.get(this.coordinates.size() - 1).distance(lineString.getStartPoint().getCoordinate())
-                + lineString.getEndPoint().getCoordinate().distance(this.coordinates.get(0));
-        if (distance < minimumDistance) {
-            position = 0;
-        }
-
+    private Tour cheapestTourAfterInsertingPathDirectionSensitive(List<Coordinate> coordinates) {
+        int position = Util.findCheapestPositionForGivenPathDirectionSensitive(this.coordinates, coordinates);
         return buildTourMerging(this.coordinates, coordinates, position);
+    }
+
+    Tour cheapestTourAfterInsertingPath(List<Coordinate> coordinates) {
+        Tour bestTour;
+        Tour candidateTourA = this.cheapestTourAfterInsertingPathDirectionSensitive(coordinates);
+
+        List<Coordinate> reversedCoordinates = new ArrayList<>(coordinates);
+        Collections.reverse(reversedCoordinates);
+        Tour candidateTourB = this.cheapestTourAfterInsertingPathDirectionSensitive(reversedCoordinates);
+        if (candidateTourA.getDistance() < candidateTourB.getDistance()) bestTour = candidateTourA;
+        else bestTour = candidateTourB;
+
+        return bestTour;
     }
 
     @Override

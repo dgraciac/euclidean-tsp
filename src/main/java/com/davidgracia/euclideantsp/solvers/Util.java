@@ -2,27 +2,36 @@ package com.davidgracia.euclideantsp.solvers;
 
 import org.locationtech.jts.geom.Coordinate;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Util {
-    // TODO cheapest global
-    public static int findCheapestPositionForGivenMerge(List<Coordinate> coordinates, Coordinate coordinate) {
+class Util {
+    static int findCheapestPositionForGivenCoordinate(List<Coordinate> coordinates, Coordinate coordinate) {
         double minimumDistance = Double.POSITIVE_INFINITY;
         int position = -1;
-        for (int i = 0; i < coordinates.size() - 1; i++) {
-            Coordinate firstCoordinate = coordinates.get(i);
-            Coordinate secondCoordinate = coordinates.get(i + 1);
-            double distance = firstCoordinate.distance(coordinate) + coordinate.distance(secondCoordinate);
+        for (int i = 0; i < coordinates.size(); i++) {
+            List<Coordinate> candidateCoordinates = new ArrayList<>(coordinates);
+            candidateCoordinates.add(i, coordinate);
+            double distance = DistanceCalculator.calculateTourLength(candidateCoordinates);
             if (distance < minimumDistance) {
                 minimumDistance = distance;
-                position = i + 1;
+                position = i;
             }
         }
-        Coordinate lastCoordinate = coordinates.get(coordinates.size() - 1);
-        Coordinate firstCoordinate = coordinates.get(0);
-        double distance = lastCoordinate.distance(coordinate) + coordinate.distance(firstCoordinate);
-        if (distance < minimumDistance) {
-            position = 0;
+        return position;
+    }
+
+    static int findCheapestPositionForGivenPathDirectionSensitive(List<Coordinate> coordinates, List<Coordinate> coordinatesToAdd) {
+        double minimumDistance = Double.POSITIVE_INFINITY;
+        int position = -1;
+        for (int i = 0; i < coordinates.size(); i++) {
+            List<Coordinate> candidateCoordinates = new ArrayList<>(coordinates);
+            candidateCoordinates.addAll(i, coordinatesToAdd);
+            double distance = DistanceCalculator.calculateTourLength(candidateCoordinates);
+            if (distance < minimumDistance) {
+                minimumDistance = distance;
+                position = i;
+            }
         }
         return position;
     }
