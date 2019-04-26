@@ -61,10 +61,47 @@ public class Tour {
 
     Tour newTourAfterInsertingCoordinateAtCheapestPosition(Coordinate coordinate) {
         int position = Util.findCheapestPositionForGivenMerge(this.coordinates, coordinate);
+        return buildTourMerging(coordinates, coordinate, position);
+    }
 
-        List<Coordinate> coordinatesForNewTour = new ArrayList<>(this.coordinates);
+    private Tour buildTourMerging(List<Coordinate> coordinates, Coordinate coordinate, int position) {
+        List<Coordinate> coordinatesForNewTour = new ArrayList<>(coordinates);
         coordinatesForNewTour.add(position, coordinate);
         return new Tour(coordinatesForNewTour);
+    }
+
+    private Tour buildTourMerging(List<Coordinate> firstCoordinates, List<Coordinate> secondCoordinates, int position) {
+        List<Coordinate> coordinatesForNewTour = new ArrayList<>(firstCoordinates);
+        coordinatesForNewTour.addAll(position, secondCoordinates);
+        return new Tour(coordinatesForNewTour);
+    }
+
+    Tour newTourAfterInsertingPathAtCheapestPosition2(List<Coordinate> coordinates) {
+        GeometryFactory geometryFactory = new GeometryFactory();
+        LineString lineString = geometryFactory.createLineString(coordinates.toArray(new Coordinate[0]));
+        double lineStringLength = lineString.getLength();
+
+        double minimumDistance = Double.POSITIVE_INFINITY;
+        int position = -1;
+        for (int i = 0; i < this.coordinates.size() - 1; i++) {
+            Coordinate firstConnectedCoordinate = this.coordinates.get(i);
+            Coordinate secondConnectedCoordinate = this.coordinates.get(i + 1);
+            double distance = firstConnectedCoordinate.distance(lineString.getStartPoint().getCoordinate())
+                    + lineStringLength
+                    + lineString.getEndPoint().getCoordinate().distance(secondConnectedCoordinate);
+            if (distance < minimumDistance) {
+                minimumDistance = distance;
+                position = i + 1;
+            }
+        }
+        double distance = this.coordinates.get(this.coordinates.size() - 1).distance(lineString.getStartPoint().getCoordinate())
+                + lineStringLength
+                + lineString.getEndPoint().getCoordinate().distance(this.coordinates.get(0));
+        if (distance < minimumDistance) {
+            position = 0;
+        }
+
+        return buildTourMerging(this.coordinates, coordinates, position);
     }
 
     Tour newTourAfterInsertingPathAtCheapestPosition(List<Coordinate> coordinates) {
@@ -73,7 +110,7 @@ public class Tour {
         double lineStringLength = lineString.getLength();
 
         double minimumDistance = Double.POSITIVE_INFINITY;
-        int secondPosition = -1;
+        int position = -1;
         boolean reverse = false;
         for (int i = 0; i < this.coordinates.size() - 1; i++) {
             Coordinate firstConnectedCoordinate = this.coordinates.get(i);
@@ -83,7 +120,7 @@ public class Tour {
                     + lineString.getEndPoint().getCoordinate().distance(secondConnectedCoordinate);
             if (distance < minimumDistance) {
                 minimumDistance = distance;
-                secondPosition = i + 1;
+                position = i + 1;
                 reverse = false;
             }
 
@@ -92,7 +129,7 @@ public class Tour {
                     + lineString.getStartPoint().getCoordinate().distance(secondConnectedCoordinate);
             if (distance < minimumDistance) {
                 minimumDistance = distance;
-                secondPosition = i + 1;
+                position = i + 1;
                 reverse = true;
             }
         }
@@ -101,7 +138,7 @@ public class Tour {
                 + lineString.getEndPoint().getCoordinate().distance(this.coordinates.get(0));
         if (distance < minimumDistance) {
             minimumDistance = distance;
-            secondPosition = 0;
+            position = 0;
             reverse = false;
         }
 
@@ -109,7 +146,7 @@ public class Tour {
                 + lineStringLength
                 + lineString.getStartPoint().getCoordinate().distance(this.coordinates.get(0));
         if (distance < minimumDistance) {
-            secondPosition = 0;
+            position = 0;
             reverse = true;
         }
 
@@ -117,9 +154,7 @@ public class Tour {
             Collections.reverse(coordinates);
         }
 
-        List<Coordinate> coordinatesForNewTour = new ArrayList<>(this.coordinates);
-        coordinatesForNewTour.addAll(secondPosition, coordinates);
-        return new Tour(coordinatesForNewTour);
+        return buildTourMerging(this.coordinates, coordinates, position);
     }
 
     @Override
