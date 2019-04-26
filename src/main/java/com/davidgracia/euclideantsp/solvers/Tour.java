@@ -58,14 +58,13 @@ public class Tour {
     }
 
     Tour cheapestTourAfterInsertingCoordinate(Coordinate coordinate) {
-        int position = Util.findCheapestPositionForGivenCoordinate(this.coordinates, coordinate);
+        int position = CheapestTourFinder.findCheapestPositionForGivenCoordinate(this.coordinates, coordinate);
         return buildTourMerging(coordinates, coordinate, position);
     }
 
     private Tour buildTourMerging(List<Coordinate> coordinates, Coordinate coordinateToMerge, int position) {
-        List<Coordinate> coordinatesForNewTour = new ArrayList<>(coordinates);
-        coordinatesForNewTour.add(position, coordinateToMerge);
-        return new Tour(coordinatesForNewTour);
+        List<Coordinate> coordinatesToMerge = List.of(coordinateToMerge);
+        return buildTourMerging(coordinates,coordinatesToMerge,position);
     }
 
     private Tour buildTourMerging(List<Coordinate> firstCoordinates, List<Coordinate> coordinatesToMerge, int position) {
@@ -75,7 +74,7 @@ public class Tour {
     }
 
     private Tour cheapestTourAfterInsertingPathDirectionSensitive(List<Coordinate> coordinates) {
-        int position = Util.findCheapestPositionForGivenPathDirectionSensitive(this.coordinates, coordinates);
+        int position = CheapestTourFinder.findCheapestPositionForGivenPathDirectionSensitive(this.coordinates, coordinates);
         return buildTourMerging(this.coordinates, coordinates, position);
     }
 

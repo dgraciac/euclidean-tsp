@@ -45,7 +45,7 @@ public class SolverA implements Euclidean2DTSPSolver {
                 unconnectedCoordinates.remove(0);
             } else {
                 Coordinate coordinateToMerge = unconnectedCoordinates.get(0);
-                int position = Util.findCheapestPositionForGivenCoordinate(connectedCoordinates, coordinateToMerge);
+                int position = CheapestTourFinder.findCheapestPositionForGivenCoordinate(connectedCoordinates, coordinateToMerge);
                 connectedCoordinates.add(position, coordinateToMerge);
                 unconnectedCoordinates.remove(coordinateToMerge);
             }
