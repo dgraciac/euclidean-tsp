@@ -16,12 +16,11 @@ public class SolverA implements Euclidean2DTSPSolver {
 
     @Override
     public Tour compute(Euclidean2DTSPInstance instance) {
-        Coordinate[] coordinates = instance.coordinates.toArray(new Coordinate[instance.coordinates.size()]);
+        Coordinate[] coordinates = instance.coordinates.toArray(new Coordinate[0]);
 
         ConvexHull convexHullNoGeom = new ConvexHull(coordinates, new GeometryFactory());
         Geometry convexHull = convexHullNoGeom.getConvexHull();
         List<Coordinate> listOfConnectedCoordinates = getListOfConnectedCoordinates(convexHull);
-
 
         Set<Coordinate> setOfConnectedCoordinates = Set.copyOf(listOfConnectedCoordinates);
         List<Coordinate> listOfUnconnectedCoordinates = Set.of(coordinates).stream()
@@ -30,10 +29,22 @@ public class SolverA implements Euclidean2DTSPSolver {
         while (!listOfUnconnectedCoordinates.isEmpty()) {
             if (listOfUnconnectedCoordinates.size() > 2) {
 
-            //} else if (listOfUnconnectedCoordinates.size() > 1) {
-/*                List<Coordinate> remainingCoordinates = new ArrayList<>(listOfUnconnectedCoordinates);
-                Tour candidateTour = TourMapper.toTour(listOfConnectedCoordinates);
-                candidateTour.insertPathAtCheapestPosition(remainingCoordinates);*/
+            } else if (listOfUnconnectedCoordinates.size() > 1) {
+                List<Coordinate> remainingCoordinates = new ArrayList<>(listOfUnconnectedCoordinates);
+                Tour candidateTour1 = new Tour(listOfConnectedCoordinates);
+                candidateTour1 = candidateTour1.newTourAfterInsertingPathAtCheapestPosition(remainingCoordinates);
+
+                Tour candidateTour2 = new Tour(listOfConnectedCoordinates);
+                candidateTour2 = candidateTour2.newTourAfterInsertingCoordinateAtCheapestPosition(remainingCoordinates.get(0));
+                candidateTour2 = candidateTour2.newTourAfterInsertingCoordinateAtCheapestPosition(remainingCoordinates.get(1));
+
+                if(candidateTour1.getDistance() < candidateTour2.getDistance()) {
+                    listOfConnectedCoordinates = candidateTour1.getCoordinates();
+                } else {
+                    listOfConnectedCoordinates = candidateTour2.getCoordinates();
+                }
+                listOfUnconnectedCoordinates.remove(0);
+                listOfUnconnectedCoordinates.remove(0);
             } else {
                 Coordinate coordinate = listOfUnconnectedCoordinates.get(0);
                 int position = findCheapestPositionInTheCurrentTour(listOfConnectedCoordinates, coordinate);

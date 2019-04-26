@@ -20,7 +20,9 @@ public class BruteForce implements Euclidean2DTSPSolver {
             if (indexes[i] < i) {
                 swap(coordinates, i % 2 == 0 ? 0 : indexes[i], i);
                 Tour tour = new Tour(coordinates);
-                if (tour.getDistance() < bestTour.getDistance()) bestTour = tour;
+                if (tour.getDistance() < bestTour.getDistance()) {
+                    bestTour = tour;
+                }
                 indexes[i]++;
                 i = 0;
             } else {

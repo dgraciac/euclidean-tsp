@@ -2,6 +2,7 @@ package com.davidgracia.euclideantsp.solvers;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 
 import java.util.*;
 
@@ -29,16 +30,8 @@ public class Tour {
     }
 
     public double getDistance() {
-        return distance == NOT_CALCULATED_YET ? distance = calculateDistance(this.coordinates) : distance;
-    }
-
-    private double calculateDistance(List<Coordinate> coordinates) {
-        double distance = 0;
-        for (int i = 0; i < coordinates.size() - 1; i++) {
-            distance += coordinates.get(i).distance(coordinates.get(i + 1));
-        }
-        distance += coordinates.get(coordinates.size() - 1).distance(coordinates.get(0));
-        return distance;
+        return distance == NOT_CALCULATED_YET ?
+                distance = DistanceCalculator.calculateTourLength(this.coordinates) : distance;
     }
 
     public List<Coordinate> getCoordinates() {
@@ -66,6 +59,85 @@ public class Tour {
         return areEquals;
     }
 
+    public Tour newTourAfterInsertingCoordinateAtCheapestPosition(Coordinate coordinate) {
+        double minimumDistance = Double.POSITIVE_INFINITY;
+        int secondPosition = -1;
+        for (int i = 0; i < this.coordinates.size() - 1; i++) {
+            Coordinate firstConnectedCoordinate = this.coordinates.get(i);
+            Coordinate secondConnectedCoordinate = this.coordinates.get(i + 1);
+            double distance = firstConnectedCoordinate.distance(coordinate)
+                    + coordinate.distance(secondConnectedCoordinate);
+            if (distance < minimumDistance) {
+                minimumDistance = distance;
+                secondPosition = i + 1;
+            }
+        }
+        double distance = this.coordinates.get(this.coordinates.size() - 1).distance(coordinate)
+                + coordinate.distance(this.coordinates.get(0));
+        if (distance < minimumDistance) {
+            secondPosition = 0;
+        }
+
+        List<Coordinate> coordinatesForNewTour = new ArrayList<>(this.coordinates);
+        coordinatesForNewTour.add(secondPosition, coordinate);
+        return new Tour(coordinatesForNewTour);
+    }
+
+    public Tour newTourAfterInsertingPathAtCheapestPosition(List<Coordinate> coordinates) {
+        GeometryFactory geometryFactory = new GeometryFactory();
+        LineString lineString = geometryFactory.createLineString(coordinates.toArray(new Coordinate[0]));
+        double lineStringLength = lineString.getLength();
+
+        double minimumDistance = Double.POSITIVE_INFINITY;
+        int secondPosition = -1;
+        boolean reverse = false;
+        for (int i = 0; i < this.coordinates.size() - 1; i++) {
+            Coordinate firstConnectedCoordinate = this.coordinates.get(i);
+            Coordinate secondConnectedCoordinate = this.coordinates.get(i + 1);
+            double distance = firstConnectedCoordinate.distance(lineString.getStartPoint().getCoordinate())
+                    + lineStringLength
+                    + lineString.getEndPoint().getCoordinate().distance(secondConnectedCoordinate);
+            if (distance < minimumDistance) {
+                minimumDistance = distance;
+                secondPosition = i + 1;
+                reverse = false;
+            }
+
+            distance = firstConnectedCoordinate.distance(lineString.getEndPoint().getCoordinate())
+                    + lineStringLength
+                    + lineString.getStartPoint().getCoordinate().distance(secondConnectedCoordinate);
+            if (distance < minimumDistance) {
+                minimumDistance = distance;
+                secondPosition = i + 1;
+                reverse = true;
+            }
+        }
+        double distance = this.coordinates.get(this.coordinates.size() - 1).distance(lineString.getStartPoint().getCoordinate())
+                + lineStringLength
+                + lineString.getEndPoint().getCoordinate().distance(this.coordinates.get(0));
+        if (distance < minimumDistance) {
+            minimumDistance = distance;
+            secondPosition = 0;
+            reverse = false;
+        }
+
+        distance = this.coordinates.get(this.coordinates.size() - 1).distance(lineString.getEndPoint().getCoordinate())
+                + lineStringLength
+                + lineString.getStartPoint().getCoordinate().distance(this.coordinates.get(0));
+        if (distance < minimumDistance) {
+            secondPosition = 0;
+            reverse = true;
+        }
+
+        if (reverse) {
+            Collections.reverse(coordinates);
+        }
+
+        List<Coordinate> coordinatesForNewTour = new ArrayList<>(this.coordinates);
+        coordinatesForNewTour.addAll(secondPosition, coordinates);
+        return new Tour(coordinatesForNewTour);
+    }
+
     @Override
     public int hashCode() {
         //TODO
@@ -74,16 +146,10 @@ public class Tour {
 
     @Override
     public String toString() {
-        return "Tour{" + coordinates + ", d=" + getDistance() + "}";
-    }
-
-    public void insertPathAtCheapestPosition(List<Coordinate> coordinates) {
-        GeometryFactory f = new GeometryFactory();
-        //
-        double minimumDistance = Double.POSITIVE_INFINITY;
-        for (int i = 0; i < this.coordinates.size() - 1; i++) {
-//            Coordinate firstConnectedCoordinate = CoordinateMapper.toCoordinate(this.coordinates.get(i));
-            //double distance = firstConnectedCoordinate.distance()
-        }
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Tour{");
+        coordinates.forEach(coordinate -> stringBuilder.append('(').append(coordinate.x).append(',').append(coordinate.y).append(')'));
+        stringBuilder.append(", d=").append(getDistance()).append("}");
+        return stringBuilder.toString();
     }
 }
