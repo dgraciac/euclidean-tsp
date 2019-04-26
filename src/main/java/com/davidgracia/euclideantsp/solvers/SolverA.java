@@ -8,6 +8,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class SolverA implements Euclidean2DTSPSolver {
 
@@ -25,7 +26,12 @@ public class SolverA implements Euclidean2DTSPSolver {
 
         while (!unconnectedCoordinates.isEmpty()) {
             if (unconnectedCoordinates.size() > 2) {
-
+                List<Coordinate> remainingCoordinates = new ArrayList<>(unconnectedCoordinates);
+                Tour candidateTour2 = new Tour(connectedCoordinates);
+                for (int i = 0; i < remainingCoordinates.size(); i++) {
+                    candidateTour2 = candidateTour2.cheapestTourAfterInsertingCoordinate(remainingCoordinates.get(i));
+                }
+                IntStream.range(0, unconnectedCoordinates.size()).forEach(value -> unconnectedCoordinates.remove(0));
             } else if (unconnectedCoordinates.size() > 1) {
                 List<Coordinate> remainingCoordinates = new ArrayList<>(unconnectedCoordinates);
 
@@ -36,13 +42,12 @@ public class SolverA implements Euclidean2DTSPSolver {
                 candidateTour2 = candidateTour2.cheapestTourAfterInsertingCoordinate(remainingCoordinates.get(0));
                 candidateTour2 = candidateTour2.cheapestTourAfterInsertingCoordinate(remainingCoordinates.get(1));
 
-                if(candidateTour1.getDistance() < candidateTour2.getDistance()) {
+                if (candidateTour1.getDistance() < candidateTour2.getDistance()) {
                     connectedCoordinates = candidateTour1.getCoordinates();
                 } else {
                     connectedCoordinates = candidateTour2.getCoordinates();
                 }
-                unconnectedCoordinates.remove(0);
-                unconnectedCoordinates.remove(0);
+                IntStream.range(0, unconnectedCoordinates.size()).forEach(value -> unconnectedCoordinates.remove(0));
             } else {
                 Coordinate coordinateToMerge = unconnectedCoordinates.get(0);
                 int position = CheapestTourFinder.findCheapestPositionForGivenCoordinate(connectedCoordinates, coordinateToMerge);
@@ -59,7 +64,7 @@ public class SolverA implements Euclidean2DTSPSolver {
         List<Coordinate> coordinates = new ArrayList<>(Arrays.asList(coordinatesArray));
         int size = coordinates.size();
         int lastElement = size - 1;
-        if(size > 1 && coordinates.get(0).equals2D(coordinates.get(lastElement))) {
+        if (size > 1 && coordinates.get(0).equals2D(coordinates.get(lastElement))) {
             coordinates.remove(lastElement);
         }
         return coordinates;

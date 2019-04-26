@@ -61,4 +61,14 @@ class Euclidean2DTSPInstances {
                     new Coordinate(6, 2))
     );
 
+    static final Euclidean2DTSPInstance INSTANCE_7 = new Euclidean2DTSPInstance(
+            Arrays.asList(
+                    new Coordinate(0, 0),
+                    new Coordinate(18, 0),
+                    new Coordinate(9, 18),
+                    new Coordinate(2, 1),
+                    new Coordinate(3, 1),
+                    new Coordinate(3, 2))
+    );
+
 }
