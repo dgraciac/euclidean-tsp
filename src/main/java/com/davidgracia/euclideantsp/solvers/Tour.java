@@ -19,17 +19,17 @@ public class Tour {
         distance = NOT_CALCULATED_YET;
     }
 
-    public Tour(Coordinate[] coordinates) {
+    Tour(Coordinate[] coordinates) {
         this.coordinates = List.of(coordinates);
         distance = NOT_CALCULATED_YET;
     }
 
-    public Tour(List<Coordinate> listOfConnectedCoordinates) {
+    Tour(List<Coordinate> listOfConnectedCoordinates) {
         coordinates = Collections.unmodifiableList(listOfConnectedCoordinates);
         distance = NOT_CALCULATED_YET;
     }
 
-    public double getDistance() {
+    double getDistance() {
         return distance == NOT_CALCULATED_YET ?
                 distance = DistanceCalculator.calculateTourLength(this.coordinates) : distance;
     }
@@ -59,31 +59,15 @@ public class Tour {
         return areEquals;
     }
 
-    public Tour newTourAfterInsertingCoordinateAtCheapestPosition(Coordinate coordinate) {
-        double minimumDistance = Double.POSITIVE_INFINITY;
-        int secondPosition = -1;
-        for (int i = 0; i < this.coordinates.size() - 1; i++) {
-            Coordinate firstConnectedCoordinate = this.coordinates.get(i);
-            Coordinate secondConnectedCoordinate = this.coordinates.get(i + 1);
-            double distance = firstConnectedCoordinate.distance(coordinate)
-                    + coordinate.distance(secondConnectedCoordinate);
-            if (distance < minimumDistance) {
-                minimumDistance = distance;
-                secondPosition = i + 1;
-            }
-        }
-        double distance = this.coordinates.get(this.coordinates.size() - 1).distance(coordinate)
-                + coordinate.distance(this.coordinates.get(0));
-        if (distance < minimumDistance) {
-            secondPosition = 0;
-        }
+    Tour newTourAfterInsertingCoordinateAtCheapestPosition(Coordinate coordinate) {
+        int position = Util.findCheapestPositionForGivenMerge(this.coordinates, coordinate);
 
         List<Coordinate> coordinatesForNewTour = new ArrayList<>(this.coordinates);
-        coordinatesForNewTour.add(secondPosition, coordinate);
+        coordinatesForNewTour.add(position, coordinate);
         return new Tour(coordinatesForNewTour);
     }
 
-    public Tour newTourAfterInsertingPathAtCheapestPosition(List<Coordinate> coordinates) {
+    Tour newTourAfterInsertingPathAtCheapestPosition(List<Coordinate> coordinates) {
         GeometryFactory geometryFactory = new GeometryFactory();
         LineString lineString = geometryFactory.createLineString(coordinates.toArray(new Coordinate[0]));
         double lineStringLength = lineString.getLength();
