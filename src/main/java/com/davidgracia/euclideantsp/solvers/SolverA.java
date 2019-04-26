@@ -28,16 +28,18 @@ public class SolverA implements Euclidean2DTSPSolver {
 
         while (!unconnectedCoordinates.isEmpty()) {
             if (unconnectedCoordinates.size() > 2) {
-                List<Coordinate> remainingCoordinates = new ArrayList<>(unconnectedCoordinates);
-                Tour candidateTour = new Tour(connectedCoordinates);
+                if(unconnectedCoordinates.size() == 3) {
+                    List<Coordinate> remainingCoordinates = new ArrayList<>(unconnectedCoordinates);
+                    Tour candidateTour = new Tour(connectedCoordinates);
 
-                while (!remainingCoordinates.isEmpty()) {
-                    candidateTour = candidateTour.cheapestTourAfterInsertingBestCoordinateOf(remainingCoordinates);
-                    remainingCoordinates.removeAll(candidateTour.getCoordinates());
+                    while (!remainingCoordinates.isEmpty()) {
+                        candidateTour = candidateTour.cheapestTourAfterInsertingBestCoordinateOf(remainingCoordinates);
+                        remainingCoordinates.removeAll(candidateTour.getCoordinates());
+                    }
+
+                    connectedCoordinates = candidateTour.getCoordinates();
+                    unconnectedCoordinates = new ArrayList<>();
                 }
-
-                connectedCoordinates = candidateTour.getCoordinates();
-                unconnectedCoordinates = new ArrayList<>();
             } else if (unconnectedCoordinates.size() > 1) {
                 List<Coordinate> remainingCoordinates = new ArrayList<>(unconnectedCoordinates);
 
