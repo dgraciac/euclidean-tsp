@@ -21,7 +21,7 @@ class SolverATest {
         bruteForce = new BruteForce();
     }
 
-    @ParameterizedTest
+    //@ParameterizedTest
     @ArgumentsSource(TSPInstancesProvider.class) void
     solve_instances(Euclidean2DTSPInstance instance) {
         Tour tour = algorithm.compute(instance);
