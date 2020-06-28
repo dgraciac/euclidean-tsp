@@ -1,6 +1,6 @@
 package com.davidgracia.euclideantsp.test;
 
-import com.davidgracia.euclideantsp.Euclidean2DTSPInstance;
+import com.github.dgraciac.euclideantsp.Euclidean2DTSPInstance;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.util.Arrays;

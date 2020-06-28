@@ -1,6 +1,8 @@
 package com.davidgracia.euclideantsp.solvers;
 
-import com.davidgracia.euclideantsp.Euclidean2DTSPInstance;
+import com.github.dgraciac.euclideantsp.Euclidean2DTSPInstance;
+import com.github.dgraciac.euclideantsp.Euclidean2DTSPSolver;
+import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.algorithm.ConvexHull;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -13,7 +15,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SolverA implements Euclidean2DTSPSolver {
-
+    @NotNull
+    @Override
+    public Tour compute(@NotNull Euclidean2DTSPInstance instance) {
+        return null;
+    }
+/*
     @Override
     public Tour compute(Euclidean2DTSPInstance instance) {
         Coordinate[] coordinates = instance.coordinates.toArray(new Coordinate[0]);
@@ -80,5 +87,5 @@ public class SolverA implements Euclidean2DTSPSolver {
             coordinates.remove(lastElement);
         }
         return coordinates;
-    }
+    }*/
 }

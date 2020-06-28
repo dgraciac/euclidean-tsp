@@ -1,6 +1,5 @@
 package com.davidgracia.euclideantsp.test;
 
-import com.davidgracia.euclideantsp.Euclidean2DTSPInstance;
 import com.davidgracia.euclideantsp.solvers.BruteForce;
 import com.davidgracia.euclideantsp.solvers.Tour;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +11,7 @@ import java.util.List;
 
 class BruteForceTest {
 
-    private BruteForce algorithm;
+/*    private BruteForce algorithm;
 
     @BeforeEach
     void setUp() {
@@ -36,5 +35,5 @@ class BruteForceTest {
         }
         Coordinate point = points.get(points.size() - 1);
         System.out.println("new " + Coordinate.class.getSimpleName() + "(" + point.x + ", " + point.y + ")");
-    }
+    }*/
 }

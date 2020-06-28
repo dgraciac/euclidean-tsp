@@ -1,11 +1,10 @@
 package com.davidgracia.euclideantsp.test;
 
-import com.davidgracia.euclideantsp.Euclidean2DTSPInstance;
 import com.davidgracia.euclideantsp.solvers.BruteForce;
 import com.davidgracia.euclideantsp.solvers.SolverA;
 import com.davidgracia.euclideantsp.solvers.Tour;
+import com.github.dgraciac.euclideantsp.Euclidean2DTSPInstance;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import static org.assertj.core.api.Assertions.assertThat;

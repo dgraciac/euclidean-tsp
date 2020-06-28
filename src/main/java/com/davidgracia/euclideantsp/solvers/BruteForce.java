@@ -1,10 +1,17 @@
 package com.davidgracia.euclideantsp.solvers;
 
-import com.davidgracia.euclideantsp.Euclidean2DTSPInstance;
+import com.github.dgraciac.euclideantsp.Euclidean2DTSPInstance;
+import com.github.dgraciac.euclideantsp.Euclidean2DTSPSolver;
+import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.Coordinate;
 
 public class BruteForce implements Euclidean2DTSPSolver {
-    public Tour compute(Euclidean2DTSPInstance instance) {
+    @NotNull
+    @Override
+    public Tour compute(@NotNull Euclidean2DTSPInstance instance) {
+        return null;
+    }
+/*    public Tour compute(Euclidean2DTSPInstance instance) {
         Coordinate[] coordinates = new Coordinate[instance.coordinates.size()];
         instance.coordinates.toArray(coordinates);
 
@@ -37,5 +44,5 @@ public class BruteForce implements Euclidean2DTSPSolver {
         Coordinate tmp = input[a];
         input[a] = input[b];
         input[b] = tmp;
-    }
+    }*/
 }
