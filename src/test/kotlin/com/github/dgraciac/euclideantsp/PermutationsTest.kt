@@ -38,23 +38,3 @@ internal class PermutationsTest {
             )
     }
 }
-
-private fun <E> List<E>.permute(): List<List<E>> {
-    return when (this.size) {
-        0 -> emptyList()
-        1 -> listOf(this)
-        else -> {
-            val map: List<List<List<E>>> = this.map { element: E ->
-                val minusElement = this.minusElement(element)
-                val subPermutations = minusElement.permute()
-                val map: List<List<E>> = subPermutations.map { subPermutation: List<E> ->
-                    val plus = listOf(element).plus(subPermutation)
-                    plus
-                }
-                map
-            }.
-            map
-        }
-        }
-    }
-}
