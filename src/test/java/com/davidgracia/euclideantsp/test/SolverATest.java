@@ -1,6 +1,6 @@
 package com.davidgracia.euclideantsp.test;
 
-import com.davidgracia.euclideantsp.solvers.BruteForce;
+
 import com.davidgracia.euclideantsp.solvers.SolverA;
 import com.davidgracia.euclideantsp.solvers.Tour;
 import com.github.dgraciac.euclideantsp.Euclidean2DTSPInstance;
@@ -10,7 +10,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SolverATest {
-    private SolverA algorithm;
+/*    private SolverA algorithm;
 
     private BruteForce bruteForce;
 
@@ -29,5 +29,5 @@ class SolverATest {
         System.out.println("Efficient solution  : " + tour);
         System.out.println("==============================================");
         assertThat(tour.equals(optimalTour) || tour.getDistance() == optimalTour.getDistance()).isTrue();
-    }
+    }*/
 }

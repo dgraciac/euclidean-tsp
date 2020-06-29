@@ -7,7 +7,7 @@ import org.locationtech.jts.geom.Coordinate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TourTest {
-    @Test void
+/*    @Test void
     equality1() {
         Coordinate a = new Coordinate(3, 6);
         Coordinate b = new Coordinate(5, 9);
@@ -71,6 +71,6 @@ class TourTest {
         Tour tour2 = new Tour(a, c, b);
 
         assertThat(tour1).isEqualTo(tour2);
-    }
+    }*/
 
 }

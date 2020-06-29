@@ -5,7 +5,7 @@ import org.locationtech.jts.geom.Coordinate;
 import java.util.*;
 
 public class Tour {
-    private final List<Coordinate> coordinates;
+/*    private final List<Coordinate> coordinates;
     private final double distance;
 
     public Tour(Coordinate coordinate, Coordinate... otherCoordinates) {
@@ -116,5 +116,5 @@ public class Tour {
         coordinates.forEach(coordinate -> stringBuilder.append('(').append(coordinate.x).append(',').append(coordinate.y).append(')'));
         stringBuilder.append(", d=").append(getDistance()).append("}");
         return stringBuilder.toString();
-    }
+    }*/
 }

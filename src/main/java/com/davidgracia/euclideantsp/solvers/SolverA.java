@@ -14,12 +14,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SolverA implements Euclidean2DTSPSolver {
-    @NotNull
+public class SolverA
+//        implements Euclidean2DTSPSolver
+{
+/*    @NotNull
     @Override
     public Tour compute(@NotNull Euclidean2DTSPInstance instance) {
         return null;
-    }
+    }*/
 /*
     @Override
     public Tour compute(Euclidean2DTSPInstance instance) {

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class CheapestTourFinder {
-    static int findCheapestPositionForGivenCoordinate(List<Coordinate> coordinates, Coordinate coordinate) {
+/*    static int findCheapestPositionForGivenCoordinate(List<Coordinate> coordinates, Coordinate coordinate) {
         List<Coordinate> coordinatesToAdd = List.of(coordinate);
         return findCheapestPositionForGivenPathDirectionSensitive(coordinates, coordinatesToAdd);
     }
@@ -24,5 +24,5 @@ class CheapestTourFinder {
             }
         }
         return position;
-    }
+    }*/
 }
