@@ -1,10 +1,12 @@
 package com.github.dgraciac.euclideantsp
 
+import com.github.dgraciac.euclideantsp.bruteforce.BruteForce
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 
 internal class BruteForceTest {
-    private val algorithm: BruteForce = BruteForce()
+    private val algorithm: BruteForce =
+        BruteForce()
 
     @ParameterizedTest
     @ArgumentsSource(TSPInstancesProvider::class)
