@@ -1,6 +1,5 @@
 package com.github.dgraciac.euclideantsp
 
-import com.github.dgraciac.euclideantsp.bruteforce.BruteForce
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 

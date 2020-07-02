@@ -1,7 +1,5 @@
 package com.github.dgraciac.euclideantsp
 
-import org.locationtech.jts.geom.Coordinate
-
 fun <E> List<E>.permute(): List<List<E>> {
     return when (this.size) {
         0 -> throw IllegalArgumentException()
@@ -12,11 +10,4 @@ fun <E> List<E>.permute(): List<List<E>> {
             }
         }.reduce { first, second -> first.plus(second) }
     }
-}
-
-fun List<Coordinate>.distance(): Double {
-    return this.plus(this.first())
-        .zipWithNext { first: Coordinate, second: Coordinate ->
-            first.distance(second)
-        }.reduce { acc: Double, d: Double -> acc + d }
 }
