@@ -8,13 +8,7 @@ import java.util.stream.Stream
 class TSPInstancesProvider : ArgumentsProvider {
     override fun provideArguments(context: ExtensionContext): Stream<Arguments> {
         return Stream.of(
-            Arguments.of(Euclidean2DTSPInstances.INSTANCE_1),
-            Arguments.of(Euclidean2DTSPInstances.INSTANCE_2),
-            Arguments.of(Euclidean2DTSPInstances.INSTANCE_3),
-            Arguments.of(Euclidean2DTSPInstances.INSTANCE_4),
-            Arguments.of(Euclidean2DTSPInstances.INSTANCE_5),
-            Arguments.of(Euclidean2DTSPInstances.INSTANCE_6),
-            Arguments.of(Euclidean2DTSPInstances.INSTANCE_7)
+            Arguments.of(Euclidean2DTSPInstances.INSTANCE_1)
         )
     }
 }
