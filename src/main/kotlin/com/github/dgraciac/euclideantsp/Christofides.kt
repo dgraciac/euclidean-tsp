@@ -25,7 +25,9 @@ class Christofides : Euclidean2DTSPSolver {
     }
 
     private fun Graph<Point, DefaultWeightedEdge>.addVertices(instance: Euclidean2DTSPInstance): Graph<Point, DefaultWeightedEdge> {
-        instance.points.map { point: Point -> this.addVertex(point).let { if (!it) throw RuntimeException("Vertex not added") } }
+        instance.points.map { point: Point ->
+            this.addVertex(point).let { if (!it) throw RuntimeException("Vertex not added") }
+        }
         return this
     }
 
