@@ -20,35 +20,28 @@ class Christofides : Euclidean2DTSPSolver {
 
     private fun buildGraph(instance: Euclidean2DTSPInstance): Graph<Point, DefaultWeightedEdge> {
         return DefaultUndirectedWeightedGraph<Point, DefaultWeightedEdge>(DefaultWeightedEdge::class.java)
-            .also { graph: DefaultUndirectedWeightedGraph<Point, DefaultWeightedEdge> ->
-                addVertices(instance, graph)
-                addEdges(instance, graph)
-            }
+            .addVertices(instance)
+            .addEdges(instance)
     }
 
-    private fun addVertices(
-        instance: Euclidean2DTSPInstance,
-        graph: Graph<Point, DefaultWeightedEdge>
-    ) {
-        instance.points.map { point: Point -> graph.addVertex(point) }
-            .forEach { if (!it) throw RuntimeException("Vertex not added") }
+    private fun Graph<Point, DefaultWeightedEdge>.addVertices(instance: Euclidean2DTSPInstance): Graph<Point, DefaultWeightedEdge> {
+        instance.points.map { point: Point -> this.addVertex(point).let { if (!it) throw RuntimeException("Vertex not added") } }
+        return this
     }
 
-    private fun addEdges(
-        instance: Euclidean2DTSPInstance,
-        graph: Graph<Point, DefaultWeightedEdge>
-    ) {
+    private fun Graph<Point, DefaultWeightedEdge>.addEdges(instance: Euclidean2DTSPInstance): Graph<Point, DefaultWeightedEdge> {
         for (i: Int in 0 until instance.points.size - 1)
             for (j: Int in i + 1 until instance.points.size) {
                 val point1: Point = instance.points[i]
                 val point2: Point = instance.points[j]
-                graph.addEdge(point1, point2).let { defaultWeightedEdge: DefaultWeightedEdge? ->
+                this.addEdge(point1, point2).let { defaultWeightedEdge: DefaultWeightedEdge? ->
                     when (defaultWeightedEdge) {
                         null -> throw RuntimeException("Edge not added")
-                        else -> graph.setEdgeWeight(defaultWeightedEdge, point1.distance(point2))
+                        else -> this.setEdgeWeight(defaultWeightedEdge, point1.distance(point2))
                     }
                 }
             }
+        return this
     }
 }
 
