@@ -56,7 +56,7 @@ class SolverA : Euclidean2DTSPSolver {
             val pairs: MutableList<Pair<Point, Point>> = connectedPoints
                 .zipWithNext()
                 .toMutableList()
-                .also { it.add(Pair(connectedPoints[connectedPoints.size - 1], connectedPoints[0])) }
+                .also { it.add(Pair(connectedPoints.last(), connectedPoints.first())) }
             pairs.minBy { pair: Pair<Point, Point> ->
                 lengthAfterInsertBetweenPairOfPoints(pair, unconnectedPoint)
             }?.let {
@@ -67,7 +67,7 @@ class SolverA : Euclidean2DTSPSolver {
         val pairs: MutableList<Pair<Point, Point>> = connectedPoints
             .zipWithNext()
             .toMutableList()
-            .also { it.add(Pair(connectedPoints[connectedPoints.size - 1], connectedPoints[0])) }
+            .also { it.add(Pair(connectedPoints.last(), connectedPoints.first())) }
         val bestPair: Pair<Point, Point> = pairs.minBy { pair: Pair<Point, Point> ->
             lengthAfterInsertBetweenPairOfPoints(pair, bestUnconnected)
         } ?: throw RuntimeException("Null best pair")
