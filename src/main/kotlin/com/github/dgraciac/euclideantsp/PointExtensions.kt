@@ -7,4 +7,6 @@ fun Point.toCoordinate(): Coordinate = Coordinate(x, y)
 
 fun Point.distance(point2: Point): Double = toCoordinate().distance(point2.toCoordinate())
 
+fun Point.toJTSPoint(): org.locationtech.jts.geom.Point = toCoordinate().toJTSPoint()
+
 fun List<Point>.length(): Double = map(Point::toCoordinate).length()

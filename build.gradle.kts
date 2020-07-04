@@ -153,8 +153,9 @@ allprojects {
         "implementation"(kotlin("stdlib-jdk8"))
         "implementation"(kotlin("reflect"))
         "implementation"("javax.inject:javax.inject:1")
-        "implementation"("org.locationtech.jts:jts-core:1.16.1")
+        "implementation"("org.locationtech.jts:jts-core:1.17.0")
         "implementation"("org.jgrapht:jgrapht-core:1.5.0")
+        "implementation"("com.google.guava:guava:29.0-jre")
 
         "testRuntimeOnly"("org.junit.jupiter:junit-jupiter-engine:5.6.2")
         "testImplementation"("org.junit.jupiter:junit-jupiter-api:5.6.2")
