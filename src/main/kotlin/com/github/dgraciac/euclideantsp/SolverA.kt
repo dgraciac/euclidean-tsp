@@ -40,7 +40,7 @@ class SolverA : Euclidean2DTSPSolver {
             val bestInsertion: Pair<Point, Pair<Point, Point>> =
                 findBestInsertion(unconnectedPoints, connectedPoints)
 
-            connectedPoints.add(connectedPoints.indexOf(bestInsertion.second.first), bestInsertion.first)
+            connectedPoints.add(connectedPoints.indexOf(bestInsertion.second.second), bestInsertion.first)
             unconnectedPoints.remove(bestInsertion.first)
         }
 
