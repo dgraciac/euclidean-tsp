@@ -1,11 +1,11 @@
 package com.github.dgraciac.euclideantsp
 
+import com.github.dgraciac.euclideantsp.jts.createPolygon
 import com.github.dgraciac.euclideantsp.jts.lengthAfterInsertBetweenPairOfPoints
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPInstance
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPSolver
 import com.github.dgraciac.euclideantsp.shared.Tour
-import com.google.common.collect.Sets
-import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.algorithm.ConvexHull
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Point
 import org.locationtech.jts.geom.Polygon
@@ -16,19 +16,14 @@ class SolverA : Euclidean2DTSPSolver {
 
         if (instance.points.size == 3) return Tour(instance.points)
 
-        val geometryFactory = GeometryFactory()
         val unconnectedPoints: MutableSet<Point> = instance.points.toJTSPoints().toMutableSet()
 
-        val combinationsOf3Points: List<MutableList<Point>> =
-            Sets.combinations(unconnectedPoints.toSet(), 3).map { it.toMutableList() }
+        val centroid: Point = centroid(instance)
 
-        val polygon: Polygon =
-            combinationsOf3Points.map { it.toTypedArray().plus(it[0]) }.map {
-                it.map { point: Point -> point.coordinate }
-                    .toTypedArray()
-                    .let { arrayOfCoordinates: Array<Coordinate> -> geometryFactory.createPolygon(arrayOfCoordinates) }
-            }.find { triangle: Polygon -> unconnectedPoints.none { triangle.contains(it) } }
-                ?: throw RuntimeException("Triangle not found")
+        val unconnectedPointsSortedByDistanceToCentroid: List<Point> =
+            unconnectedPoints.sortedBy { it.distance(centroid) }
+
+        val polygon: Polygon = createPolygon(unconnectedPointsSortedByDistanceToCentroid.take(3))
 
         unconnectedPoints.removeAll(polygon.coordinates.map { it.toJTSPoint() })
             .let { removed -> if (!removed) throw RuntimeException("Points not removed") }
@@ -46,6 +41,9 @@ class SolverA : Euclidean2DTSPSolver {
 
         return Tour(points = connectedPoints.map { com.github.dgraciac.euclideantsp.shared.Point(it.x, it.y) })
     }
+
+    private fun centroid(instance: Euclidean2DTSPInstance): Point =
+        ConvexHull(instance.points.map { it.toCoordinate() }.toTypedArray(), GeometryFactory()).convexHull.centroid
 
     private fun findBestInsertion(
         unconnectedPoints: MutableSet<Point>,

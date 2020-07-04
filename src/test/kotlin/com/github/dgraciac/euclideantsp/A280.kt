@@ -3,7 +3,6 @@ package com.github.dgraciac.euclideantsp
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPInstance
 import com.github.dgraciac.euclideantsp.shared.Point
 
-
 // Point (0.0, 25.0) appears twice in the original instance of TSPLIB, so the second occurrence has been removed.
 
 val A_280 = Euclidean2DTSPInstance(
