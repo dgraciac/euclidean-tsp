@@ -68,6 +68,7 @@ class SolverA : Euclidean2DTSPSolver {
             .zipWithNext()
             .toMutableList()
             .also { it.add(Pair(connectedPoints.last(), connectedPoints.first())) }
+
         val bestPair: Pair<Point, Point> = pairs.minBy { pair: Pair<Point, Point> ->
             lengthAfterInsertBetweenPairOfPoints(pair, bestUnconnected)
         } ?: throw RuntimeException("Null best pair")
