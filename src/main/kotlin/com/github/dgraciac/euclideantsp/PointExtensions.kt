@@ -10,3 +10,5 @@ fun Point.distance(point2: Point): Double = toCoordinate().distance(point2.toCoo
 fun Point.toJTSPoint(): org.locationtech.jts.geom.Point = toCoordinate().toJTSPoint()
 
 fun List<Point>.length(): Double = map(Point::toCoordinate).length()
+
+fun List<Point>.toJTSPoints(): List<org.locationtech.jts.geom.Point> = map { it.toJTSPoint() }

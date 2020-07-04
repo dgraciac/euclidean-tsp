@@ -1,5 +1,6 @@
 package com.github.dgraciac.euclideantsp
 
+import com.github.dgraciac.euclideantsp.jts.lengthAfterInsertBetweenPairOfPoints
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPInstance
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPSolver
 import com.github.dgraciac.euclideantsp.shared.Tour
@@ -16,19 +17,18 @@ class SolverA : Euclidean2DTSPSolver {
         if (instance.points.size == 3) return Tour(instance.points)
 
         val geometryFactory = GeometryFactory()
-        val unconnectedPoints: MutableSet<Point> = instance.points.map { it.toJTSPoint() }.toMutableSet()
+        val unconnectedPoints: MutableSet<Point> = instance.points.toJTSPoints().toMutableSet()
 
         val combinationsOf3Points: List<MutableList<Point>> =
             Sets.combinations(unconnectedPoints.toSet(), 3).map { it.toMutableList() }
 
         val polygon: Polygon =
             combinationsOf3Points.map { it.toTypedArray().plus(it[0]) }.map {
-                it.map { point: Point -> point.coordinate }.toTypedArray()
+                it.map { point: Point -> point.coordinate }
+                    .toTypedArray()
                     .let { arrayOfCoordinates: Array<Coordinate> -> geometryFactory.createPolygon(arrayOfCoordinates) }
-            }.find { triangle: Polygon ->
-                unconnectedPoints
-                    .none { triangle.contains(it) }
-            } ?: throw RuntimeException("Triangle not found")
+            }.find { triangle: Polygon -> unconnectedPoints.none { triangle.contains(it) } }
+                ?: throw RuntimeException("Triangle not found")
 
         unconnectedPoints.removeAll(polygon.coordinates.map { it.toJTSPoint() })
             .let { removed -> if (!removed) throw RuntimeException("Points not removed") }
@@ -51,15 +51,16 @@ class SolverA : Euclidean2DTSPSolver {
         unconnectedPoints: MutableSet<Point>,
         connectedPoints: ArrayList<Point>
     ): Pair<Point, Pair<Point, Point>> {
+
         val bestUnconnected: Point = unconnectedPoints.minBy { unconnectedPoint: Point ->
             val pairs: MutableList<Pair<Point, Point>> = connectedPoints
                 .zipWithNext()
                 .toMutableList()
                 .also { it.add(Pair(connectedPoints[connectedPoints.size - 1], connectedPoints[0])) }
             pairs.minBy { pair: Pair<Point, Point> ->
-                lengthAfterInsertBetween(pair, unconnectedPoint)
+                lengthAfterInsertBetweenPairOfPoints(pair, unconnectedPoint)
             }?.let {
-                lengthAfterInsertBetween(it, unconnectedPoint)
+                lengthAfterInsertBetweenPairOfPoints(it, unconnectedPoint)
             } ?: throw RuntimeException("Null Pair")
         } ?: throw RuntimeException("Null Best Unconnected")
 
@@ -68,16 +69,9 @@ class SolverA : Euclidean2DTSPSolver {
             .toMutableList()
             .also { it.add(Pair(connectedPoints[connectedPoints.size - 1], connectedPoints[0])) }
         val bestPair: Pair<Point, Point> = pairs.minBy { pair: Pair<Point, Point> ->
-            lengthAfterInsertBetween(pair, bestUnconnected)
+            lengthAfterInsertBetweenPairOfPoints(pair, bestUnconnected)
         } ?: throw RuntimeException("Null best pair")
 
         return Pair(bestUnconnected, bestPair)
-    }
-
-    private fun lengthAfterInsertBetween(
-        pair: Pair<Point, Point>,
-        unconnectedPoint: Point
-    ): Double {
-        return pair.first.distance(unconnectedPoint) + unconnectedPoint.distance(pair.second)
     }
 }
