@@ -1,7 +1,9 @@
 package com.github.dgraciac.euclideantsp
 
+import com.github.dgraciac.euclideantsp.jts.arrayOfPoints
 import com.github.dgraciac.euclideantsp.jts.createPolygon
 import com.github.dgraciac.euclideantsp.jts.lengthAfterInsertBetweenPairOfPoints
+import com.github.dgraciac.euclideantsp.jts.listOfPoints
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPInstance
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPSolver
 import com.github.dgraciac.euclideantsp.shared.Tour
@@ -25,10 +27,10 @@ class SolverA : Euclidean2DTSPSolver {
 
         val polygon: Polygon = createPolygon(unconnectedPointsSortedByDistanceToCentroid.take(3))
 
-        unconnectedPoints.removeAll(polygon.coordinates.map { it.toJTSPoint() })
+        unconnectedPoints.removeAll(polygon.listOfPoints())
             .let { removed -> if (!removed) throw RuntimeException("Points not removed") }
 
-        val connectedPoints: ArrayList<Point> = arrayListOf(*polygon.coordinates.map { it.toJTSPoint() }.toTypedArray())
+        val connectedPoints: ArrayList<Point> = arrayListOf(*polygon.arrayOfPoints())
         connectedPoints.removeAt(connectedPoints.size - 1)
 
         while (unconnectedPoints.isNotEmpty()) {
