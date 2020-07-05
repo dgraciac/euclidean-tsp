@@ -9,7 +9,8 @@ class TSPInstanceProvider : ArgumentsProvider {
     override fun provideArguments(context: ExtensionContext): Stream<Arguments> {
         return Stream.of(
             Arguments.of(TRIVIAL),
-            Arguments.of(SQUARE),
+            Arguments.of(SQUARE)
+            ,
             Arguments.of(_6_A),
             Arguments.of(BERLIN_52),
             Arguments.of(A_280),

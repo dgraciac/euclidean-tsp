@@ -26,7 +26,7 @@ class SolverA : Euclidean2DTSPSolver {
             unconnectedPoints.sortedBy { it.distance(centroid) }
 
         val linearRing: LinearRing = createLinearRing(unconnectedPointsSortedByDistanceToCentroid.take(3))
-        if(!linearRing.isClosedSimpleAndValid()) throw RuntimeException("LinearRing not valid")
+        if (!linearRing.isClosedSimpleAndValid()) throw RuntimeException("LinearRing not valid")
 
         linearRing.listOfPoints().dropLast(1).forEach {
             unconnectedPoints.remove(it)
@@ -65,11 +65,43 @@ class SolverA : Euclidean2DTSPSolver {
             .toMutableList()
             .also { it.add(Pair(connectedPoints.last(), connectedPoints.first())) }
 
-        val bestUnconnected: Point = unconnectedPoints.minBy { unconnectedPoint: Point ->
+        var bestUnconnected: Point? = null
+        var bestPair: Pair<Point, Point>? = null
+        var minimumLength: Double = Double.POSITIVE_INFINITY
+
+        unconnectedPoints.forEach { unconnectedPoint: Point ->
             val copyOfConnectedPoints: ArrayList<Point> = arrayListOf(*connectedPoints.toTypedArray())
-            pairs.filter { val indexOf = copyOfConnectedPoints.indexOf(it.second)
+            pairs.filter {
+                val indexOf = copyOfConnectedPoints.indexOf(it.second)
                 copyOfConnectedPoints.add(indexOf, unconnectedPoint)
-                copyOfConnectedPoints.areLinearRing()
+                copyOfConnectedPoints.areLinearRing().also {
+                    val removed: Boolean = copyOfConnectedPoints.remove(unconnectedPoint)
+                    if (!removed) throw RuntimeException("Point not removed")
+                }
+            }.forEach { pair: Pair<Point, Point> ->
+                lengthAfterInsertBetweenPairOfPoints(pair, unconnectedPoint).let { length ->
+                    if (length < minimumLength) {
+                        bestUnconnected = unconnectedPoint
+                        bestPair = pair
+                        minimumLength = length
+                    }
+                }
+            }
+        }
+
+        if (bestUnconnected == null) throw RuntimeException("Best Unconnected null")
+        if (bestPair == null) throw RuntimeException("Best Pair null")
+        return Pair(bestUnconnected!!, bestPair!!)
+
+/*        val bestUnconnected: Point = unconnectedPoints.minBy { unconnectedPoint: Point ->
+            val copyOfConnectedPoints: ArrayList<Point> = arrayListOf(*connectedPoints.toTypedArray())
+            pairs.filter {
+                val indexOf = copyOfConnectedPoints.indexOf(it.second)
+                copyOfConnectedPoints.add(indexOf, unconnectedPoint)
+                copyOfConnectedPoints.areLinearRing().also {
+                    val removed: Boolean = copyOfConnectedPoints.remove(unconnectedPoint)
+                    if (!removed) throw RuntimeException("Point not removed")
+                }
             }.minBy { pair: Pair<Point, Point> ->
                 lengthAfterInsertBetweenPairOfPoints(pair, unconnectedPoint)
             }?.let {
@@ -81,6 +113,6 @@ class SolverA : Euclidean2DTSPSolver {
             lengthAfterInsertBetweenPairOfPoints(pair, bestUnconnected)
         } ?: throw RuntimeException("Null best pair")
 
-        return Pair(bestUnconnected, bestPair)
+        return Pair(bestUnconnected, bestPair)*/
     }
 }
