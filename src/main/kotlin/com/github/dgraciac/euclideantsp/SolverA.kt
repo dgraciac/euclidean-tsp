@@ -66,7 +66,11 @@ class SolverA : Euclidean2DTSPSolver {
             .also { it.add(Pair(connectedPoints.last(), connectedPoints.first())) }
 
         val bestUnconnected: Point = unconnectedPoints.minBy { unconnectedPoint: Point ->
-            pairs.minBy { pair: Pair<Point, Point> ->
+            val copyOfConnectedPoints: ArrayList<Point> = arrayListOf(*connectedPoints.toTypedArray())
+            pairs.filter { val indexOf = copyOfConnectedPoints.indexOf(it.second)
+                copyOfConnectedPoints.add(indexOf, unconnectedPoint)
+                copyOfConnectedPoints.areLinearRing()
+            }.minBy { pair: Pair<Point, Point> ->
                 lengthAfterInsertBetweenPairOfPoints(pair, unconnectedPoint)
             }?.let {
                 lengthAfterInsertBetweenPairOfPoints(it, unconnectedPoint)
