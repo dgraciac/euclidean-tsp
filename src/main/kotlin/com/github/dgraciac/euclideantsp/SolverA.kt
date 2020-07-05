@@ -16,8 +16,6 @@ class SolverA : Euclidean2DTSPSolver {
     override fun compute(instance: Euclidean2DTSPInstance): Tour {
         require(instance.points.size >= 3)
 
-        if (instance.points.size == 3) return Tour(instance.points)
-
         val unconnectedPoints: MutableSet<Point> = instance.points.toJTSPoints().toMutableSet()
 
         val centroid: Point = centroid(instance)
