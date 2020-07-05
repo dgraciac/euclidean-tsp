@@ -1,5 +1,6 @@
 package com.github.dgraciac.euclideantsp
 
+import com.github.dgraciac.euclideantsp.jts.areLinearRing
 import com.github.dgraciac.euclideantsp.jts.arrayOfPoints
 import com.github.dgraciac.euclideantsp.jts.createLinearRing
 import com.github.dgraciac.euclideantsp.jts.lengthAfterInsertBetweenPairOfPoints
@@ -34,14 +35,19 @@ class SolverA : Euclidean2DTSPSolver {
         connectedPoints.removeAt(connectedPoints.size - 1)
 
         while (unconnectedPoints.isNotEmpty()) {
-            val bestInsertion: Pair<Point, Pair<Point, Point>> =
-                findBestInsertion(unconnectedPoints, connectedPoints)
+            val bestInsertion: Pair<Point, Pair<Point, Point>> = findBestInsertion(unconnectedPoints, connectedPoints)
 
             connectedPoints.add(connectedPoints.indexOf(bestInsertion.second.second), bestInsertion.first)
+            ensureLinearRing(connectedPoints)
+
             unconnectedPoints.remove(bestInsertion.first)
         }
 
         return Tour(points = connectedPoints.map { com.github.dgraciac.euclideantsp.shared.Point(it.x, it.y) })
+    }
+
+    private fun ensureLinearRing(connectedPoints: ArrayList<Point>) {
+        if (!connectedPoints.areLinearRing()) throw RuntimeException("Connected points are not a Linear Ring")
     }
 
     private fun centroid(instance: Euclidean2DTSPInstance): Point =
