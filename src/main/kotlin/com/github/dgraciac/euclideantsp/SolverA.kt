@@ -1,7 +1,7 @@
 package com.github.dgraciac.euclideantsp
 
 import com.github.dgraciac.euclideantsp.jts.arrayOfPoints
-import com.github.dgraciac.euclideantsp.jts.createPolygon
+import com.github.dgraciac.euclideantsp.jts.createLinearRing
 import com.github.dgraciac.euclideantsp.jts.lengthAfterInsertBetweenPairOfPoints
 import com.github.dgraciac.euclideantsp.jts.listOfPoints
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPInstance
@@ -9,8 +9,8 @@ import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPSolver
 import com.github.dgraciac.euclideantsp.shared.Tour
 import org.locationtech.jts.algorithm.ConvexHull
 import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.LinearRing
 import org.locationtech.jts.geom.Point
-import org.locationtech.jts.geom.Polygon
 
 class SolverA : Euclidean2DTSPSolver {
     override fun compute(instance: Euclidean2DTSPInstance): Tour {
@@ -25,12 +25,14 @@ class SolverA : Euclidean2DTSPSolver {
         val unconnectedPointsSortedByDistanceToCentroid: List<Point> =
             unconnectedPoints.sortedBy { it.distance(centroid) }
 
-        val polygon: Polygon = createPolygon(unconnectedPointsSortedByDistanceToCentroid.take(3))
+        val linearRing: LinearRing = createLinearRing(unconnectedPointsSortedByDistanceToCentroid.take(3))
 
-        unconnectedPoints.removeAll(polygon.listOfPoints())
-            .let { removed -> if (!removed) throw RuntimeException("Points not removed") }
+        linearRing.listOfPoints().dropLast(1).forEach {
+            unconnectedPoints.remove(it)
+                .let { removed: Boolean -> if (!removed) throw RuntimeException("Point not removed") }
+        }
 
-        val connectedPoints: ArrayList<Point> = arrayListOf(*polygon.arrayOfPoints())
+        val connectedPoints: ArrayList<Point> = arrayListOf(*linearRing.arrayOfPoints())
         connectedPoints.removeAt(connectedPoints.size - 1)
 
         while (unconnectedPoints.isNotEmpty()) {

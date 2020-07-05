@@ -2,8 +2,8 @@ package com.github.dgraciac.euclideantsp.jts
 
 import com.github.dgraciac.euclideantsp.toJTSPoint
 import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.LinearRing
 import org.locationtech.jts.geom.Point
-import org.locationtech.jts.geom.Polygon
 
 internal fun lengthAfterInsertBetweenPairOfPoints(
     pair: Pair<Point, Point>,
@@ -12,10 +12,10 @@ internal fun lengthAfterInsertBetweenPairOfPoints(
     return pair.first.distance(unconnectedPoint) + unconnectedPoint.distance(pair.second)
 }
 
-internal fun createPolygon(points: List<Point>): Polygon = points.plus(points.first()).map { it.coordinate }
+internal fun createLinearRing(points: List<Point>): LinearRing = points.plus(points.first()).map { it.coordinate }
     .toTypedArray()
-    .let { GeometryFactory().createPolygon(it) }
+    .let { GeometryFactory().createLinearRing(it) }
 
-internal fun Polygon.listOfPoints(): List<Point> = coordinates.map { it.toJTSPoint() }
+internal fun LinearRing.listOfPoints(): List<Point> = coordinates.map { it.toJTSPoint() }
 
-internal fun Polygon.arrayOfPoints(): Array<Point> = listOfPoints().toTypedArray()
+internal fun LinearRing.arrayOfPoints(): Array<Point> = listOfPoints().toTypedArray()
