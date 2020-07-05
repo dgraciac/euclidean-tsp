@@ -52,22 +52,18 @@ class SolverA : Euclidean2DTSPSolver {
         connectedPoints: ArrayList<Point>
     ): Pair<Point, Pair<Point, Point>> {
 
+        val pairs: MutableList<Pair<Point, Point>> = connectedPoints
+            .zipWithNext()
+            .toMutableList()
+            .also { it.add(Pair(connectedPoints.last(), connectedPoints.first())) }
+
         val bestUnconnected: Point = unconnectedPoints.minBy { unconnectedPoint: Point ->
-            val pairs: MutableList<Pair<Point, Point>> = connectedPoints
-                .zipWithNext()
-                .toMutableList()
-                .also { it.add(Pair(connectedPoints.last(), connectedPoints.first())) }
             pairs.minBy { pair: Pair<Point, Point> ->
                 lengthAfterInsertBetweenPairOfPoints(pair, unconnectedPoint)
             }?.let {
                 lengthAfterInsertBetweenPairOfPoints(it, unconnectedPoint)
             } ?: throw RuntimeException("Null Pair")
         } ?: throw RuntimeException("Null Best Unconnected")
-
-        val pairs: MutableList<Pair<Point, Point>> = connectedPoints
-            .zipWithNext()
-            .toMutableList()
-            .also { it.add(Pair(connectedPoints.last(), connectedPoints.first())) }
 
         val bestPair: Pair<Point, Point> = pairs.minBy { pair: Pair<Point, Point> ->
             lengthAfterInsertBetweenPairOfPoints(pair, bestUnconnected)
