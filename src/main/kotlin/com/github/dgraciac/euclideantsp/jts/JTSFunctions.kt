@@ -24,6 +24,11 @@ internal fun LinearRing.arrayOfPoints(): Array<Point> = listOfPoints().toTypedAr
 internal fun ArrayList<Point>.toLinearRing(): LinearRing =
     GeometryFactory().createLinearRing(plus(first()).listOfCoordinates().toTypedArray())
 
-internal fun ArrayList<Point>.areLinearRing(): Boolean = kotlin.runCatching { toLinearRing() }.isSuccess
+internal fun ArrayList<Point>.areLinearRing(): Boolean = kotlin.runCatching { toLinearRing() }.fold(
+    onFailure = { false },
+    onSuccess = { it.isClosedSimpleAndValid() }
+)
+
+internal fun LinearRing.isClosedSimpleAndValid(): Boolean = isClosed.and(isSimple).and(isValid)
 
 internal fun List<Point>.listOfCoordinates(): List<Coordinate> = map { it.coordinate }

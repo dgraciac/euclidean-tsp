@@ -3,6 +3,7 @@ package com.github.dgraciac.euclideantsp
 import com.github.dgraciac.euclideantsp.jts.areLinearRing
 import com.github.dgraciac.euclideantsp.jts.arrayOfPoints
 import com.github.dgraciac.euclideantsp.jts.createLinearRing
+import com.github.dgraciac.euclideantsp.jts.isClosedSimpleAndValid
 import com.github.dgraciac.euclideantsp.jts.lengthAfterInsertBetweenPairOfPoints
 import com.github.dgraciac.euclideantsp.jts.listOfPoints
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPInstance
@@ -25,6 +26,7 @@ class SolverA : Euclidean2DTSPSolver {
             unconnectedPoints.sortedBy { it.distance(centroid) }
 
         val linearRing: LinearRing = createLinearRing(unconnectedPointsSortedByDistanceToCentroid.take(3))
+        if(!linearRing.isClosedSimpleAndValid()) throw RuntimeException("LinearRing not valid")
 
         linearRing.listOfPoints().dropLast(1).forEach {
             unconnectedPoints.remove(it)
