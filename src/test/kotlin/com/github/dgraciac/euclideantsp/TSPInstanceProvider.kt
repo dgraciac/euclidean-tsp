@@ -10,6 +10,7 @@ class TSPInstanceProvider : ArgumentsProvider {
         return Stream.of(
             Arguments.of(TRIVIAL),
             Arguments.of(SQUARE),
+            Arguments.of(_6_A),
             Arguments.of(BERLIN_52),
             Arguments.of(A_280),
             Arguments.of(KRO_200)
