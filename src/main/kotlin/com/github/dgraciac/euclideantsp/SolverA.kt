@@ -65,6 +65,7 @@ class SolverA : Euclidean2DTSPSolver {
         var minimumLength: Double = Double.POSITIVE_INFINITY
 
         unconnectedPoints.forEach { unconnectedPoint: Point ->
+            connectedPoints.add(connectedPoints.first())
             for (i: Int in 0 until connectedPoints.size - 1) {
                 connectedPoints.add(i + 1, unconnectedPoint)
                 val areLinearRing: Boolean = connectedPoints.areLinearRing().also {
@@ -84,24 +85,7 @@ class SolverA : Euclidean2DTSPSolver {
                         }
                 }
             }
-
-            connectedPoints.add(0, unconnectedPoint)
-            val areLinearRing: Boolean = connectedPoints.areLinearRing().also {
-                val removed: Boolean = connectedPoints.remove(unconnectedPoint)
-                if (!removed) throw RuntimeException("Point not removed")
-            }
-            if (areLinearRing) {
-                val first: Point = connectedPoints.last()
-                val second: Point = connectedPoints.first()
-                lengthAfterInsertBetweenPairOfPoints(first, second, unconnectedPoint)
-                    .let { length ->
-                        if (length < minimumLength) {
-                            bestUnconnected = unconnectedPoint
-                            bestPair = Pair(first, second)
-                            minimumLength = length
-                        }
-                    }
-            }
+            connectedPoints.removeAt(connectedPoints.size - 1)
         }
 
         if (bestUnconnected == null) throw RuntimeException("Best Unconnected null")
