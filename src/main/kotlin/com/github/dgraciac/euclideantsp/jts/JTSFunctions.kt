@@ -24,7 +24,7 @@ internal fun LinearRing.listOfPoints(): List<Point> = coordinates.map { it.toJTS
 
 internal fun LinearRing.arrayOfPoints(): Array<Point> = listOfPoints().toTypedArray()
 
-internal fun ArrayList<Point>.areLinearRing(): Boolean = kotlin.runCatching { toLinearRing() }.fold(
+internal fun ArrayList<Point>.isLinearRing(): Boolean = kotlin.runCatching { toLinearRing() }.fold(
     onFailure = { false },
     onSuccess = { it.isClosedSimpleAndValid() }
 )
@@ -35,3 +35,27 @@ internal fun List<Point>.listOfCoordinates(): List<Coordinate> = map { it.coordi
 
 internal fun Euclidean2DTSPInstance.centroid(): Point =
     ConvexHull(points.map { it.toCoordinate() }.toTypedArray(), GeometryFactory()).convexHull.centroid
+
+internal fun ArrayList<Point>.findBestIndexToInsertAt(point: Point): Pair<Int, Double> {
+    var bestIndexToInsertAt: Int = -1
+    var minimumLength: Double = Double.POSITIVE_INFINITY
+
+    for (i: Int in 0 until this.size - 1) {
+        add(i + 1, point)
+        val isLinearRing: Boolean = isLinearRing().also { this.removeAt(i + 1) }
+        if (isLinearRing) {
+            val first: Point = this[i]
+            val second: Point = this[i + 1]
+            lengthAfterInsertBetweenPairOfPoints(first, second, point)
+                .let { length ->
+                    if (length < minimumLength) {
+                        bestIndexToInsertAt = i + 1
+                        minimumLength = length
+                    }
+                }
+        }
+    }
+
+    if (bestIndexToInsertAt == -1) throw RuntimeException("Best Index is null")
+    return Pair(bestIndexToInsertAt, minimumLength)
+}

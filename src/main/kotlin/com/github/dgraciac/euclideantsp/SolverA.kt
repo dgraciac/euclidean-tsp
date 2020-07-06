@@ -1,10 +1,10 @@
 package com.github.dgraciac.euclideantsp
 
-import com.github.dgraciac.euclideantsp.jts.areLinearRing
 import com.github.dgraciac.euclideantsp.jts.arrayOfPoints
 import com.github.dgraciac.euclideantsp.jts.centroid
+import com.github.dgraciac.euclideantsp.jts.findBestIndexToInsertAt
 import com.github.dgraciac.euclideantsp.jts.isClosedSimpleAndValid
-import com.github.dgraciac.euclideantsp.jts.lengthAfterInsertBetweenPairOfPoints
+import com.github.dgraciac.euclideantsp.jts.isLinearRing
 import com.github.dgraciac.euclideantsp.jts.listOfPoints
 import com.github.dgraciac.euclideantsp.jts.toLinearRing
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPInstance
@@ -50,7 +50,7 @@ class SolverA : Euclidean2DTSPSolver {
     }
 
     private fun ensureLinearRing(connectedPoints: ArrayList<Point>) {
-        if (!connectedPoints.areLinearRing()) throw RuntimeException("Connected points are not a Linear Ring")
+        if (!connectedPoints.isLinearRing()) throw RuntimeException("Connected points are not a Linear Ring")
     }
 
     private fun findBestInsertion(
@@ -63,29 +63,20 @@ class SolverA : Euclidean2DTSPSolver {
         var minimumLength: Double = Double.POSITIVE_INFINITY
 
         unconnectedPoints.forEach { unconnectedPoint: Point ->
-            for (i: Int in 0 until connectedPoints.size - 1) {
-                connectedPoints.add(i + 1, unconnectedPoint)
-                val areLinearRing: Boolean = connectedPoints.areLinearRing().also {
-                    val removed: Boolean = connectedPoints.remove(unconnectedPoint)
-                    if (!removed) throw RuntimeException("Point not removed")
-                }
-                if (areLinearRing) {
-                    val first: Point = connectedPoints[i]
-                    val second: Point = connectedPoints[i + 1]
-                    lengthAfterInsertBetweenPairOfPoints(first, second, unconnectedPoint)
-                        .let { length ->
-                            if (length < minimumLength) {
-                                bestUnconnected = unconnectedPoint
-                                bestIndexToInsertAt = i + 1
-                                minimumLength = length
-                            }
-                        }
-                }
+
+            val (subBestIndexToInsertAt: Int, subMinimumLength: Double) = connectedPoints.findBestIndexToInsertAt(
+                unconnectedPoint
+            )
+
+            if (subMinimumLength < minimumLength) {
+                bestUnconnected = unconnectedPoint
+                bestIndexToInsertAt = subBestIndexToInsertAt
+                minimumLength = subMinimumLength
             }
         }
 
-        if (bestUnconnected == null) throw RuntimeException("Best Unconnected null")
-        if (bestIndexToInsertAt == null) throw RuntimeException("Best Pair null")
+        if (bestUnconnected == null) throw RuntimeException("Best Unconnected is null")
+        if (bestIndexToInsertAt == null) throw RuntimeException("Best Index is null")
         return Pair(bestUnconnected!!, bestIndexToInsertAt!!)
     }
 }
