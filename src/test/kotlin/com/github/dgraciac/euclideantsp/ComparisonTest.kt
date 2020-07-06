@@ -16,10 +16,10 @@ internal class ComparisonTest {
     fun solve_instances(instance: Euclidean2DTSPInstance) {
         println("Instance name: ${instance.name}")
 
-/*        var bruteForceTour: Tour? = null
+        var bruteForceTour: Tour? = null
         println("Algorithm: BruteForce; Time: ${measureTimeMillis {
             bruteForceTour = bruteForce.compute(instance)
-        } / 1000.0}s; Length: ${bruteForceTour?.length}; Approximation: ${bruteForceTour?.length?.div(instance.optimalLength)}")*/
+        } / 1000.0}s; Length: ${bruteForceTour?.length}; Approximation: ${bruteForceTour?.length?.div(instance.optimalLength)}")
 
         var christofidesTour: Tour? = null
         println(
