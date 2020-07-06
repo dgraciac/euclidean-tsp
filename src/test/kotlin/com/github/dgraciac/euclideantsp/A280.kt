@@ -8,7 +8,7 @@ import com.github.dgraciac.euclideantsp.shared.Point
 val A_280 = Euclidean2DTSPInstance(
     name = "a280",
     optimalLength = 2579.0,
-    points = listOf(
+    points = setOf(
         Point(288.0, 149.0),
         Point(288.0, 129.0),
         Point(270.0, 133.0),

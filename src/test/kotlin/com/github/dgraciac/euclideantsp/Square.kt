@@ -6,7 +6,7 @@ import com.github.dgraciac.euclideantsp.shared.Point
 val SQUARE = Euclidean2DTSPInstance(
     name = "square",
     optimalLength = 4.0,
-    points = listOf(
+    points = setOf(
         Point(0.0, 0.0),
         Point(1.0, 0.0),
         Point(0.0, 1.0),

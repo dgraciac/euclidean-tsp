@@ -6,7 +6,7 @@ import com.github.dgraciac.euclideantsp.shared.Point
 val KRO_200 = Euclidean2DTSPInstance(
     name = "kro200",
     optimalLength = 29368.0,
-    points = listOf(
+    points = setOf(
         Point(1357.0, 1905.0),
         Point(2650.0, 802.0),
         Point(1774.0, 107.0),

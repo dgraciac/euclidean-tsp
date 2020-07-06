@@ -6,7 +6,7 @@ import com.github.dgraciac.euclideantsp.shared.Point
 val BERLIN_52 = Euclidean2DTSPInstance(
     name = "berlin52",
     optimalLength = 7542.0,
-    points = listOf(
+    points = setOf(
         Point(565.0, 575.0),
         Point(25.0, 185.0),
         Point(345.0, 750.0),

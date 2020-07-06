@@ -11,4 +11,4 @@ fun Point.toJTSPoint(): org.locationtech.jts.geom.Point = toCoordinate().toJTSPo
 
 fun List<Point>.length(): Double = map(Point::toCoordinate).length()
 
-fun List<Point>.toJTSPoints(): List<org.locationtech.jts.geom.Point> = map { it.toJTSPoint() }
+fun Set<Point>.toJTSPoints(): Set<org.locationtech.jts.geom.Point> = map { it.toJTSPoint() }.toSet()
