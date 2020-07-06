@@ -2,15 +2,14 @@ package com.github.dgraciac.euclideantsp
 
 import com.github.dgraciac.euclideantsp.jts.areLinearRing
 import com.github.dgraciac.euclideantsp.jts.arrayOfPoints
-import com.github.dgraciac.euclideantsp.jts.createLinearRing
+import com.github.dgraciac.euclideantsp.jts.centroid
 import com.github.dgraciac.euclideantsp.jts.isClosedSimpleAndValid
 import com.github.dgraciac.euclideantsp.jts.lengthAfterInsertBetweenPairOfPoints
 import com.github.dgraciac.euclideantsp.jts.listOfPoints
+import com.github.dgraciac.euclideantsp.jts.toLinearRing
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPInstance
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPSolver
 import com.github.dgraciac.euclideantsp.shared.Tour
-import org.locationtech.jts.algorithm.ConvexHull
-import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.LinearRing
 import org.locationtech.jts.geom.Point
 
@@ -20,13 +19,16 @@ class SolverA : Euclidean2DTSPSolver {
 
         val unconnectedPoints: MutableSet<Point> = instance.points.toJTSPoints().toMutableSet()
 
-        val centroid: Point = centroid(instance)
+        val centroid: Point = instance.centroid()
 
         val unconnectedPointsSortedByDistanceToCentroid: List<Point> =
             unconnectedPoints.sortedBy { it.distance(centroid) }
 
-        val linearRing: LinearRing = createLinearRing(unconnectedPointsSortedByDistanceToCentroid.take(3))
-        if (!linearRing.isClosedSimpleAndValid()) throw RuntimeException("LinearRing not valid")
+        val linearRing: LinearRing = unconnectedPointsSortedByDistanceToCentroid.take(3).let {
+            it.plus(it.first()).toLinearRing().also { linearRing: LinearRing ->
+                if (!linearRing.isClosedSimpleAndValid()) throw RuntimeException("LinearRing not valid")
+            }
+        }
 
         linearRing.listOfPoints().dropLast(1).forEach {
             unconnectedPoints.remove(it)
@@ -34,12 +36,11 @@ class SolverA : Euclidean2DTSPSolver {
         }
 
         val connectedPoints: ArrayList<Point> = arrayListOf(*linearRing.arrayOfPoints())
-        connectedPoints.removeAt(connectedPoints.size - 1)
 
         while (unconnectedPoints.isNotEmpty()) {
-            val bestInsertion: Pair<Point, Pair<Point, Point>> = findBestInsertion(unconnectedPoints, connectedPoints)
+            val bestInsertion: Pair<Point, Int> = findBestInsertion(unconnectedPoints, connectedPoints)
 
-            connectedPoints.add(connectedPoints.indexOf(bestInsertion.second.second), bestInsertion.first)
+            connectedPoints.add(bestInsertion.second, bestInsertion.first)
             ensureLinearRing(connectedPoints)
 
             unconnectedPoints.remove(bestInsertion.first)
@@ -52,20 +53,16 @@ class SolverA : Euclidean2DTSPSolver {
         if (!connectedPoints.areLinearRing()) throw RuntimeException("Connected points are not a Linear Ring")
     }
 
-    private fun centroid(instance: Euclidean2DTSPInstance): Point =
-        ConvexHull(instance.points.map { it.toCoordinate() }.toTypedArray(), GeometryFactory()).convexHull.centroid
-
     private fun findBestInsertion(
         unconnectedPoints: MutableSet<Point>,
         connectedPoints: ArrayList<Point>
-    ): Pair<Point, Pair<Point, Point>> {
+    ): Pair<Point, Int> {
 
         var bestUnconnected: Point? = null
-        var bestPair: Pair<Point, Point>? = null
+        var bestIndexToInsertAt: Int? = null
         var minimumLength: Double = Double.POSITIVE_INFINITY
 
         unconnectedPoints.forEach { unconnectedPoint: Point ->
-            connectedPoints.add(connectedPoints.first())
             for (i: Int in 0 until connectedPoints.size - 1) {
                 connectedPoints.add(i + 1, unconnectedPoint)
                 val areLinearRing: Boolean = connectedPoints.areLinearRing().also {
@@ -79,17 +76,16 @@ class SolverA : Euclidean2DTSPSolver {
                         .let { length ->
                             if (length < minimumLength) {
                                 bestUnconnected = unconnectedPoint
-                                bestPair = Pair(first, second)
+                                bestIndexToInsertAt = i + 1
                                 minimumLength = length
                             }
                         }
                 }
             }
-            connectedPoints.removeAt(connectedPoints.size - 1)
         }
 
         if (bestUnconnected == null) throw RuntimeException("Best Unconnected null")
-        if (bestPair == null) throw RuntimeException("Best Pair null")
-        return Pair(bestUnconnected!!, bestPair!!)
+        if (bestIndexToInsertAt == null) throw RuntimeException("Best Pair null")
+        return Pair(bestUnconnected!!, bestIndexToInsertAt!!)
     }
 }

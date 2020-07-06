@@ -4,4 +4,7 @@ import com.github.dgraciac.euclideantsp.length
 
 data class Tour(val points: List<Point>) {
     val length: Double = points.length()
+    init {
+        require(points.first() == points.last())
+    }
 }
