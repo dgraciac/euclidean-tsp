@@ -7,10 +7,11 @@ import org.locationtech.jts.geom.LinearRing
 import org.locationtech.jts.geom.Point
 
 internal fun lengthAfterInsertBetweenPairOfPoints(
-    pair: Pair<Point, Point>,
+    first: Point,
+    second: Point,
     unconnectedPoint: Point
 ): Double {
-    return pair.first.distance(unconnectedPoint) + unconnectedPoint.distance(pair.second)
+    return first.distance(unconnectedPoint) + unconnectedPoint.distance(second)
 }
 
 internal fun createLinearRing(points: List<Point>): LinearRing = points.plus(points.first()).listOfCoordinates()

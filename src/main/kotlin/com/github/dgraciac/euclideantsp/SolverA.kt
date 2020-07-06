@@ -60,59 +60,52 @@ class SolverA : Euclidean2DTSPSolver {
         connectedPoints: ArrayList<Point>
     ): Pair<Point, Pair<Point, Point>> {
 
-        val pairs: MutableList<Pair<Point, Point>> = connectedPoints
-            .zipWithNext()
-            .toMutableList()
-            .also { it.add(Pair(connectedPoints.last(), connectedPoints.first())) }
-
         var bestUnconnected: Point? = null
         var bestPair: Pair<Point, Point>? = null
         var minimumLength: Double = Double.POSITIVE_INFINITY
 
         unconnectedPoints.forEach { unconnectedPoint: Point ->
-            val copyOfConnectedPoints: ArrayList<Point> = arrayListOf(*connectedPoints.toTypedArray())
-            pairs.filter {
-                val indexOf = copyOfConnectedPoints.indexOf(it.second)
-                copyOfConnectedPoints.add(indexOf, unconnectedPoint)
-                copyOfConnectedPoints.areLinearRing().also {
-                    val removed: Boolean = copyOfConnectedPoints.remove(unconnectedPoint)
+            for (i: Int in 0 until connectedPoints.size - 1) {
+                connectedPoints.add(i + 1, unconnectedPoint)
+                val areLinearRing: Boolean = connectedPoints.areLinearRing().also {
+                    val removed: Boolean = connectedPoints.remove(unconnectedPoint)
                     if (!removed) throw RuntimeException("Point not removed")
                 }
-            }.forEach { pair: Pair<Point, Point> ->
-                lengthAfterInsertBetweenPairOfPoints(pair, unconnectedPoint).let { length ->
-                    if (length < minimumLength) {
-                        bestUnconnected = unconnectedPoint
-                        bestPair = pair
-                        minimumLength = length
-                    }
+                if (areLinearRing) {
+                    val first: Point = connectedPoints[i]
+                    val second: Point = connectedPoints[i + 1]
+                    lengthAfterInsertBetweenPairOfPoints(first, second, unconnectedPoint)
+                        .let { length ->
+                            if (length < minimumLength) {
+                                bestUnconnected = unconnectedPoint
+                                bestPair = Pair(first, second)
+                                minimumLength = length
+                            }
+                        }
                 }
+            }
+
+            connectedPoints.add(0, unconnectedPoint)
+            val areLinearRing: Boolean = connectedPoints.areLinearRing().also {
+                val removed: Boolean = connectedPoints.remove(unconnectedPoint)
+                if (!removed) throw RuntimeException("Point not removed")
+            }
+            if (areLinearRing) {
+                val first: Point = connectedPoints.last()
+                val second: Point = connectedPoints.first()
+                lengthAfterInsertBetweenPairOfPoints(first, second, unconnectedPoint)
+                    .let { length ->
+                        if (length < minimumLength) {
+                            bestUnconnected = unconnectedPoint
+                            bestPair = Pair(first, second)
+                            minimumLength = length
+                        }
+                    }
             }
         }
 
         if (bestUnconnected == null) throw RuntimeException("Best Unconnected null")
         if (bestPair == null) throw RuntimeException("Best Pair null")
         return Pair(bestUnconnected!!, bestPair!!)
-
-/*        val bestUnconnected: Point = unconnectedPoints.minBy { unconnectedPoint: Point ->
-            val copyOfConnectedPoints: ArrayList<Point> = arrayListOf(*connectedPoints.toTypedArray())
-            pairs.filter {
-                val indexOf = copyOfConnectedPoints.indexOf(it.second)
-                copyOfConnectedPoints.add(indexOf, unconnectedPoint)
-                copyOfConnectedPoints.areLinearRing().also {
-                    val removed: Boolean = copyOfConnectedPoints.remove(unconnectedPoint)
-                    if (!removed) throw RuntimeException("Point not removed")
-                }
-            }.minBy { pair: Pair<Point, Point> ->
-                lengthAfterInsertBetweenPairOfPoints(pair, unconnectedPoint)
-            }?.let {
-                lengthAfterInsertBetweenPairOfPoints(it, unconnectedPoint)
-            } ?: throw RuntimeException("Null Pair")
-        } ?: throw RuntimeException("Null Best Unconnected")
-
-        val bestPair: Pair<Point, Point> = pairs.minBy { pair: Pair<Point, Point> ->
-            lengthAfterInsertBetweenPairOfPoints(pair, bestUnconnected)
-        } ?: throw RuntimeException("Null best pair")
-
-        return Pair(bestUnconnected, bestPair)*/
     }
 }
