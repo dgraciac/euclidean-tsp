@@ -14,7 +14,8 @@ class TSPInstanceProvider : ArgumentsProvider {
             Arguments.of(_5_A),
             Arguments.of(_6_A),
             Arguments.of(_10_A),
-            Arguments.of(BERLIN_52)
+            Arguments.of(BERLIN_52),
+            Arguments.of(ST_70)
 //            ,
 //            Arguments.of(KRO_200),
 //            Arguments.of(A_280)
