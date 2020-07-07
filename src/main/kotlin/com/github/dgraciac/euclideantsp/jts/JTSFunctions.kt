@@ -6,6 +6,7 @@ import com.github.dgraciac.euclideantsp.toJTSPoint
 import org.locationtech.jts.algorithm.ConvexHull
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.LineString
 import org.locationtech.jts.geom.LinearRing
 import org.locationtech.jts.geom.Point
 
@@ -20,6 +21,9 @@ internal fun lengthAfterInsertBetweenPairOfPoints(
 internal fun List<Point>.toLinearRing(): LinearRing =
     GeometryFactory().createLinearRing(listOfCoordinates().toTypedArray())
 
+internal fun List<Point>.toLineString(): LineString =
+    GeometryFactory().createLineString(listOfCoordinates().toTypedArray())
+
 internal fun LinearRing.listOfPoints(): List<Point> = coordinates.map { it.toJTSPoint() }
 
 internal fun LinearRing.arrayOfPoints(): Array<Point> = listOfPoints().toTypedArray()
@@ -29,7 +33,9 @@ internal fun ArrayList<Point>.isLinearRing(): Boolean = kotlin.runCatching { toL
     onSuccess = { it.isClosedSimpleAndValid() }
 )
 
-internal fun LinearRing.isClosedSimpleAndValid(): Boolean = isClosed.and(isSimple).and(isValid)
+internal fun LinearRing.isClosedSimpleAndValid(): Boolean = isClosedAndValid().and(isSimple)
+
+internal fun LinearRing.isClosedAndValid(): Boolean = isClosed.and(isValid)
 
 internal fun List<Point>.listOfCoordinates(): List<Coordinate> = map { it.coordinate }
 

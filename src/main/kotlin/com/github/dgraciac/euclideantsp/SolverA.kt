@@ -3,9 +3,9 @@ package com.github.dgraciac.euclideantsp
 import com.github.dgraciac.euclideantsp.jts.arrayOfPoints
 import com.github.dgraciac.euclideantsp.jts.centroid
 import com.github.dgraciac.euclideantsp.jts.findBestIndexToInsertAt
-import com.github.dgraciac.euclideantsp.jts.isClosedSimpleAndValid
 import com.github.dgraciac.euclideantsp.jts.isLinearRing
 import com.github.dgraciac.euclideantsp.jts.listOfPoints
+import com.github.dgraciac.euclideantsp.jts.toLineString
 import com.github.dgraciac.euclideantsp.jts.toLinearRing
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPInstance
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPSolver
@@ -24,11 +24,12 @@ class SolverA : Euclidean2DTSPSolver {
         val unconnectedPointsSortedByDistanceToCentroid: List<Point> =
             unconnectedPoints.sortedBy { it.distance(centroid) }
 
-        val linearRing: LinearRing = unconnectedPointsSortedByDistanceToCentroid.take(3).let {
-            it.plus(it.first()).toLinearRing().also { linearRing: LinearRing ->
-                if (!linearRing.isClosedSimpleAndValid()) throw RuntimeException("LinearRing not valid")
+        val linearRing: LinearRing =
+            unconnectedPointsSortedByDistanceToCentroid.take(3).permute().minBy { permutation: List<Point> ->
+                permutation.toLineString().length
+            }!!.let { it.plus(it.first()).toLinearRing() }.also { linearRing: LinearRing ->
+                if (!linearRing.isClosed) throw RuntimeException("$linearRing not closed")
             }
-        }
 
         linearRing.listOfPoints().dropLast(1).forEach {
             unconnectedPoints.remove(it)

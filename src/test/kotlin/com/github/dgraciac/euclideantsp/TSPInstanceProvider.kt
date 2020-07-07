@@ -12,6 +12,7 @@ class TSPInstanceProvider : ArgumentsProvider {
             Arguments.of(TRIVIAL),
             Arguments.of(_4_SQUARE),
             Arguments.of(_4_A),
+            Arguments.of(_4_B),
             Arguments.of(_5_A),
             Arguments.of(_5_B),
             Arguments.of(_6_A),
