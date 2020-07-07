@@ -58,7 +58,7 @@ internal fun ArrayList<Point>.findBestIndexToInsertAt(point: Point): Pair<Int, D
             val first: Point = this[i]
             val second: Point = this[i + 1]
             lengthAfterInsertBetweenPairOfPoints(first, second, point)
-                .let { length ->
+                .let { length: Double ->
                     if (length < minimumLength) {
                         bestIndexToInsertAt = i + 1
                         minimumLength = length
@@ -87,7 +87,7 @@ internal fun ArrayList<Point>.findBestIndexToInsertAt2(point: Point): Pair<Int, 
             val first: Point = this[i]
             val second: Point = this[i + 1]
             lengthAfterInsertBetweenPairOfPoints(first, second, point)
-                .let { length ->
+                .let { length: Double ->
                     val ratio: Double = length / first.distance(second)
                     if (ratio < minimumRatio) {
                         bestIndexToInsertAt = i + 1
