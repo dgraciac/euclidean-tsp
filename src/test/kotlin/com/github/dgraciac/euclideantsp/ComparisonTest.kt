@@ -10,6 +10,7 @@ internal class ComparisonTest {
     private val bruteForce: BruteForce = BruteForce()
     private val christofides: Christofides = Christofides()
     private val solverA: SolverA = SolverA()
+    private val solverB: SolverB = SolverB()
 
     @ParameterizedTest
     @ArgumentsSource(TSPInstanceProvider::class)
@@ -35,6 +36,15 @@ internal class ComparisonTest {
             "Algorithm: SolverA; Time: ${measureTimeMillis {
                 solverATour = solverA.compute(instance)
             } / 1000.0}s; Length: ${solverATour?.length}; Approximation: ${solverATour?.length?.div(
+                instance.optimalLength
+            )}"
+        )
+
+        var solverBTour: Tour? = null
+        println(
+            "Algorithm: SolverB; Time: ${measureTimeMillis {
+                solverBTour = solverB.compute(instance)
+            } / 1000.0}s; Length: ${solverBTour?.length}; Approximation: ${solverBTour?.length?.div(
                 instance.optimalLength
             )}"
         )

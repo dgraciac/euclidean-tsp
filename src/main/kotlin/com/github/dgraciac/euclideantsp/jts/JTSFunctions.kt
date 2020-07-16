@@ -5,6 +5,7 @@ import com.github.dgraciac.euclideantsp.toCoordinate
 import com.github.dgraciac.euclideantsp.toJTSPoint
 import org.locationtech.jts.algorithm.ConvexHull
 import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.LineString
 import org.locationtech.jts.geom.LinearRing
@@ -24,9 +25,9 @@ internal fun List<Point>.toLinearRing(): LinearRing =
 internal fun List<Point>.toLineString(): LineString =
     GeometryFactory().createLineString(listOfCoordinates().toTypedArray())
 
-internal fun LinearRing.listOfPoints(): List<Point> = coordinates.map { it.toJTSPoint() }
+internal fun Geometry.listOfPoints(): List<Point> = coordinates.map { it.toJTSPoint() }
 
-internal fun LinearRing.arrayOfPoints(): Array<Point> = listOfPoints().toTypedArray()
+internal fun Geometry.arrayOfPoints(): Array<Point> = listOfPoints().toTypedArray()
 
 internal fun ArrayList<Point>.isLinearRing(): Boolean = kotlin.runCatching { toLinearRing() }.fold(
     onFailure = { false },
