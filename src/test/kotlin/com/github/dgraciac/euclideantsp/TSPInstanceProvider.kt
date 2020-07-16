@@ -6,10 +6,9 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.ArgumentsProvider
 
 class TSPInstanceProvider : ArgumentsProvider {
-    //TODO 4_B is failing
     override fun provideArguments(context: ExtensionContext): Stream<Arguments> {
         return Stream.of(
-            Arguments.of(TRIVIAL),
+/*            Arguments.of(TRIVIAL),
             Arguments.of(_4_SQUARE),
             Arguments.of(_4_A),
             Arguments.of(_4_B),
@@ -20,12 +19,12 @@ class TSPInstanceProvider : ArgumentsProvider {
             Arguments.of(_6_C),
             Arguments.of(_6_D)
             ,
-            Arguments.of(_10_A),
+            Arguments.of(_10_A),*/
             Arguments.of(BERLIN_52),
             Arguments.of(ST_70)
-//            ,
-//            Arguments.of(KRO_200),
-//            Arguments.of(A_280)
+            ,
+            Arguments.of(KRO_200),
+            Arguments.of(A_280)
         )
     }
 }

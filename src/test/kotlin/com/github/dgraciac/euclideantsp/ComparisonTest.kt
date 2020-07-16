@@ -31,14 +31,14 @@ internal class ComparisonTest {
             )}"
         )
 
-        var solverATour: Tour? = null
+/*        var solverATour: Tour? = null
         println(
             "Algorithm: SolverA; Time: ${measureTimeMillis {
                 solverATour = solverA.compute(instance)
             } / 1000.0}s; Length: ${solverATour?.length}; Approximation: ${solverATour?.length?.div(
                 instance.optimalLength
             )}"
-        )
+        )*/
 
         var solverBTour: Tour? = null
         println(
