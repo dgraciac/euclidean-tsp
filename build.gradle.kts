@@ -6,7 +6,6 @@ plugins {
     `java-library`
     jacoco
     id("org.sonarqube") version "2.8"
-    id("com.jfrog.bintray") version "1.8.5"
     `maven-publish`
     id("com.diffplug.gradle.spotless") version "3.28.1"
 }
@@ -145,7 +144,6 @@ allprojects {
 allprojects {
     repositories {
         mavenCentral()
-        jcenter()
     }
 
     dependencies {
