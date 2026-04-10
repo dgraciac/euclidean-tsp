@@ -11,18 +11,15 @@ import org.jgrapht.graph.DefaultUndirectedWeightedGraph
 import org.jgrapht.graph.DefaultWeightedEdge
 
 class Christofides : Euclidean2DTSPSolver {
-    override fun compute(instance: Euclidean2DTSPInstance): Tour {
-
-        return buildGraph(instance).let { graph: Graph<Point, DefaultWeightedEdge> ->
+    override fun compute(instance: Euclidean2DTSPInstance): Tour =
+        buildGraph(instance).let { graph: Graph<Point, DefaultWeightedEdge> ->
             ChristofidesThreeHalvesApproxMetricTSP<Point, DefaultWeightedEdge>().getTour(graph).toTour()
         }
-    }
 
-    private fun buildGraph(instance: Euclidean2DTSPInstance): Graph<Point, DefaultWeightedEdge> {
-        return DefaultUndirectedWeightedGraph<Point, DefaultWeightedEdge>(DefaultWeightedEdge::class.java)
+    private fun buildGraph(instance: Euclidean2DTSPInstance): Graph<Point, DefaultWeightedEdge> =
+        DefaultUndirectedWeightedGraph<Point, DefaultWeightedEdge>(DefaultWeightedEdge::class.java)
             .addVertices(instance)
             .addEdges(instance)
-    }
 
     private fun Graph<Point, DefaultWeightedEdge>.addVertices(instance: Euclidean2DTSPInstance): Graph<Point, DefaultWeightedEdge> {
         instance.points.map { point: Point ->
@@ -32,7 +29,7 @@ class Christofides : Euclidean2DTSPSolver {
     }
 
     private fun Graph<Point, DefaultWeightedEdge>.addEdges(instance: Euclidean2DTSPInstance): Graph<Point, DefaultWeightedEdge> {
-        for (i: Int in 0 until instance.points.size - 1)
+        for (i: Int in 0 until instance.points.size - 1) {
             for (j: Int in i + 1 until instance.points.size) {
                 val point1: Point = instance.points.elementAt(i)
                 val point2: Point = instance.points.elementAt(j)
@@ -43,9 +40,9 @@ class Christofides : Euclidean2DTSPSolver {
                     }
                 }
             }
+        }
         return this
     }
 }
 
-private fun GraphPath<Point, DefaultWeightedEdge>.toTour(): Tour =
-    Tour(listOf<Point>(*this.vertexList.toTypedArray()))
+private fun GraphPath<Point, DefaultWeightedEdge>.toTour(): Tour = Tour(listOf<Point>(*this.vertexList.toTypedArray()))

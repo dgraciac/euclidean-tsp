@@ -9,7 +9,7 @@ import com.github.dgraciac.euclideantsp.shared.Tour
  * repetir hasta que no queden nodos
  * Conectar los convex hulls para formar un tour
  */
-class SolverC: Euclidean2DTSPSolver {
+class SolverC : Euclidean2DTSPSolver {
     override fun compute(instance: Euclidean2DTSPInstance): Tour {
         TODO("Not yet implemented")
     }

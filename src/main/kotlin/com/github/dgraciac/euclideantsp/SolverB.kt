@@ -22,10 +22,11 @@ class SolverB : Euclidean2DTSPSolver {
         val convexHullGeometry: Geometry = convexHullNoGeometry.convexHull
 
         val connectedPoints: ArrayList<Point> = arrayListOf(*convexHullGeometry.arrayOfPoints())
-            convexHullGeometry.coordinates.map { coordinate: Coordinate -> coordinate.toJTSPoint() }.toTypedArray()
+        convexHullGeometry.coordinates.map { coordinate: Coordinate -> coordinate.toJTSPoint() }.toTypedArray()
 
         connectedPoints.dropLast(1).forEach {
-            unconnectedPoints.remove(it)
+            unconnectedPoints
+                .remove(it)
                 .let { removed: Boolean -> if (!removed) throw RuntimeException("Point not removed") }
         }
 
@@ -38,7 +39,13 @@ class SolverB : Euclidean2DTSPSolver {
             unconnectedPoints.remove(bestInsertion.first)
         }
 
-        return Tour(points = connectedPoints.map { com.github.dgraciac.euclideantsp.shared.Point(it.x, it.y) })
+        return Tour(
+            points =
+                connectedPoints.map {
+                    com.github.dgraciac.euclideantsp.shared
+                        .Point(it.x, it.y)
+                },
+        )
     }
 
     private fun ensureLinearRing(connectedPoints: ArrayList<Point>) {
@@ -47,18 +54,18 @@ class SolverB : Euclidean2DTSPSolver {
 
     private fun findBestInsertion(
         unconnectedPoints: MutableSet<Point>,
-        connectedPoints: ArrayList<Point>
+        connectedPoints: ArrayList<Point>,
     ): Pair<Point, Int> {
-
         var bestUnconnected: Point? = null
         var bestIndexToInsertAt: Int? = null
         var minimumLength: Double = Double.POSITIVE_INFINITY
 
         unconnectedPoints.forEach { unconnectedPoint: Point ->
 
-            val (subBestIndexToInsertAt: Int, subMinimumLength: Double) = connectedPoints.findBestIndexToInsertAt2(
-                unconnectedPoint
-            )
+            val (subBestIndexToInsertAt: Int, subMinimumLength: Double) =
+                connectedPoints.findBestIndexToInsertAt2(
+                    unconnectedPoint,
+                )
 
             if (subMinimumLength < minimumLength) {
                 bestUnconnected = unconnectedPoint

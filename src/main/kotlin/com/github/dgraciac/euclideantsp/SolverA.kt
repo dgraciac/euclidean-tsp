@@ -25,14 +25,20 @@ class SolverA : Euclidean2DTSPSolver {
             unconnectedPoints.sortedBy { it.distance(centroid) }
 
         val linearRing: LinearRing =
-            unconnectedPointsSortedByDistanceToCentroid.take(3).permute().minBy { permutation: List<Point> ->
-                permutation.toLineString().length
-            }!!.let { it.plus(it.first()).toLinearRing() }.also { linearRing: LinearRing ->
-                if (!linearRing.isClosed) throw RuntimeException("$linearRing not closed")
-            }
+            unconnectedPointsSortedByDistanceToCentroid
+                .take(3)
+                .permute()
+                .minByOrNull { permutation: List<Point> ->
+                    permutation.toLineString().length
+                }!!
+                .let { it.plus(it.first()).toLinearRing() }
+                .also { linearRing: LinearRing ->
+                    if (!linearRing.isClosed) throw RuntimeException("$linearRing not closed")
+                }
 
         linearRing.listOfPoints().dropLast(1).forEach {
-            unconnectedPoints.remove(it)
+            unconnectedPoints
+                .remove(it)
                 .let { removed: Boolean -> if (!removed) throw RuntimeException("Point not removed") }
         }
 
@@ -47,7 +53,13 @@ class SolverA : Euclidean2DTSPSolver {
             unconnectedPoints.remove(bestInsertion.first)
         }
 
-        return Tour(points = connectedPoints.map { com.github.dgraciac.euclideantsp.shared.Point(it.x, it.y) })
+        return Tour(
+            points =
+                connectedPoints.map {
+                    com.github.dgraciac.euclideantsp.shared
+                        .Point(it.x, it.y)
+                },
+        )
     }
 
     private fun ensureLinearRing(connectedPoints: ArrayList<Point>) {
@@ -56,18 +68,18 @@ class SolverA : Euclidean2DTSPSolver {
 
     private fun findBestInsertion(
         unconnectedPoints: MutableSet<Point>,
-        connectedPoints: ArrayList<Point>
+        connectedPoints: ArrayList<Point>,
     ): Pair<Point, Int> {
-
         var bestUnconnected: Point? = null
         var bestIndexToInsertAt: Int? = null
         var minimumLength: Double = Double.POSITIVE_INFINITY
 
         unconnectedPoints.forEach { unconnectedPoint: Point ->
 
-            val (subBestIndexToInsertAt: Int, subMinimumLength: Double) = connectedPoints.findBestIndexToInsertAt(
-                unconnectedPoint
-            )
+            val (subBestIndexToInsertAt: Int, subMinimumLength: Double) =
+                connectedPoints.findBestIndexToInsertAt(
+                    unconnectedPoint,
+                )
 
             if (subMinimumLength < minimumLength) {
                 bestUnconnected = unconnectedPoint

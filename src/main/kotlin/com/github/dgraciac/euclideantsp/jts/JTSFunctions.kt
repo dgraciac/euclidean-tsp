@@ -14,25 +14,22 @@ import org.locationtech.jts.geom.Point
 internal fun lengthAfterInsertBetweenPairOfPoints(
     first: Point,
     second: Point,
-    unconnectedPoint: Point
-): Double {
-    return first.distance(unconnectedPoint) + unconnectedPoint.distance(second)
-}
+    unconnectedPoint: Point,
+): Double = first.distance(unconnectedPoint) + unconnectedPoint.distance(second)
 
-internal fun List<Point>.toLinearRing(): LinearRing =
-    GeometryFactory().createLinearRing(listOfCoordinates().toTypedArray())
+internal fun List<Point>.toLinearRing(): LinearRing = GeometryFactory().createLinearRing(listOfCoordinates().toTypedArray())
 
-internal fun List<Point>.toLineString(): LineString =
-    GeometryFactory().createLineString(listOfCoordinates().toTypedArray())
+internal fun List<Point>.toLineString(): LineString = GeometryFactory().createLineString(listOfCoordinates().toTypedArray())
 
 internal fun Geometry.listOfPoints(): List<Point> = coordinates.map { it.toJTSPoint() }
 
 internal fun Geometry.arrayOfPoints(): Array<Point> = listOfPoints().toTypedArray()
 
-internal fun ArrayList<Point>.isLinearRing(): Boolean = kotlin.runCatching { toLinearRing() }.fold(
-    onFailure = { false },
-    onSuccess = { it.isClosedSimpleAndValid() }
-)
+internal fun ArrayList<Point>.isLinearRing(): Boolean =
+    kotlin.runCatching { toLinearRing() }.fold(
+        onFailure = { false },
+        onSuccess = { it.isClosedSimpleAndValid() },
+    )
 
 internal fun LinearRing.isClosedSimpleAndValid(): Boolean = isClosedAndValid().and(isSimple)
 

@@ -11,7 +11,7 @@ class BruteForce : Euclidean2DTSPSolver {
 
         return instance.points
             .permute()
-            .minBy { list: List<Point> -> list.length() }
+            .minByOrNull { list: List<Point> -> list.length() }
             .let { Tour(points = it!!.plus(it.first())) }
     }
 }

@@ -1,13 +1,14 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // PLUGINS -- BEGIN
 plugins {
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "2.3.20"
     `java-library`
     jacoco
-    id("org.sonarqube") version "2.8"
+    id("org.sonarqube") version "7.2.3.7755"
     `maven-publish`
-    id("com.diffplug.gradle.spotless") version "3.28.1"
+    id("com.diffplug.spotless") version "8.4.0"
 }
 
 allprojects {
@@ -15,31 +16,22 @@ allprojects {
 }
 // PLUGINS -- END
 
-// JAVA VERSION -- BEGIN
+// JAVA VERSION & NULLABILITY -- BEGIN
 allprojects {
-    java.sourceCompatibility = JavaVersion.VERSION_11
+    java.sourceCompatibility = JavaVersion.VERSION_17
 
     tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "11"
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+            freeCompilerArgs.add("-Xjsr305=strict")
         }
     }
 }
-// JAVA VERSION -- END
-
-// NULLABILITY -- BEGIN
-allprojects {
-    tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            freeCompilerArgs = listOf("-Xjsr305=strict")
-        }
-    }
-}
-// NULLABILITY -- END
+// JAVA VERSION & NULLABILITY -- END
 
 // SPOTLESS -- BEGIN
 allprojects {
-    apply(plugin = "com.diffplug.gradle.spotless")
+    apply(plugin = "com.diffplug.spotless")
 
     spotless {
         kotlin {
@@ -81,13 +73,13 @@ allprojects {
     apply(plugin = "jacoco")
 
     jacoco {
-        toolVersion = "0.8.5"
+        toolVersion = "0.8.14"
     }
 
     tasks.jacocoTestReport {
         reports {
-            xml.isEnabled = true
-            html.isEnabled = true
+            xml.required.set(true)
+            html.required.set(true)
         }
 
         dependsOn(tasks.test)
@@ -110,26 +102,35 @@ allprojects {
             showStackTraces = true
             exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         }
-        afterSuite(printTestResult)
+        addTestListener(
+            object : TestListener {
+                override fun beforeSuite(suite: TestDescriptor) {}
+
+                override fun afterSuite(
+                    suite: TestDescriptor,
+                    result: TestResult,
+                ) {
+                    if (suite.parent == null) {
+                        println("------")
+                        println(
+                            "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} " +
+                                "successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)",
+                        )
+                        println("Tests took: ${result.endTime - result.startTime} ms.")
+                        println("------")
+                    }
+                }
+
+                override fun beforeTest(testDescriptor: TestDescriptor) {}
+
+                override fun afterTest(
+                    testDescriptor: TestDescriptor,
+                    result: TestResult,
+                ) {}
+            },
+        )
     }
 }
-
-val printTestResult: KotlinClosure2<TestDescriptor, TestResult, Void>
-    get() = KotlinClosure2({ desc, result ->
-
-        if (desc.parent == null) { // will match the outermost suite
-            println("------")
-            println(
-                    "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} " +
-                            "successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-            )
-            println(
-                    "Tests took: ${result.endTime - result.startTime} ms."
-            )
-            println("------")
-        }
-        null
-    })
 // TEST LOGGING -- END
 
 // JUNIT -- BEGIN
@@ -147,20 +148,14 @@ allprojects {
     }
 
     dependencies {
-        "implementation"(platform(kotlin("bom")))
-        "implementation"(kotlin("stdlib-jdk8"))
-        "implementation"(kotlin("reflect"))
-        "implementation"("javax.inject:javax.inject:1")
-        "implementation"("org.locationtech.jts:jts-core:1.17.0")
-        "implementation"("org.jgrapht:jgrapht-core:1.5.0")
-        "implementation"("com.google.guava:guava:29.0-jre")
+        implementation(platform(kotlin("bom")))
+        implementation(kotlin("reflect"))
+        implementation("org.locationtech.jts:jts-core:1.20.0")
+        implementation("org.jgrapht:jgrapht-core:1.5.2")
 
-        "testRuntimeOnly"("org.junit.jupiter:junit-jupiter-engine:5.6.2")
-        "testImplementation"("org.junit.jupiter:junit-jupiter-api:5.6.2")
-        "testImplementation"("org.junit.jupiter:junit-jupiter-params:5.6.2")
-        "testImplementation"("io.mockk:mockk:1.10.0")
-        "testImplementation"("org.assertj:assertj-core:3.16.0")
-        "testImplementation"("com.github.tomakehurst:wiremock-jre8:2.26.3")
+        testImplementation("org.junit.jupiter:junit-jupiter:6.0.3")
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+        testImplementation("org.assertj:assertj-core:3.27.7")
     }
 }
 // Dependencies -- END

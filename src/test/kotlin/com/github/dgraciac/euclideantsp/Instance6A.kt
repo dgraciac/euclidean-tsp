@@ -3,14 +3,17 @@ package com.github.dgraciac.euclideantsp
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPInstance
 import com.github.dgraciac.euclideantsp.shared.Point
 
-val TRIVIAL =
+val instance6A =
     Euclidean2DTSPInstance(
-        name = "trivial",
-        optimalLength = 3.414213562373095,
+        name = "6a",
+        optimalLength = 42.72711565853148,
         points =
             setOf(
                 Point(0.0, 0.0),
-                Point(0.0, 1.0),
-                Point(1.0, 0.0),
+                Point(14.0, 0.0),
+                Point(7.0, 11.0),
+                Point(5.0, 3.0),
+                Point(8.0, 3.0),
+                Point(7.0, 6.0),
             ),
     )

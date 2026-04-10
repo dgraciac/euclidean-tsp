@@ -2,9 +2,9 @@ package com.github.dgraciac.euclideantsp
 
 import com.github.dgraciac.euclideantsp.shared.Euclidean2DTSPInstance
 import com.github.dgraciac.euclideantsp.shared.Tour
-import kotlin.system.measureTimeMillis
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
+import kotlin.system.measureTimeMillis
 
 internal class ComparisonTest {
     private val bruteForce: BruteForce = BruteForce()
@@ -27,8 +27,8 @@ internal class ComparisonTest {
             "Algorithm: Christofides; Time: ${measureTimeMillis {
                 christofidesTour = christofides.compute(instance)
             } / 1000.0}s; Length: ${christofidesTour?.length}; Approximation: ${christofidesTour?.length?.div(
-                instance.optimalLength
-            )}"
+                instance.optimalLength,
+            )}",
         )
 
 /*        var solverATour: Tour? = null
@@ -45,8 +45,8 @@ internal class ComparisonTest {
             "Algorithm: SolverB; Time: ${measureTimeMillis {
                 solverBTour = solverB.compute(instance)
             } / 1000.0}s; Length: ${solverBTour?.length}; Approximation: ${solverBTour?.length?.div(
-                instance.optimalLength
-            )}"
+                instance.optimalLength,
+            )}",
         )
 
         println("=====================================================================================================")

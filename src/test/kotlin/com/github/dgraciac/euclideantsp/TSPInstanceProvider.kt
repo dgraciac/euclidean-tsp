@@ -1,30 +1,28 @@
 package com.github.dgraciac.euclideantsp
 
-import java.util.stream.Stream
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.ArgumentsProvider
+import java.util.stream.Stream
 
 class TSPInstanceProvider : ArgumentsProvider {
-    override fun provideArguments(context: ExtensionContext): Stream<Arguments> {
-        return Stream.of(
+    override fun provideArguments(context: ExtensionContext): Stream<Arguments> =
+        Stream.of(
 /*            Arguments.of(TRIVIAL),
-            Arguments.of(_4_SQUARE),
-            Arguments.of(_4_A),
-            Arguments.of(_4_B),
-            Arguments.of(_5_A),
-            Arguments.of(_5_B),
-            Arguments.of(_6_A),
-            Arguments.of(_6_B),
-            Arguments.of(_6_C),
-            Arguments.of(_6_D)
+            Arguments.of(instance4Square),
+            Arguments.of(instance4A),
+            Arguments.of(instance4B),
+            Arguments.of(instance5A),
+            Arguments.of(instance5B),
+            Arguments.of(instance6A),
+            Arguments.of(instance6B),
+            Arguments.of(instance6C),
+            Arguments.of(instance6D)
             ,
-            Arguments.of(_10_A),*/
+            Arguments.of(instance10A),*/
             Arguments.of(BERLIN_52),
-            Arguments.of(ST_70)
-            ,
+            Arguments.of(ST_70),
             Arguments.of(KRO_200),
-            Arguments.of(A_280)
+            Arguments.of(A_280),
         )
-    }
 }

@@ -6,10 +6,12 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 
 internal class PermutationsTest {
-
     @ParameterizedTest
     @MethodSource("fixtures")
-    fun permutes(list: List<Any>, permutations: List<List<Any>>) {
+    fun permutes(
+        list: List<Any>,
+        permutations: List<List<Any>>,
+    ) {
         assertThat(list.permute()).containsExactlyInAnyOrder(*permutations.toTypedArray())
     }
 
@@ -21,8 +23,8 @@ internal class PermutationsTest {
                     listOf(1, 2),
                     listOf(
                         listOf(1, 2),
-                        listOf(2, 1)
-                    )
+                        listOf(2, 1),
+                    ),
                 ),
                 Arguments.of(
                     listOf(1, 2, 3),
@@ -32,9 +34,9 @@ internal class PermutationsTest {
                         listOf(2, 1, 3),
                         listOf(2, 3, 1),
                         listOf(3, 1, 2),
-                        listOf(3, 2, 1)
-                    )
-                )
+                        listOf(3, 2, 1),
+                    ),
+                ),
             )
     }
 }
