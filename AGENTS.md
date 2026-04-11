@@ -8,12 +8,45 @@ Encontrar un algoritmo que resuelva el TSP Euclídeo 2D en tiempo polinómico.
 
 ## Estructura del proyecto
 
-- `src/main/kotlin/com/github/dgraciac/euclideantsp/` — Implementaciones de solvers y utilidades
+- `src/main/kotlin/com/github/dgraciac/euclideantsp/`
   - `shared/` — Tipos base: `Point`, `Tour`, `Euclidean2DTSPInstance`, `Euclidean2DTSPSolver` (interfaz)
-  - Solvers: `Christofides`, `SolverA`, `SolverB`, `SolverC` (y variantes)
+  - Solvers por linea de investigacion (~30 solvers, cada uno en su archivo):
+    - Linea A: `SolverA` (centroide)
+    - Linea B: `SolverB`, `SolverB1`-`SolverB3` (convex hull + insercion)
+    - Linea C: `SolverC1`-`SolverC4` (peeling)
+    - Linea E: `SolverE1`-`SolverE7` (nearest neighbor + multi-start)
+    - Linea F: `SolverF1` (Delaunay)
+    - Linea G: `SolverG1`-`SolverG2` (multi-construccion)
+    - Linea H: `SolverH1`-`SolverH4` (perturbacion + LK)
+    - Linea I: `SolverI1`-`SolverI2` (optimizar dentro de O(n^3))
+    - Linea J: `SolverJ1`-`SolverJ6` (busqueda local avanzada: α-nearness, LK deep, subgradient)
+  - Utilidades compartidas de busqueda local:
+    - `TwoOpt.kt` — 2-opt con safety limit (O(n^3) peor caso)
+    - `OrOpt.kt` — or-opt parametrizable (O(n^3) peor caso)
+    - `LinKernighan.kt` — LK profundidad 2 con position map
+    - `LinKernighanDeep.kt` — LK profundidad 5 con backtracking
+    - `DoubleBridge.kt` — perturbacion double-bridge determinista
+    - `FourOpt.kt` — 4-opt directo sobre candidatos
+    - `LocalSearch.kt` — busqueda local iterativa (ciclo 2-opt/or-opt)
+  - Utilidades de candidatos:
+    - `NeighborList.kt` — K-nearest y 2-opt acelerado con neighbor lists
+    - `AlphaNearness.kt` — α-nearness basado en 1-tree/MST
+    - `SubgradientOptimization.kt` — optimizacion Held-Karp para candidatos
+  - Construcciones:
+    - `Construction.kt` — nearestNeighborFrom, farthestInsertion, convexHullInsertion, peelingInsertion, greedyConstruction
   - Extensiones: `PointExtensions`, `ListExtensions`, `SetExtensions`, `CoordinateExtensions`
-  - `jts/` — Funciones auxiliares con JTS (geometría)
-- `src/test/kotlin/` — Tests parametrizados con instancias TSPLIB (berlin52, st70, kro200, a280) e instancias pequeñas
+  - `jts/` — Funciones auxiliares con JTS (geometria)
+- `src/test/kotlin/` — Tests:
+  - `ComparisonTest.kt` — Test principal: ejecuta solvers activos en todas las instancias
+  - `TSPInstanceProvider.kt` — Provee las instancias TSPLIB para tests parametrizados
+  - Instancias TSPLIB: `Eil51`, `Berlin52`, `ST70`, `Eil76`, `Rat99`, `Kro200`, `A280`, `Pcb442`
+  - Instancias pequeñas: `Trivial`, `Instance4*`, `Instance5*`, `Instance6*`, `Instance10A`
+  - `ConvexHullLayerOrderTest.kt` — Verificacion de propiedad de capas (E008)
+  - `ConvexHullLayerOrderLargeTest.kt` — Idem en instancias grandes (E011)
+  - `GapAnalysisTest.kt` — Analisis arista por arista del gap (E018)
+  - `PassCountAnalysisTest.kt` — Conteo de pasadas de 2-opt/or-opt (E026)
+  - `InstanceValidationTest.kt` — Validacion de instancias importadas
+- `RESEARCH_LOG.md` — **Fuente principal de contexto para la investigacion**
 
 ## Build y tests
 

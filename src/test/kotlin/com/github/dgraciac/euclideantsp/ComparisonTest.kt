@@ -11,37 +11,27 @@ internal class ComparisonTest {
     companion object {
         val solvers: List<Pair<String, Euclidean2DTSPSolver>> =
             listOf(
-                "Christofides" to Christofides(),
-                // "SolverB" to SolverB(),   // O(n^4) — descomentar solo para comparacion completa
-                // "SolverB1" to SolverB1(), // O(n^4) — descomentar solo para comparacion completa
-                // "SolverB2" to SolverB2(), // Superado por SolverC3
-                // "SolverC1" to SolverC1(), // Superado por SolverC3
-                // "SolverC2" to SolverC2(), // Superado por SolverC3
-                "SolverC3" to SolverC3(),
-                // "SolverC4" to SolverC4(), // Superado por SolverC3
-                // "SolverB3" to SolverB3(), // Superado por SolverE2
-                // "SolverE1" to SolverE1(), // Superado por SolverE2
-                // "SolverF1" to SolverF1(), // Superado por SolverE2
-                "SolverE2" to SolverE2(),
-                "SolverE3" to SolverE3(),
-                // "SolverE4" to SolverE4(), // Identico a SolverE2 (E014)
-                // "SolverE5" to SolverE5(), // Superado por SolverE7
-                // "SolverE6" to SolverE6(), // Superado por SolverE7
-                "SolverE7" to SolverE7(),
-                "SolverG1" to SolverG1(),
-                "SolverG2" to SolverG2(),
-                "SolverH1" to SolverH1(),
-                "SolverH2" to SolverH2(),
-                "SolverH3" to SolverH3(),
-                // "SolverH4" to SolverH4(), // Identico a SolverH3 (E025: 4-opt redundante con LK+DB)
-                "SolverI1" to SolverI1(),
-                "SolverI2" to SolverI2(),
-                "SolverJ1" to SolverJ1(),
-                "SolverJ2" to SolverJ2(),
-                "SolverJ3" to SolverJ3(),
-                "SolverJ4" to SolverJ4(),
-                "SolverJ5" to SolverJ5(),
-                "SolverJ6" to SolverJ6(),
+                // === Solvers activos: solo los mejores por categoria ===
+                // Descomentar otros para comparacion completa (aumenta tiempo de test)
+                "Christofides" to Christofides(), // Baseline O(n^3), garantia 3/2
+                "SolverJ5" to SolverJ5(), // Mejor O(n^3): media 1.010x
+                "SolverH3" to SolverH3(), // Mejor O(n^4): media 1.006x (LENTO en pcb442: ~3min)
+                // === Solvers anteriores (superados, descomentar si se necesitan) ===
+                // "SolverJ6" to SolverJ6(), // Subgradient, no mejora sobre J5 (E032)
+                // "SolverJ4" to SolverJ4(), // LK-deep(5), inestable en pcb442 (E030)
+                // "SolverJ3" to SolverJ3(), // α-nearness + LK-2, superado por J5
+                // "SolverJ2" to SolverJ2(), // α5+dist5, inestable (E029)
+                // "SolverJ1" to SolverJ1(), // α solo, inestable en a280 (E029)
+                // "SolverI2" to SolverI2(), // Mejor O(n^3) anterior, superado por J5
+                // "SolverI1" to SolverI1(), // O(n^3) sin DB, superado por I2
+                // "SolverH2" to SolverH2(), // Multi-start selectivo + LK + DB
+                // "SolverH1" to SolverH1(), // Multi-start selectivo + DB
+                // "SolverG2" to SolverG2(), // Multi-start completo + 2-opt-nl + diversidad
+                // "SolverG1" to SolverG1(), // Multi-start selectivo + diversidad
+                // "SolverE7" to SolverE7(), // Multi-start + 2-opt-nl
+                // "SolverE3" to SolverE3(), // Multi-start selectivo (hull)
+                // "SolverE2" to SolverE2(), // Multi-start completo
+                // "SolverC3" to SolverC3(), // Peeling + 2-opt + or-opt
             )
     }
 

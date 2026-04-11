@@ -13,7 +13,7 @@ Encontrar un algoritmo de complejidad polinomica que resuelva el TSP Euclideo 2D
 **Nota sobre "superar a Christofides":** En este log, "superar" o "mejor que Christofides" se refiere
 a **mejor ratio empirico** en las instancias de test, NO a mejor garantia teorica. Christofides tiene
 una garantia demostrada de 1.5x en el peor caso para cualquier instancia. Nuestros solvers no tienen
-esa garantia — su rendimiento solo esta verificado empiricamente en 4 instancias TSPLIB.
+esa garantia — su rendimiento solo esta verificado empiricamente en 8 instancias TSPLIB.
 
 ---
 
