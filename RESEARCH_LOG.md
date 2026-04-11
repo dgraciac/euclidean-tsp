@@ -83,6 +83,29 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 
 ## Log de experimentos
 
+### E022 — SolverH1: Multi-start selectivo + double-bridge perturbation (2026-04-11)
+
+- **Solver:** SolverH1
+- **Linea:** H (perturbacion para escapar optimos locales)
+- **Hipotesis:** Double-bridge (4-opt no secuencial) permite escapar optimos locales que 2-opt+or-opt no pueden resolver.
+- **Complejidad:** O(n^3.5)
+- **Resultados:**
+
+| Instancia | SolverE3 | SolverH1 | Mejora |
+|-----------|----------|----------|--------|
+| eil51 | 1.007x | 1.007x | = |
+| berlin52 | 1.000x | 1.000x | = |
+| st70 | 1.016x | 1.014x | -0.2% |
+| eil76 | 1.034x | 1.025x | -0.9% |
+| rat99 | 1.016x | 1.015x | -0.1% |
+| kro200 | 1.023x | 1.010x | -1.3% |
+| a280 | 1.029x | 1.026x | -0.3% |
+| pcb442 | 1.033x | 1.028x | -0.5% |
+
+- **Metricas agregadas:** Media aritmetica=1.016x | Media geometrica=1.015x | Peor caso=1.028x
+- **Conclusion:** Double-bridge funciona — mejora en todas las instancias grandes vs SolverE3. Pero multi-start completo (SolverE2/G2, O(n^4)) sigue siendo superior. El multi-start diversifica mas que 20 perturbaciones sobre un solo optimo local.
+- **Nota:** La implementacion inicial con Lin-Kernighan tenia un bug en el calculo de ganancia (confundia aristas teoricas LK con aristas reales del 2-opt reversal). Se reemplazo por double-bridge perturbation que es mas simple y correcto.
+
 ### E017 — SolverE6: Multi-start selectivo + 3-opt (2026-04-11)
 
 - **Solver:** SolverE6
