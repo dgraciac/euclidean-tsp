@@ -24,6 +24,7 @@ import com.github.dgraciac.euclideantsp.shared.Tour
  * 4. 2-opt final — O(n^3)
  *
  * Complejidad e2e: O(n^3)
+ * Complejidad peor caso: O(n^4) — una ejecucion de NN O(n^2) + pipeline O(n^4)
  *
  * Resultados:
  *   berlin52: ratio=1.053, tiempo=0.008s

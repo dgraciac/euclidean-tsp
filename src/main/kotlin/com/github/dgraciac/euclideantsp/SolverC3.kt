@@ -29,6 +29,7 @@ import org.locationtech.jts.geom.GeometryFactory
  * - Pasos 1-2: O(n^2 log n)
  * - Pasos 3-5: O(n^3) — busqueda local (dominante)
  * - Total: O(n^3)
+ * Complejidad peor caso: O(n^4) — dominada por 2-opt y or-opt (n^2 pasadas cada uno)
  *
  * Resultados:
  *   berlin52: ratio=1.000, tiempo=0.008s (vs Christofides 1.126: mucho mejor, casi optimo!)

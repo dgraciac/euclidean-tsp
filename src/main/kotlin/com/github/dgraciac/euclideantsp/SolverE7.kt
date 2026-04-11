@@ -27,6 +27,7 @@ import com.github.dgraciac.euclideantsp.shared.Tour
  *
  * Complejidad e2e: O(n * (n^2 + n*K * pasadas + n^2 * pasadas)) ≈ O(n^4)
  * Pero con constante mucho menor que SolverE2 gracias a K << n.
+ * Complejidad peor caso: O(n^5) — n starts × (2-opt-nl O(n^3) + or-opt O(n^4) + 2-opt-nl O(n^3)) = n × O(n^4)
  *
  * Resultados:
  *   eil51:    ratio=1.008, tiempo=0.056s

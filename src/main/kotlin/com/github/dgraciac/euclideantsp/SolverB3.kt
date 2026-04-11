@@ -27,6 +27,7 @@ import org.locationtech.jts.geom.GeometryFactory
  * 5. 2-opt final — O(n^3)
  *
  * Complejidad e2e: O(n^3)
+ * Complejidad peor caso: O(n^4) — construccion O(n^2) + pipeline O(n^4)
  *
  * Resultados:
  *   berlin52: ratio=1.042, tiempo=0.010s

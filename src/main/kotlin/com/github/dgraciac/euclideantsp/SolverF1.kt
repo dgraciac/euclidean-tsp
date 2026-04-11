@@ -27,6 +27,7 @@ import org.locationtech.jts.triangulate.DelaunayTriangulationBuilder
  * 4. 2-opt + or-opt + 2-opt — O(n^3)
  *
  * Complejidad e2e: O(n^3)
+ * Complejidad peor caso: O(n^4) — Delaunay O(n log n) + NN O(n^2) + pipeline O(n^4)
  *
  * Resultados:
  *   berlin52: ratio=1.053, tiempo=0.054s

@@ -28,6 +28,7 @@ import org.locationtech.jts.geom.GeometryFactory
  *
  * Complejidad e2e: O(h * n^3) donde h = |convex hull|. En promedio h = O(sqrt(n)),
  *   asi que O(n^3.5). Peor caso O(n^4) si h = O(n).
+ * Complejidad peor caso: O(h × n^4) ≈ O(n^4.5) — h starts × O(n^4) pipeline
  *
  * Resultados:
  *   eil51:    ratio=1.007, tiempo=0.022s

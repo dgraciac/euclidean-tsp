@@ -28,6 +28,7 @@ import com.github.dgraciac.euclideantsp.shared.Tour
  * 4. Retornar el mejor de todos (n + 4 candidatos)
  *
  * Complejidad e2e: O(n^4) — dominada por n starts de NN
+ * Complejidad peor caso: O(n^5) — (n + 4) starts × O(n^4) pipeline
  *
  * Resultados:
  *   eil51:    ratio=1.008, tiempo=0.155s

@@ -79,7 +79,7 @@ Todo solver debe tener KDoc en español con:
 - Numero de experimento (EXXX)
 - Hipotesis que se prueba
 - Algoritmo paso a paso
-- **Complejidad Big O e2e con desglose por paso**
+- **Complejidad Big O e2e** (tipica/empirica) **y peor caso** con desglose por paso
 - Tabla de resultados (ratio + tiempo por instancia)
 - **Metricas agregadas: media aritmetica, media geometrica y peor caso** de los ratios
 - Conclusion
@@ -87,6 +87,7 @@ Todo solver debe tener KDoc en español con:
 ### Reglas experimentales
 
 - **Ejecucion en serie:** Los solvers se ejecutan uno tras otro, nunca en paralelo. Esto garantiza que las mediciones de tiempo no se contaminen por compartir CPU entre solvers.
+- **Complejidad tipica vs peor caso:** La complejidad "e2e" documentada en los solvers es la tipica/empirica. La complejidad "peor caso" tiene en cuenta que 2-opt y or-opt pueden requerir hasta n^2 pasadas antes de converger (safety limit). Sin el safety limit, el numero de mejoras 2-opt puede ser super-polinomico en el peor caso (Englert et al. 2014). Los safety limits en twoOpt y orOpt garantizan terminacion polinomica.
 - **Discrepancia de distancias TSPLIB:** TSPLIB define EUC_2D como `nint(sqrt(dx^2+dy^2))` (redondeada al entero). Nuestro codigo usa distancia euclidea real (sin redondeo). Esto causa que nuestros tours midan ~0.02-0.8% menos que en metrica TSPLIB. Los ratios de aproximacion tienen un pequeño sesgo optimista. Los valores de `optimalLength` en las instancias son los de TSPLIB (calculados con distancias enteras).
 - **Validacion de instancias:** `InstanceValidationTest` verifica el numero de puntos, ausencia de duplicados, y coherencia de los optimos declarados. Ejecutar al importar nuevas instancias.
 

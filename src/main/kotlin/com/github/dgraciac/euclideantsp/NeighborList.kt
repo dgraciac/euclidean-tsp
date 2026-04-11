@@ -9,7 +9,10 @@ import com.github.dgraciac.euclideantsp.shared.Point
  * @param points conjunto de puntos
  * @param k numero de vecinos a mantener
  * @return mapa de punto -> lista de K vecinos mas cercanos (ordenados)
- * Complejidad: O(n^2 log K) — para cada punto, encontrar K menores de n candidatos
+ *
+ * Complejidad peor caso: O(n^2 log n)
+ * - Para cada punto (n), ordena los n-1 candidatos: O(n log n)
+ * - Total: O(n * n log n) = O(n^2 log n)
  */
 fun buildNeighborLists(
     points: Set<Point>,
@@ -29,12 +32,17 @@ fun buildNeighborLists(
 /**
  * 2-opt acelerado con neighbor lists.
  * Solo considera intercambios donde al menos un punto esta en la lista de vecinos
- * cercanos del otro. Esto reduce la busqueda de O(n^2) a O(n*K) por pasada.
+ * cercanos del otro. Reduce la busqueda de O(n^2) a O(n*K) por pasada.
  *
  * @param tourPoints lista de puntos del tour (cerrado: primero == ultimo)
  * @param neighborLists mapa de vecinos cercanos
  * @return tour mejorado (cerrado: primero == ultimo)
- * Complejidad: O(n*K) por pasada, O(n) pasadas tipicas
+ *
+ * Complejidad peor caso: O(n^2 * n * K) = O(n^3 * K)
+ * - Por pasada: O(n * K) — para cada punto, prueba K vecinos
+ * - Numero de pasadas: limitado a n^2 (safety limit)
+ * - Total: O(n^2) * O(n * K) = O(n^3 * K)
+ * - Con K constante (e.g., K=10): O(n^3)
  */
 fun twoOptWithNeighborLists(
     tourPoints: List<Point>,
@@ -43,19 +51,19 @@ fun twoOptWithNeighborLists(
     val points = tourPoints.dropLast(1).toMutableList()
     val n = points.size
 
-    // Indice de posicion de cada punto en el tour
     val position = HashMap<Point, Int>(n * 2)
     points.forEachIndexed { idx, p -> position[p] = idx }
 
     var improved = true
-    while (improved) {
+    var maxPasses = n * n // Limite para garantizar terminacion polinomica
+
+    while (improved && maxPasses-- > 0) {
         improved = false
         for (i in 0 until n - 1) {
             val a = points[i]
             val b = points[i + 1]
             val distAB = a.distance(b)
 
-            // Solo probar con vecinos cercanos de a
             val neighbors = neighborLists[a] ?: continue
             for (c in neighbors) {
                 val j = position[c] ?: continue
@@ -67,7 +75,6 @@ fun twoOptWithNeighborLists(
 
                 if (distAB + distCD > a.distance(c) + b.distance(d)) {
                     points.subList(i + 1, j + 1).reverse()
-                    // Actualizar posiciones
                     for (idx in i + 1..j) {
                         position[points[idx]] = idx
                     }
