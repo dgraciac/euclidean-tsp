@@ -86,6 +86,13 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 Comparacion de nuestros mejores solvers con los algoritmos de referencia en la literatura.
 Los datos de LKH y Concorde son de la literatura publicada, no de nuestras mediciones.
 
+**NOTA IMPORTANTE:** LKH y Concorde NO son polinomicos. La comparacion relevante para
+nuestro objetivo (algoritmo polinomico) es contra Christofides y otros algoritmos con
+costo polinomico garantizado. Nuestro SolverJ5 (O(n^3), media 1.010x) es una mejora
+empirica significativa sobre Christofides (O(n^3), media 1.147x) manteniendo la misma
+complejidad peor caso. LKH se incluye solo como referencia del maximo rendimiento
+posible sin restriccion de complejidad.
+
 | Algoritmo | Tipo | Complejidad | Gap al optimo | Garantia | Instancias |
 |-----------|------|-------------|--------------|----------|------------|
 | **Concorde** | Exacto | Exponencial | 0% (optimo) | Exacto | Hasta ~85,000 pts |
