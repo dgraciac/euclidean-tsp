@@ -87,6 +87,8 @@ Todo solver debe tener KDoc en español con:
 ### Reglas experimentales
 
 - **Ejecucion en serie:** Los solvers se ejecutan uno tras otro, nunca en paralelo. Esto garantiza que las mediciones de tiempo no se contaminen por compartir CPU entre solvers.
+- **Discrepancia de distancias TSPLIB:** TSPLIB define EUC_2D como `nint(sqrt(dx^2+dy^2))` (redondeada al entero). Nuestro codigo usa distancia euclidea real (sin redondeo). Esto causa que nuestros tours midan ~0.02-0.8% menos que en metrica TSPLIB. Los ratios de aproximacion tienen un pequeño sesgo optimista. Los valores de `optimalLength` en las instancias son los de TSPLIB (calculados con distancias enteras).
+- **Validacion de instancias:** `InstanceValidationTest` verifica el numero de puntos, ausencia de duplicados, y coherencia de los optimos declarados. Ejecutar al importar nuevas instancias.
 
 ### Protocolo de iteracion
 
