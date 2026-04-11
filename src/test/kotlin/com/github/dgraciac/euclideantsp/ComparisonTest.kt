@@ -12,11 +12,12 @@ internal class ComparisonTest {
         val solvers: List<Pair<String, Euclidean2DTSPSolver>> =
             listOf(
                 "Christofides" to Christofides(),
-                "SolverB" to SolverB(),
-                "SolverB1" to SolverB1(),
+                // "SolverB" to SolverB(),   // O(n^4) — descomentar solo para comparacion completa
+                // "SolverB1" to SolverB1(), // O(n^4) — descomentar solo para comparacion completa
                 "SolverB2" to SolverB2(),
                 "SolverC1" to SolverC1(),
                 "SolverC2" to SolverC2(),
+                "SolverC3" to SolverC3(),
             )
     }
 

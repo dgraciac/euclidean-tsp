@@ -10,6 +10,11 @@ Encontrar un algoritmo de complejidad polinomica que resuelva el TSP Euclideo 2D
 - Buena señal: un solver polinomico que aproxima mejor que Christofides (O(n^3), garantia 1.5x)
 - Perfecto: un solver polinomico que encuentra la solucion optima
 
+**Nota sobre "superar a Christofides":** En este log, "superar" o "mejor que Christofides" se refiere
+a **mejor ratio empirico** en las instancias de test, NO a mejor garantia teorica. Christofides tiene
+una garantia demostrada de 1.5x en el peor caso para cualquier instancia. Nuestros solvers no tienen
+esa garantia — su rendimiento solo esta verificado empiricamente en 4 instancias TSPLIB.
+
 ---
 
 ## Metricas de comparacion
@@ -23,26 +28,27 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 
 | Instancia | Optimo | Mejor Solver | Ratio | Tiempo | Complejidad | Fecha |
 |-----------|--------|-------------|-------|--------|-------------|-------|
-| berlin52 | 7542.0 | SolverB1 | 1.010x | 0.42s | O(n^4) | 2026-04-10 |
-| st70 | 675.0 | SolverB1 | 1.051x | 0.83s | O(n^4) | 2026-04-10 |
-| kro200 | 29368.0 | SolverB1 | 1.064x | 64.3s | O(n^4) | 2026-04-10 |
-| a280 | 2579.0 | SolverB1 | 1.081x | 140.2s | O(n^4) | 2026-04-10 |
+| berlin52 | 7542.0 | SolverC3 | 1.000x | 0.008s | O(n^3) | 2026-04-10 |
+| st70 | 675.0 | SolverC3 | 1.031x | 0.006s | O(n^3) | 2026-04-10 |
+| kro200 | 29368.0 | SolverC3 | 1.048x | 0.059s | O(n^3) | 2026-04-10 |
+| a280 | 2579.0 | SolverC3 | 1.069x | 0.036s | O(n^3) | 2026-04-10 |
 
 ### Resumen agregado por solver
 
 | Solver | Complejidad | Media arit. | Media geom. | Peor caso | Tiempo max |
 |--------|-------------|------------|------------|-----------|------------|
+| **SolverC3** | **O(n^3)** | **1.037x** | **1.036x** | **1.069x** | **0.059s** |
+| SolverB1 | O(n^4) | 1.052x | 1.051x | 1.081x | 140.2s |
+| SolverC2 | O(n^3) | 1.070x | 1.069x | 1.087x | 0.010s |
+| SolverB2 | O(n^3) | 1.076x | 1.076x | 1.100x | 0.006s |
+| SolverB | O(n^4) | 1.105x | 1.102x | 1.212x | 138.5s |
 | Christofides | O(n^3) | 1.137x | 1.137x | 1.156x | 0.10s |
 | SolverC1 | O(n^3) | 1.174x | 1.173x | 1.218x | 0.004s |
-| **SolverC2** | **O(n^3)** | **1.070x** | **1.069x** | **1.087x** | **0.010s** |
-| **SolverB2** | **O(n^3)** | **1.076x** | **1.076x** | **1.100x** | **0.006s** |
-| SolverB | O(n^4) | 1.105x | 1.102x | 1.212x | 138.5s |
-| SolverB1 | O(n^4) | 1.052x | 1.051x | 1.081x | 140.2s |
 
 **Notas:**
-- SolverB1 (O(n^4)) tiene la mejor aproximacion pero es muy lento.
-- SolverC2 y SolverB2 (ambos O(n^3)) superan a Christofides en todas las metricas y son mas rapidos.
-- SolverC2 es el mejor solver O(n^3): mejor media y mejor peor caso que SolverB2.
+- SolverC3 (O(n^3)) es el mejor solver en todas las metricas, superando incluso a SolverB1 (O(n^4)).
+- En berlin52, SolverC3 alcanza ratio 1.0003 — practicamente el tour optimo.
+- El pipeline peeling + insercion + 2-opt + or-opt + 2-opt es la mejor estrategia encontrada.
 
 ---
 
@@ -66,6 +72,31 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 ---
 
 ## Log de experimentos
+
+### E005 — SolverC3: Peeling + insercion + 2-opt + or-opt (2026-04-10)
+
+- **Solver:** SolverC3
+- **Linea:** C
+- **Padre:** SolverC2
+- **Hipotesis:** Añadir or-opt despues de 2-opt reubicara segmentos mal posicionados que 2-opt no puede corregir, mejorando 1-3% adicional.
+- **Algoritmo:**
+  1. Peeling + insercion por ratio — O(n^2)
+  2. 2-opt hasta convergencia — O(n^3)
+  3. Or-opt (segmentos de 1-3 puntos) hasta convergencia — O(n^3)
+  4. 2-opt final por si or-opt abrio nuevas mejoras — O(n^3)
+- **Complejidad:** O(n^3)
+- **Resultados:**
+
+| Instancia | SolverC2 | SolverC3 | Mejora | Tiempo | vs Christofides |
+|-----------|----------|----------|--------|--------|-----------------|
+| berlin52 | 1.026x | 1.000x | -2.6% | 0.008s | mucho mejor |
+| st70 | 1.080x | 1.031x | -4.9% | 0.006s | mejor |
+| kro200 | 1.085x | 1.048x | -3.7% | 0.059s | mejor |
+| a280 | 1.087x | 1.069x | -1.8% | 0.036s | mejor |
+
+- **Metricas agregadas:** Media aritmetica=1.037x | Media geometrica=1.036x | Peor caso=1.069x
+- **Conclusion:** Resultado excepcional. SolverC3 es el mejor solver del proyecto en TODAS las metricas, superando incluso a SolverB1 (O(n^4)) que tenia media 1.052x. En berlin52 alcanza ratio 1.0003 — practicamente el tour optimo. El or-opt mejora 1.8-4.9% sobre SolverC2. Es O(n^3), milisegundos de ejecucion. El pipeline peeling + 2-opt + or-opt + 2-opt es muy efectivo.
+- **Siguientes pasos:** Probar or-opt tambien sobre SolverB2 (SolverB3). Investigar por que berlin52 da casi-optimo y st70/kro200/a280 no. Intentar 3-opt selectivo para las instancias mas dificiles.
 
 ### E004 — SolverC2: Peeling + insercion + 2-opt (2026-04-10)
 
