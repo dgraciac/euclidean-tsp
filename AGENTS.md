@@ -75,7 +75,10 @@ Encontrar un algoritmo que resuelva el TSP Euclídeo 2D en tiempo polinómico.
 
 ## Protocolo de investigacion
 
-**IMPORTANTE: Leer `RESEARCH_LOG.md` al inicio de cada sesion.** Contiene el estado actual de la investigacion, mejores resultados, experimentos realizados y backlog de ideas.
+**IMPORTANTE — Al inicio de CADA sesion:**
+1. Leer este archivo (`AGENTS.md`) completo para entender el proyecto, las reglas y las convenciones.
+2. Leer `RESEARCH_LOG.md` completo para entender el estado actual: mejores resultados, experimentos realizados, backlog de ideas, y state of the art.
+3. La investigacion es continua entre sesiones. Todo el contexto necesario esta en el repo. No debe haber ninguna perdida de informacion al cambiar de sesion o de agente. Si descubres algo que solo existe en la conversacion y no en el repo, documentalo ANTES de terminar la sesion.
 
 ### Restriccion fundamental
 
