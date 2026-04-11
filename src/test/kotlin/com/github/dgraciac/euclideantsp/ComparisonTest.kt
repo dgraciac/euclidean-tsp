@@ -24,7 +24,9 @@ internal class ComparisonTest {
                 "SolverF1" to SolverF1(),
                 "SolverE2" to SolverE2(),
                 "SolverE3" to SolverE3(),
-                "SolverE4" to SolverE4(),
+                // "SolverE4" to SolverE4(), // Identico a SolverE2 (E014)
+                "SolverE5" to SolverE5(),
+                "SolverE6" to SolverE6(),
             )
     }
 

@@ -27,5 +27,6 @@ class TSPInstanceProvider : ArgumentsProvider {
             Arguments.of(RAT_99),
             Arguments.of(KRO_200),
             Arguments.of(A_280),
+            Arguments.of(PCB_442),
         )
 }

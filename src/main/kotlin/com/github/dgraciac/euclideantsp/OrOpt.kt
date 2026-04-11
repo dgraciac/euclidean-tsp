@@ -14,14 +14,27 @@ import com.github.dgraciac.euclideantsp.shared.Point
  * @return tour mejorado (cerrado: primero == ultimo)
  * Complejidad: O(n^2) por pasada, O(n) pasadas tipicas = O(n^3) empirico
  */
-fun orOpt(tourPoints: List<Point>): List<Point> {
+fun orOpt(tourPoints: List<Point>): List<Point> = orOpt(tourPoints, maxSegmentSize = 3)
+
+/**
+ * Version parametrizable de or-opt que permite especificar el tamaño maximo de segmento.
+ *
+ * @param tourPoints lista de puntos del tour (cerrado: primero == ultimo)
+ * @param maxSegmentSize tamaño maximo de segmento a reubicar (por defecto 3)
+ * @return tour mejorado (cerrado: primero == ultimo)
+ * Complejidad: O(maxSegmentSize * n^2) por pasada, O(n) pasadas tipicas
+ */
+fun orOpt(
+    tourPoints: List<Point>,
+    maxSegmentSize: Int,
+): List<Point> {
     val points = tourPoints.dropLast(1).toMutableList()
     var improved = true
     var maxIterations = points.size * points.size // Safety limit
 
     while (improved && maxIterations-- > 0) {
         improved = false
-        for (segSize in 1..minOf(3, points.size - 3)) {
+        for (segSize in 1..minOf(maxSegmentSize, points.size - 3)) {
             if (improved) break
             for (i in 0 until points.size - segSize) {
                 if (tryRelocate(points, i, segSize)) {
