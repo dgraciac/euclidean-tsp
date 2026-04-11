@@ -58,6 +58,8 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 
 Las tres se registran por solver en `RESEARCH_LOG.md` y en el KDoc de cada solver.
 
+Ademas, para cada solver se debe determinar la **peor aproximacion garantizada** (ratio de aproximacion en el peor caso sobre todas las instancias posibles). Christofides tiene garantia demostrada de 3/2. Nuestros solvers necesitan analisis teorico o contraejemplos para establecer su garantia. Sin esto, la comparacion con Christofides es incompleta: mejor ratio empirico no implica mejor algoritmo si no hay garantia en el peor caso.
+
 ### Convencion de nombres de solvers
 
 - **Letra** = linea de investigacion (A = centroide, B = convex hull + ratio, C = peeling, D/E/... = nuevas lineas)

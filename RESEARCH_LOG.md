@@ -57,6 +57,14 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 | Christofides | O(n^3) | 1.147x | 1.147x | 1.165x | 0.12s |
 | SolverC1 | O(n^3) | 1.174x | 1.173x | 1.218x | 0.014s |
 
+**Notas sobre garantias de aproximacion:**
+- Christofides tiene garantia de aproximacion **3/2 demostrada** (peor caso sobre cualquier instancia).
+- Nuestros solvers no tienen garantia teorica. Los ratios reportados son **empiricos** sobre 8 instancias.
+- Pendiente: determinar la peor aproximacion garantizada de cada solver. Esto requiere analisis
+  teorico (demostracion de cota superior) o busqueda de contraejemplos (instancias adversariales).
+- Sin esta garantia, la comparacion con Christofides es incompleta: mejor ratio empirico no implica
+  mejor algoritmo si el peor caso no esta acotado.
+
 **Notas sobre complejidad peor caso:**
 - Christofides es el unico solver con peor caso = tipico (O(n^3) garantizado).
 - Nuestros solvers tienen peor caso 1-2 grados mayor que el tipico porque 2-opt y or-opt
