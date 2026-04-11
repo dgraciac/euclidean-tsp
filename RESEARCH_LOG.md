@@ -126,6 +126,33 @@ El PTAS de Arora garantiza 1+ε pero es impractico para ε pequeño.
 2. Existe un algoritmo O(n^3) con garantia demostrada mejor que 3/2 para TSP euclideo 2D?
 3. Puede nuestro enfoque (multi-start + busqueda local con safety limits) tener garantia sublineal?
 
+### E033 — Busqueda empirica de garantia de aproximacion (2026-04-11)
+
+**Resultado:** En todas las instancias adversariales pequeñas (n=4 a n=12), SolverJ5
+encuentra el tour **optimo exacto** (ratio 1.000000). Ningun contraejemplo encontrado.
+
+| Tipo instancia | n | SolverJ5 ratio | Christofides ratio |
+|----------------|---|---------------|-------------------|
+| Grids (7 instancias) | 4-12 | 1.000x en todas | hasta 1.250x |
+| Clusters (10 instancias) | 6-8 | 1.000x en todas | hasta 1.000x |
+| Zigzag (16 instancias) | 6-10 | 1.000x en todas | hasta 1.145x |
+| Estrellas (5 instancias) | 6-10 | 1.000x en todas | hasta 1.149x |
+| TSPLIB (8 instancias) | 51-442 | hasta 1.025x | hasta 1.144x |
+
+**Peor ratio encontrado de SolverJ5:** 1.025x (eil76, n=76)
+**Peor ratio encontrado de Christofides:** 1.144x (eil76, n=76)
+
+**Limitaciones del analisis:**
+- Instancias adversariales limitadas a n<=12 (BruteForce)
+- No se han construido las instancias especificas de Chandra-Karloff-Tovey (1999)
+  que prueban el peor caso teorico Theta(log n/log log n) de 2-opt
+- El ratio podria crecer con n — necesitamos instancias de n=1000+ para verificar
+- Esto es evidencia empirica, NO una demostracion teorica
+
+**Conclusion:** SolverJ5 domina empiricamente a Christofides en todas las instancias
+probadas (8 TSPLIB + ~38 adversariales). Pero sin demostracion teorica, no podemos
+afirmar que su garantia de aproximacion sea mejor que 3/2.
+
 ### Tecnicas integradas de la literatura de busqueda local
 
 1. α-nearness candidates basados en 1-tree (E029) — integrado
