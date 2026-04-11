@@ -70,7 +70,7 @@ class SolverH1 : Euclidean2DTSPSolver {
         }
 
         // Paso 2: Double-bridge perturbation
-        val afterPerturbation = doubleBridgePerturbation(bestTour!!.points, maxPerturbations = 20)
+        val afterPerturbation = doubleBridgePerturbation(bestTour!!.points, maxAttempts = 20)
         return Tour(points = afterPerturbation)
     }
 }

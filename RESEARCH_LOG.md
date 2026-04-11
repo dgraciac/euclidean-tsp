@@ -97,6 +97,31 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 
 ## Log de experimentos
 
+### E023 — SolverH2: Multi-start selectivo + LK + double-bridge + LK (2026-04-11)
+
+- **Solver:** SolverH2
+- **Linea:** H
+- **Padres:** SolverH1 + LinKernighan v2
+- **Hipotesis:** Combinar LK correcto (profundidad 2) con double-bridge y re-aplicar LK escapa optimos locales mejor que double-bridge solo.
+- **Complejidad e2e:** O(n^3.5) tipica
+- **Complejidad peor caso:** O(n^4.5)
+- **Resultados:**
+
+| Instancia | SolverH1 | SolverH2 | SolverE2 | Tiempo H2 |
+|-----------|----------|----------|----------|-----------|
+| eil51 | 1.007x | 1.007x | 1.007x | 0.04s |
+| berlin52 | 1.000x | 1.000x | 1.000x | 0.10s |
+| st70 | 1.014x | 1.011x | 1.011x | 0.07s |
+| eil76 | 1.034x | 1.026x | 1.027x | 0.08s |
+| rat99 | 1.008x | 1.008x | 1.016x | 0.17s |
+| kro200 | 1.010x | 1.004x | 1.006x | 0.61s |
+| a280 | 1.023x | 1.023x | 1.021x | 1.64s |
+| pcb442 | 1.032x | 1.025x | 1.018x | 4.26s |
+
+- **Metricas agregadas:** Media aritmetica=1.013x | Media geometrica=1.013x | Peor caso=1.026x
+- **Conclusion:** LK funciona correctamente. El pipeline LK + DB + LK produce los mejores resultados del proyecto en instancias medianas (kro200: 1.004x). Compite con E2/G2 (O(n^5)) siendo O(n^4.5) peor caso y mucho mas rapido (<5s en pcb442 vs 55-85s).
+- **Nota:** LK v2 corrige el bug de v1: usa ganancia real del 2-opt (basada en aristas del tour resultante) y construye tours depth-2 explicitamente con segmentos.
+
 ### E022 — SolverH1: Multi-start selectivo + double-bridge perturbation (2026-04-11)
 
 - **Solver:** SolverH1

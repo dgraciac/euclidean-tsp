@@ -5,83 +5,82 @@ import com.github.dgraciac.euclideantsp.shared.Point
 /**
  * Perturbacion double-bridge determinista.
  *
- * Un double-bridge es un movimiento 4-opt que corta el tour en 4 segmentos
- * y los reconecta en un orden diferente. Es el movimiento mas simple que
- * no puede deshacerse con 2-opt ni or-opt, lo que permite escapar de
- * optimos locales.
+ * Un double-bridge es un movimiento 4-opt no secuencial que corta el tour en
+ * 4 segmentos (A, B, C, D) y los reconecta como A-C-B-D. Es el movimiento
+ * mas simple que no puede deshacerse con ninguna secuencia de 2-opt o or-opt,
+ * lo que permite escapar de optimos locales.
  *
- * Dado un tour A-B-C-D (4 segmentos), el double-bridge produce A-C-B-D.
- *
- * Esta implementacion es determinista: prueba double-bridges en las aristas
- * mas largas del tour (las mas probables de ser sub-optimas).
+ * Esta implementacion es determinista: prueba double-bridges en posiciones
+ * centradas en las aristas mas largas del tour (las mas probables de ser sub-optimas).
+ * Para cada configuracion, re-optimiza con 2-opt + or-opt y mantiene el mejor resultado.
  *
  * @param tourPoints tour de entrada (cerrado: primero == ultimo)
- * @param maxPerturbations numero maximo de perturbaciones a probar
+ * @param maxAttempts numero maximo de double-bridges a probar
  * @return mejor tour encontrado tras perturbacion + re-optimizacion
- * Complejidad: O(maxPerturbations * n^3) — cada perturbacion requiere re-optimizar
+ *
+ * Complejidad peor caso: O(maxAttempts * n^4)
+ * - Cada intento: perturbacion O(n) + 2-opt O(n^4) + or-opt O(n^4)
+ * - Con maxAttempts constante: O(n^4)
  */
 fun doubleBridgePerturbation(
     tourPoints: List<Point>,
-    maxPerturbations: Int = 20,
+    maxAttempts: Int = 50,
 ): List<Point> {
     val points = tourPoints.dropLast(1)
     val n = points.size
     if (n < 8) return tourPoints
 
     var bestTour = tourPoints
-    var bestLength = tourLength(bestTour)
+    var bestLength = computeTourLength(bestTour)
 
-    // Encontrar las aristas mas largas como candidatas para corte
-    val edgeLengths =
+    // Encontrar las aristas mas largas como candidatas para puntos de corte
+    val edgesByLength =
         (0 until n)
-            .map { i ->
-                Triple(i, (i + 1) % n, points[i].distance(points[(i + 1) % n]))
-            }.sortedByDescending { it.third }
+            .map { i -> Pair(i, points[i].distance(points[(i + 1) % n])) }
+            .sortedByDescending { it.second }
 
-    val topEdges = edgeLengths.take(minOf(maxPerturbations, edgeLengths.size))
+    // Usar las top K aristas como candidatas para los 4 puntos de corte
+    val candidatePositions = edgesByLength.take(minOf(12, n)).map { it.first }.sorted()
 
-    // Para cada par de aristas largas, probar double-bridge
-    var perturbationsApplied = 0
-    for (e1idx in topEdges.indices) {
-        if (perturbationsApplied >= maxPerturbations) break
-        for (e2idx in e1idx + 1 until topEdges.size) {
-            if (perturbationsApplied >= maxPerturbations) break
+    var attempts = 0
+    // Probar todas las combinaciones de 4 puntos de corte de las candidatas
+    for (a in candidatePositions.indices) {
+        if (attempts >= maxAttempts) break
+        for (b in a + 1 until candidatePositions.size) {
+            if (attempts >= maxAttempts) break
+            for (c in b + 1 until candidatePositions.size) {
+                if (attempts >= maxAttempts) break
 
-            val cut1 = topEdges[e1idx].first
-            val cut2 = topEdges[e2idx].first
+                val i1 = candidatePositions[a]
+                val i2 = candidatePositions[b]
+                val i3 = candidatePositions[c]
 
-            // Necesitamos 4 puntos de corte ordenados
-            val cuts = listOf(cut1, cut2).sorted()
-            if (cuts[1] - cuts[0] < 2 || n - cuts[1] < 2) continue
+                // Verificar que los segmentos tienen al menos 1 punto
+                if (i2 - i1 < 1 || i3 - i2 < 1 || n - i3 < 1) continue
 
-            // Elegir 4 puntos de corte: a, b, c, d
-            val a = 0
-            val b = cuts[0] + 1
-            val c = cuts[1] + 1
+                // 4 segmentos: A=[0..i1], B=[i1+1..i2], C=[i2+1..i3], D=[i3+1..n-1]
+                val segA = (0..i1).map { points[it] }
+                val segB = (i1 + 1..i2).map { points[it] }
+                val segC = (i2 + 1..i3).map { points[it] }
+                val segD = (i3 + 1 until n).map { points[it] }
 
-            if (b >= c || c >= n || b < 2) continue
+                // Double-bridge: A + C + B + D
+                val perturbed = (segA + segC + segB + segD).toMutableList()
+                perturbed.add(perturbed.first())
 
-            // Segmentos: [0..b-1], [b..c-1], [c..n-1]
-            // Double-bridge: [0..b-1] + [c..n-1] + [b..c-1]
-            val seg1 = (0 until b).map { points[it] }
-            val seg2 = (b until c).map { points[it] }
-            val seg3 = (c until n).map { points[it] }
+                // Re-optimizar
+                val afterTwoOpt = twoOpt(perturbed)
+                val afterOrOpt = orOpt(afterTwoOpt)
+                val finalTour = twoOpt(afterOrOpt)
+                val finalLength = computeTourLength(finalTour)
 
-            val perturbedTour = (seg1 + seg3 + seg2).toMutableList()
-            perturbedTour.add(perturbedTour.first())
+                if (finalLength < bestLength - 1e-10) {
+                    bestTour = finalTour
+                    bestLength = finalLength
+                }
 
-            // Re-optimizar con 2-opt + or-opt
-            val afterTwoOpt = twoOpt(perturbedTour)
-            val afterOrOpt = orOpt(afterTwoOpt)
-            val finalTour = twoOpt(afterOrOpt)
-            val finalLength = tourLength(finalTour)
-
-            if (finalLength < bestLength - 1e-10) {
-                bestTour = finalTour
-                bestLength = finalLength
+                attempts++
             }
-
-            perturbationsApplied++
         }
     }
 
@@ -89,10 +88,10 @@ fun doubleBridgePerturbation(
 }
 
 /**
- * Calcula la longitud de un tour.
+ * Calcula la longitud de un tour (cerrado: primero == ultimo).
  * Complejidad: O(n)
  */
-private fun tourLength(tour: List<Point>): Double {
+private fun computeTourLength(tour: List<Point>): Double {
     var length = 0.0
     for (i in 0 until tour.size - 1) {
         length += tour[i].distance(tour[i + 1])
