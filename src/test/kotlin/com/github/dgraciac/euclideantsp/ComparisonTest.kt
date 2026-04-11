@@ -14,19 +14,21 @@ internal class ComparisonTest {
                 "Christofides" to Christofides(),
                 // "SolverB" to SolverB(),   // O(n^4) — descomentar solo para comparacion completa
                 // "SolverB1" to SolverB1(), // O(n^4) — descomentar solo para comparacion completa
-                "SolverB2" to SolverB2(),
-                "SolverC1" to SolverC1(),
-                "SolverC2" to SolverC2(),
+                // "SolverB2" to SolverB2(), // Superado por SolverC3
+                // "SolverC1" to SolverC1(), // Superado por SolverC3
+                // "SolverC2" to SolverC2(), // Superado por SolverC3
                 "SolverC3" to SolverC3(),
-                "SolverC4" to SolverC4(),
-                "SolverB3" to SolverB3(),
-                "SolverE1" to SolverE1(),
-                "SolverF1" to SolverF1(),
+                // "SolverC4" to SolverC4(), // Superado por SolverC3
+                // "SolverB3" to SolverB3(), // Superado por SolverE2
+                // "SolverE1" to SolverE1(), // Superado por SolverE2
+                // "SolverF1" to SolverF1(), // Superado por SolverE2
                 "SolverE2" to SolverE2(),
                 "SolverE3" to SolverE3(),
                 // "SolverE4" to SolverE4(), // Identico a SolverE2 (E014)
-                "SolverE5" to SolverE5(),
-                "SolverE6" to SolverE6(),
+                // "SolverE5" to SolverE5(), // Superado por SolverE7
+                // "SolverE6" to SolverE6(), // Superado por SolverE7
+                "SolverE7" to SolverE7(),
+                "SolverG1" to SolverG1(),
             )
     }
 
