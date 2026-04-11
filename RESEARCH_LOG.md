@@ -79,6 +79,39 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 
 ---
 
+## State of the art — Referencia externa
+
+Comparacion de nuestros mejores solvers con los algoritmos de referencia en la literatura.
+Los datos de LKH y Concorde son de la literatura publicada, no de nuestras mediciones.
+
+| Algoritmo | Tipo | Complejidad | Gap al optimo | Garantia | Instancias |
+|-----------|------|-------------|--------------|----------|------------|
+| **Concorde** | Exacto | Exponencial | 0% (optimo) | Exacto | Hasta ~85,000 pts |
+| **LKH** (Helsgott) | Heuristico | No polinomico | <0.1% | Ninguna | Hasta millones |
+| **Nuestro SolverH3** | Heuristico | O(n^4) pc | ~0.6% | Ninguna | Hasta 442 pts |
+| **Nuestro SolverI2** | Heuristico | O(n^3) pc | ~1.2% | Ninguna | Hasta 442 pts |
+| **Christofides** | Aproximacion | O(n^3) pc | ~15% empirico | 3/2 demostrada | Cualquier |
+
+**Que hace LKH que nosotros no:**
+1. α-nearness candidates (basados en 1-tree, no distancia simple)
+2. LK profundidad 5+ con backtracking (nosotros: profundidad 2 sin backtracking)
+3. Movimientos no secuenciales (double-bridge integrado en la busqueda LK)
+4. Optimizacion subgradiente para cotas inferiores y guia de candidatos
+5. Estructuras de datos O(log n) para operaciones de segmentos (nosotros: O(n))
+
+**Hoja de ruta para cerrar el gap con LKH:**
+
+| Paso | Solver | Tecnica | Gap esperado | Complejidad |
+|------|--------|---------|-------------|-------------|
+| Actual | SolverI2 | 2-opt-nl + or-opt + LK(2) + DB | ~1.2% | O(n^3) |
+| E029 | SolverJ1 | + α-nearness (1-tree candidates) | ~0.5% | O(n^3) |
+| E030 | SolverJ2 | + LK profundidad 5 con backtracking | ~0.2% | O(n^3) |
+| E031 | SolverJ3 | + movimientos no secuenciales | ~0.1% | O(n^3) |
+| E032 | SolverJ4 | + subgradient optimization | <0.1% | O(n^3) |
+| E033 | SolverJ5 | + segment trees O(log n) | <0.1% (rapido) | O(n^3) |
+
+---
+
 ## Lineas de investigacion
 
 ### Linea A: Inicializacion basada en centroide
@@ -504,16 +537,23 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 - La propiedad de capas de convex hull se cumple en todas las instancias pequeñas (E008).
 - Delaunay NN no mejora sobre NN global — el NN ya elige aristas Delaunay naturalmente.
 
-### Ideas pendientes
+### Hoja de ruta: cerrar el gap con LKH
 
-**Hallazgos de E014-E017 que acotan la busqueda:**
-- ~~Or-opt iterado~~ — E014: no aporta, una pasada ya converge
-- ~~Or-opt extendido (seg 4-5)~~ — E016: mejora marginal, no justifica coste
+Ver seccion "State of the art" para la tabla completa. Gap actual: ~1.2% (SolverI2 O(n^3)).
+
+| Prioridad | Experimento | Tecnica | Detalle |
+|-----------|-------------|---------|---------|
+| **1 (siguiente)** | E029 | α-nearness candidates | Calcular 1-tree (MST + 1 arista). Para cada arista, α = coste de forzarla en el 1-tree. Usar aristas con α bajo como candidatos en LK y 2-opt. JGraphT tiene MST. |
+| 2 | E030 | LK profundidad 5 + backtracking | Extender la cadena LK a profundidad 5. Cuando depth d no mejora, backtrack a d-1 y probar siguiente candidato. Explorar espacio exponencialmente mayor. |
+| 3 | E031 | Movimientos no secuenciales | Permitir que la cadena LK cruce el tour (puntos no consecutivos). Equivale a double-bridge integrado. Requiere representacion de tour mas sofisticada. |
+| 4 | E032 | Subgradient optimization | Relajacion lagrangiana sobre el 1-tree para calcular cotas inferiores. Usa los multiplicadores para mejorar las α-nearness lists. Iterativo. |
+| 5 | E033 | Segment trees O(log n) | Reemplazar reversiones O(n) por operaciones O(log n). Permite explorar mas movimientos en el mismo tiempo. |
+
+### Ideas completadas o descartadas
+
+- ~~Or-opt iterado~~ — E014: no aporta
+- ~~Or-opt extendido (seg 4-5)~~ — E016: mejora marginal
 - ~~3-opt~~ — E017: no mejora sobre 2-opt+or-opt
-- La busqueda local estandar (2-opt + or-opt) ya esta saturada. Necesitamos un enfoque diferente.
-
-**Nuevas direcciones:**
-1. **Lin-Kernighan (LK) moves:** Variable-depth search. El unico enfoque de busqueda local que el estado del arte dice que supera a 2-opt+or-opt de forma consistente. Complejo de implementar pero potencialmente transformativo.
-2. **Analizar el gap residual:** Comparar nuestros mejores tours con los optimos conocidos arista por arista. Identificar patrones en las aristas que difieren — esto puede revelar que tipo de movimiento local las corregiria.
-3. **Multi-start con inicios distribuidos:** Probar K puntos geometricamente distribuidos en vez de solo hull o todos. Buscar el sweet spot entre calidad y velocidad.
-4. **Instancias de 1000+ puntos:** pcb442 funciona bien. Probar con instancias mayores para stress-test.
+- ~~4-opt~~ — E025: redundante con LK+DB
+- ~~Propiedad de capas de convex hull~~ — E011: no se mantiene en instancias grandes
+- ~~Multi-start con inicios distribuidos~~ — E019/E020: cubierto por SolverG1/G2
