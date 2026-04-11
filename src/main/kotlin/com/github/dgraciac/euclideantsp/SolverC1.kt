@@ -42,6 +42,8 @@ import org.locationtech.jts.geom.GeometryFactory
  *   kro200:   ratio=1.206, tiempo=0.003s (vs Christofides 1.156: peor)
  *   a280:     ratio=1.218, tiempo=0.004s (vs Christofides 1.143: peor)
  *
+ * Metricas agregadas: Media aritmetica=1.174x | Media geometrica=1.173x | Peor caso=1.218x
+ *
  * Conclusion: Rapido pero peor que Christofides en general. La insercion simple de
  * puntos interiores no preserva la estructura geometrica de las capas. El peeling en si
  * es prometedor (O(n^2 log n)) pero necesita mejor estrategia de conexion entre capas.

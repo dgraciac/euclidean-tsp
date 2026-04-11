@@ -48,6 +48,16 @@ Encontrar un algoritmo que resuelva el TSP Euclídeo 2D en tiempo polinómico.
 
 Solo se investigan algoritmos con **complejidad polinomica** (O(n^k) para algun k constante). Algoritmos super-polinomicos (O(2^n), O(n!), etc.) quedan fuera del objetivo. BruteForce existe solo como herramienta de verificacion para instancias pequeñas.
 
+### Metricas de comparacion de solvers
+
+Se registran tres metricas agregadas sobre los ratios de aproximacion de todas las instancias:
+
+1. **Media aritmetica** — Promedio simple de los ratios. Facil de interpretar.
+2. **Media geometrica** — Estandar en benchmarking (SPEC, literatura TSPLIB). Penaliza menos outliers y es mas justa con escalas distintas.
+3. **Peor caso** — Ratio maximo. Lo mas conservador, relevante si buscamos garantias.
+
+Las tres se registran por solver en `RESEARCH_LOG.md` y en el KDoc de cada solver.
+
 ### Convencion de nombres de solvers
 
 - **Letra** = linea de investigacion (A = centroide, B = convex hull + ratio, C = peeling, D/E/... = nuevas lineas)
@@ -71,6 +81,7 @@ Todo solver debe tener KDoc en español con:
 - Algoritmo paso a paso
 - **Complejidad Big O e2e con desglose por paso**
 - Tabla de resultados (ratio + tiempo por instancia)
+- **Metricas agregadas: media aritmetica, media geometrica y peor caso** de los ratios
 - Conclusion
 
 ### Protocolo de iteracion

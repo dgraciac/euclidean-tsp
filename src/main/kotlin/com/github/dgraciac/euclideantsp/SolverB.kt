@@ -33,10 +33,12 @@ import org.locationtech.jts.geom.Point
  * - Paso 3-4: O(m) iteraciones * O(m) puntos * O(n^2) findBestIndexToInsertAt2 = O(n^4)
  *
  * Resultados:
- *   berlin52: ratio=1.021, tiempo=1.656s
- *   st70:     ratio=1.075, tiempo=2.25s
- *   kro200:   ratio=1.110, tiempo=159.232s
- *   a280:     ratio=1.212, tiempo=653.635s
+ *   berlin52: ratio=1.021, tiempo=0.58s
+ *   st70:     ratio=1.075, tiempo=1.15s
+ *   kro200:   ratio=1.110, tiempo=64.0s
+ *   a280:     ratio=1.212, tiempo=138.5s
+ *
+ * Metricas agregadas: Media aritmetica=1.105x | Media geometrica=1.102x | Peor caso=1.212x
  */
 class SolverB : Euclidean2DTSPSolver {
     override fun compute(instance: Euclidean2DTSPInstance): Tour {

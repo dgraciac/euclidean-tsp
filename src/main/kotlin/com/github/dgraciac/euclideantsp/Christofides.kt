@@ -29,10 +29,12 @@ import org.jgrapht.graph.DefaultWeightedEdge
  * - Pasos 4-5: O(n)
  *
  * Resultados:
- *   berlin52: ratio=1.122, tiempo=0.127s
- *   st70:     ratio=1.119, tiempo=0.019s
- *   kro200:   ratio=1.155, tiempo=0.151s
- *   a280:     ratio=1.172, tiempo=0.232s
+ *   berlin52: ratio=1.118, tiempo=0.06s
+ *   st70:     ratio=1.130, tiempo=0.03s
+ *   kro200:   ratio=1.156, tiempo=0.04s
+ *   a280:     ratio=1.143, tiempo=0.10s
+ *
+ * Metricas agregadas: Media aritmetica=1.137x | Media geometrica=1.137x | Peor caso=1.156x
  */
 class Christofides : Euclidean2DTSPSolver {
     override fun compute(instance: Euclidean2DTSPInstance): Tour =

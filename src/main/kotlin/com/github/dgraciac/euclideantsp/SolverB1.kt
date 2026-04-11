@@ -33,6 +33,8 @@ import com.github.dgraciac.euclideantsp.shared.Tour
  *   kro200:   ratio=1.064, tiempo=64.3s (vs Christofides 1.156: mejor)
  *   a280:     ratio=1.081, tiempo=140.2s (vs Christofides 1.143: mejor)
  *
+ * Metricas agregadas: Media aritmetica=1.052x | Media geometrica=1.051x | Peor caso=1.081x
+ *
  * Conclusion: Hipotesis confirmada. El 2-opt mejora significativamente el tour en todas
  * las instancias. Mejora mas pronunciada en instancias grandes (a280: -13.1% vs SolverB).
  * SolverB1 supera a Christofides en TODAS las instancias, siendo ambos polinomicos.

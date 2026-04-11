@@ -12,6 +12,13 @@ Encontrar un algoritmo de complejidad polinomica que resuelva el TSP Euclideo 2D
 
 ---
 
+## Metricas de comparacion
+
+Se registran tres metricas agregadas sobre los ratios de aproximacion de todas las instancias:
+1. **Media aritmetica** — Promedio simple de los ratios
+2. **Media geometrica** — Estandar en benchmarking, penaliza menos outliers
+3. **Peor caso** — Ratio maximo, relevante para garantias
+
 ## Mejores resultados actuales
 
 | Instancia | Optimo | Mejor Solver | Ratio | Tiempo | Complejidad | Fecha |
@@ -21,7 +28,16 @@ Encontrar un algoritmo de complejidad polinomica que resuelva el TSP Euclideo 2D
 | kro200 | 29368.0 | SolverB1 | 1.064x | 64.3s | O(n^4) | 2026-04-10 |
 | a280 | 2579.0 | SolverB1 | 1.081x | 140.2s | O(n^4) | 2026-04-10 |
 
-**Nota:** SolverB1 (O(n^4)) supera a Christofides (O(n^3)) en todas las instancias. Primera "buena señal".
+### Resumen agregado por solver
+
+| Solver | Complejidad | Media aritmetica | Media geometrica | Peor caso |
+|--------|-------------|-----------------|-----------------|-----------|
+| Christofides | O(n^3) | 1.137x | 1.137x | 1.156x |
+| SolverB | O(n^4) | 1.105x | 1.102x | 1.212x |
+| SolverB1 | O(n^4) | 1.052x | 1.051x | 1.081x |
+| SolverC1 | O(n^3) | 1.174x | 1.173x | 1.218x |
+
+**Nota:** SolverB1 (O(n^4)) supera a Christofides (O(n^3)) en las tres metricas. Primera "buena señal".
 
 ---
 
@@ -66,6 +82,7 @@ Encontrar un algoritmo de complejidad polinomica que resuelva el TSP Euclideo 2D
 | kro200 | 1.206x | 0.003s | peor |
 | a280 | 1.218x | 0.004s | peor |
 
+- **Metricas agregadas:** Media aritmetica=1.174x | Media geometrica=1.173x | Peor caso=1.218x
 - **Conclusion:** El peeling funciona rapido (O(n^2 log n)) pero la insercion simple de capas interiores produce tours de mala calidad. El problema es que al insertar puntos de capas interiores uno a uno, no se respeta la estructura geometrica de cada capa. Posibles mejoras: insertar capas completas preservando su orden, o usar 2-opt despues de la insercion.
 - **Siguientes pasos:** SolverC2 con 2-opt post-insercion, o SolverC3 con estrategia de intercalado de capas.
 
@@ -89,6 +106,7 @@ Encontrar un algoritmo de complejidad polinomica que resuelva el TSP Euclideo 2D
 | kro200 | 1.110x | 1.064x | -4.6% | 64.3s | mejor |
 | a280 | 1.212x | 1.081x | -13.1% | 140.2s | mejor |
 
+- **Metricas agregadas:** Media aritmetica=1.052x | Media geometrica=1.051x | Peor caso=1.081x
 - **Conclusion:** Hipotesis confirmada. El 2-opt mejora significativamente el tour en todas las instancias. La mejora es mas pronunciada en instancias grandes (a280: -13.1%). SolverB1 supera a Christofides en TODAS las instancias, siendo ambos polinomicos. La fase de construccion (O(n^4)) domina el tiempo; el 2-opt añade poco coste.
 - **Siguientes pasos:** SolverB2 con or-opt adicional, o investigar si se puede reducir la complejidad de la construccion eliminando la validacion isLinearRing innecesaria.
 
@@ -96,6 +114,8 @@ Encontrar un algoritmo de complejidad polinomica que resuelva el TSP Euclideo 2D
 
 - **Solvers:** Christofides (JGraphT), SolverB
 - **Proposito:** Establecer la linea base de referencia para todos los experimentos futuros.
+- **Metricas agregadas Christofides:** Media aritmetica=1.137x | Media geometrica=1.137x | Peor caso=1.156x
+- **Metricas agregadas SolverB:** Media aritmetica=1.105x | Media geometrica=1.102x | Peor caso=1.212x
 - **Resultados Christofides (O(n^3)):**
 
 | Instancia | Ratio | Tiempo |
