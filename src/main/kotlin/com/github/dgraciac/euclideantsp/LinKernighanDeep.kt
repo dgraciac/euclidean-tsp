@@ -8,7 +8,9 @@ import com.github.dgraciac.euclideantsp.shared.Point
  * A diferencia de linKernighan (profundidad 2 sin backtracking), esta version:
  * 1. Explora cadenas de hasta 5 niveles de profundidad
  * 2. Cuando un nivel no mejora, backtrackea y prueba el siguiente candidato
- * 3. En cada nivel, construye y evalua el tour resultante explicitamente
+ * 3. Prueba movimientos no secuenciales: en cada nivel, rompe aristas en AMBAS
+ *    direcciones (forward y backward), permitiendo que la cadena cruce el tour
+ * 4. En cada nivel, construye y evalua el tour resultante explicitamente
  *
  * El criterio de ganancia positiva poda la busqueda: en cada paso, la ganancia
  * acumulada debe ser positiva para continuar explorando.
@@ -138,54 +140,63 @@ private fun lkRecurse(
         val gain = cumulativeGain - addCost
         if (gain <= 0 && depth > 1) continue // Criterio de ganancia positiva (relajado en depth 1)
 
-        // El siguiente punto a romper es el vecino de candidate en el tour
-        val idxNext = (idxCandidate + 1) % n
-        val nextPoint = tour[idxNext]
-        val breakGain = candidate.distance(nextPoint)
-        val newCumulativeGain = gain + breakGain
+        // Probar romper la arista en AMBAS direcciones (secuencial y no secuencial)
+        // Forward: romper (candidate, next(candidate))
+        // Backward: romper (prev(candidate), candidate) — movimiento no secuencial
+        val directions =
+            listOf(
+                Pair((idxCandidate + 1) % n, tour[(idxCandidate + 1) % n]),
+                Pair((idxCandidate - 1 + n) % n, tour[(idxCandidate - 1 + n) % n]),
+            )
 
-        // Intentar cerrar: añadir arista (nextPoint, t1)
-        val closeGain = newCumulativeGain - nextPoint.distance(t1)
-        if (closeGain > bestGain + 1e-10) {
-            cutPoints.add(idxCandidate)
-            val newTour = buildTourFromCuts(tour, n, cutPoints, idx1)
-            cutPoints.removeLast()
+        for ((idxBreak, breakPoint) in directions) {
+            if (idxBreak in cutPoints) continue
+            val breakGain = candidate.distance(breakPoint)
+            val newCumulativeGain = gain + breakGain
 
-            if (newTour != null && newTour.size == n) {
-                val origLen = cyclicLength(tour)
-                val newLen = cyclicLength(newTour)
-                if (newLen < origLen - 1e-10 && newLen - origLen < -bestGain) {
-                    bestGain = origLen - newLen
-                    bestResult = newTour
+            // Intentar cerrar: añadir arista (breakPoint, t1)
+            val closeGain = newCumulativeGain - breakPoint.distance(t1)
+            if (closeGain > bestGain + 1e-10) {
+                cutPoints.add(idxCandidate)
+                val newTour = buildTourFromCuts(tour, n, cutPoints, idx1)
+                cutPoints.removeLast()
+
+                if (newTour != null && newTour.size == n) {
+                    val origLen = cyclicLength(tour)
+                    val newLen = cyclicLength(newTour)
+                    if (newLen < origLen - 1e-10 && origLen - newLen > bestGain) {
+                        bestGain = origLen - newLen
+                        bestResult = newTour
+                    }
                 }
             }
-        }
 
-        // Intentar ir mas profundo (backtracking via recursion)
-        if (depth < maxDepth) {
-            cutPoints.add(idxCandidate)
-            val deeper =
-                lkRecurse(
-                    tour,
-                    pos,
-                    n,
-                    t1,
-                    idx1,
-                    nextPoint,
-                    newCumulativeGain,
-                    cutPoints,
-                    depth + 1,
-                    maxDepth,
-                    neighborLists,
-                )
-            cutPoints.removeLast()
+            // Intentar ir mas profundo (backtracking via recursion)
+            if (depth < maxDepth) {
+                cutPoints.add(idxCandidate)
+                val deeper =
+                    lkRecurse(
+                        tour,
+                        pos,
+                        n,
+                        t1,
+                        idx1,
+                        breakPoint,
+                        newCumulativeGain,
+                        cutPoints,
+                        depth + 1,
+                        maxDepth,
+                        neighborLists,
+                    )
+                cutPoints.removeLast()
 
-            if (deeper != null) {
-                val deepLen = cyclicLength(deeper)
-                val origLen = cyclicLength(tour)
-                if (deepLen < origLen - 1e-10 && origLen - deepLen > bestGain) {
-                    bestGain = origLen - deepLen
-                    bestResult = deeper
+                if (deeper != null) {
+                    val deepLen = cyclicLength(deeper)
+                    val origLen = cyclicLength(tour)
+                    if (deepLen < origLen - 1e-10 && origLen - deepLen > bestGain) {
+                        bestGain = origLen - deepLen
+                        bestResult = deeper
+                    }
                 }
             }
         }

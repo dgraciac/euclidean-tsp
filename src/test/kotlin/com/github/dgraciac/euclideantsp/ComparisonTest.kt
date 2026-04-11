@@ -16,6 +16,7 @@ internal class ComparisonTest {
                 "Christofides" to Christofides(), // Baseline O(n^3), garantia 3/2
                 "SolverJ5" to SolverJ5(), // Mejor O(n^3): media 1.010x
                 "SolverH3" to SolverH3(), // Mejor O(n^4): media 1.006x (LENTO en pcb442: ~3min)
+                // "SolverJ7" to SolverJ7(), // E036: LK no secuencial — identico a J5
                 // === Solvers anteriores (superados, descomentar si se necesitan) ===
                 // "SolverJ6" to SolverJ6(), // Subgradient, no mejora sobre J5 (E032)
                 // "SolverJ4" to SolverJ4(), // LK-deep(5), inestable en pcb442 (E030)
