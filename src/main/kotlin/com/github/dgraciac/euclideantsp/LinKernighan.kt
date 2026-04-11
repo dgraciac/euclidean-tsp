@@ -18,8 +18,8 @@ import com.github.dgraciac.euclideantsp.shared.Point
  * @param neighborLists vecinos cercanos para restringir candidatos
  * @return tour mejorado (cerrado: primero == ultimo)
  *
- * Complejidad peor caso: O(n^2 * K^2) por mejora, O(n^2) mejoras max = O(n^4 * K^2)
- * Con K constante: O(n^4)
+ * Complejidad peor caso: O(n^2 * K^2) por mejora, O(n) mejoras max = O(n^3 * K^2)
+ * Con K constante: O(n^3)
  */
 fun linKernighan(
     tourPoints: List<Point>,
@@ -29,8 +29,14 @@ fun linKernighan(
     val n = tour.size
     if (n < 6) return tourPoints
 
+    // Position map para O(1) lookup en vez de indexOf O(n)
+    val pos = HashMap<Point, Int>(n * 2)
+
+    fun rebuildPos() = tour.forEachIndexed { idx, p -> pos[p] = idx }
+    rebuildPos()
+
     var improved = true
-    var maxImprovements = n * n
+    var maxImprovements = maxOf(20, n) // E026: convergencia rapida como 2-opt
 
     while (improved && maxImprovements-- > 0) {
         improved = false
@@ -47,41 +53,37 @@ fun linKernighan(
             for (t3 in neighbors2) {
                 if (improved) break
                 if (t3 == t1) continue
-                val idx3 = tour.indexOf(t3)
-                if (idx3 == -1) continue
+                val idx3 = pos[t3] ?: continue
 
-                // Ganancia nivel 1: romper (t1,t2), la nueva arista seria (t1,t3) tras reversal
+                // Ganancia nivel 1: romper (t1,t2)
                 val g1 = distT1T2 - t2.distance(t3)
                 if (g1 <= 0) continue
 
-                // Profundidad 1: 2-opt estandar (reverse segment idx2..idx3)
+                // Profundidad 1: 2-opt estandar
                 val gain1 = try2OptGain(tour, n, idx1, idx3)
                 if (gain1 > 1e-10) {
                     applyReverse(tour, idx2, idx3, n)
+                    rebuildPos()
                     improved = true
                     break
                 }
 
-                // Profundidad 2: intentar extender la cadena
-                // Despues de un hipotetico reverse [idx2..idx3], t4 queda adyacente a t2
+                // Profundidad 2: extender la cadena
                 val idx4 = (idx3 + 1) % n
                 val t4 = tour[idx4]
-
                 val neighbors4 = neighborLists[t4] ?: continue
 
                 for (t5 in neighbors4) {
                     if (t5 == t1 || t5 == t2 || t5 == t3) continue
-                    val idx5 = tour.indexOf(t5)
-                    if (idx5 == -1) continue
+                    val idx5 = pos[t5] ?: continue
 
-                    // Probar el movimiento compuesto: construir el tour resultante
-                    // y calcular su longitud
                     val newTour = buildDepth2Tour(tour, n, idx1, idx3, idx5)
                     if (newTour != null) {
                         val oldLength = tourLength(tour)
                         val newLength = tourLength(newTour)
                         if (newLength < oldLength - 1e-10) {
                             tour = newTour.toMutableList()
+                            rebuildPos()
                             improved = true
                             break
                         }
@@ -148,24 +150,36 @@ private fun buildDepth2Tour(
 
     if (segA.isEmpty() || segB.isEmpty() || segC.isEmpty()) return null
 
-    // Probar las 2 reconexiones 3-opt no triviales (que no son 2-opt)
-    // Tipo 1: C + reverso(A) + B
-    val tour1 = segC + segA.reversed() + segB
-    // Tipo 2: C + B + reverso(A)
-    val tour2 = segC + segB + segA.reversed()
-
+    val revA = segA.reversed()
+    val revB = segB.reversed()
+    val revC = segC.reversed()
     val origLength = tourLength(tour)
-    val len1 = tourLength(tour1)
-    val len2 = tourLength(tour2)
 
-    val bestNew =
-        if (len1 < len2) {
-            if (len1 < origLength - 1e-10) tour1 else null
-        } else {
-            if (len2 < origLength - 1e-10) tour2 else null
+    // Probar todas las reconexiones 3-opt no triviales (que no son 2-opt ni identidad)
+    // 2-opt moves (reverse one segment): ya cubiertos por twoOpt, se omiten
+    // 3-opt moves genuinos: cambian el orden relativo de los segmentos
+    val candidates =
+        listOf(
+            segA + revC + revB, // Tipo 1
+            revA + revC + segB, // Tipo 2
+            segC + revA + segB, // Tipo 3
+            segC + segB + revA, // Tipo 4
+            revB + segA + revC, // Tipo 5
+        )
+
+    var bestTour: List<Point>? = null
+    var bestLength = origLength
+
+    for (candidate in candidates) {
+        if (candidate.size != n) continue
+        val len = tourLength(candidate)
+        if (len < bestLength - 1e-10) {
+            bestLength = len
+            bestTour = candidate
         }
+    }
 
-    return bestNew
+    return bestTour
 }
 
 /**
