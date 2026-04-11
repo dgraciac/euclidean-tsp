@@ -10,7 +10,7 @@ import org.locationtech.jts.geom.GeometryFactory
 /**
  * SolverJ6 — Subgradient-optimized candidates + LK-2 + LK-5 (mejor de ambos)
  *
- * Linea de investigacion: J (tecnicas LKH)
+ * Linea de investigacion: J (busqueda local avanzada)
  * Padres: SolverJ5 + SubgradientOptimization
  * Experimento: E032
  *

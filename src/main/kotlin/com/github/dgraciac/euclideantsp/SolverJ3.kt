@@ -10,7 +10,7 @@ import org.locationtech.jts.geom.GeometryFactory
 /**
  * SolverJ3 — Candidatos combinados α(7) + dist(7) + pipeline completo
  *
- * Linea de investigacion: J (tecnicas LKH)
+ * Linea de investigacion: J (busqueda local avanzada)
  * Padre: SolverJ2
  * Experimento: E029
  *

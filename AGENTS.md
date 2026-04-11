@@ -10,7 +10,7 @@ Encontrar un algoritmo que resuelva el TSP Euclídeo 2D en tiempo polinómico.
 
 - `src/main/kotlin/com/github/dgraciac/euclideantsp/` — Implementaciones de solvers y utilidades
   - `shared/` — Tipos base: `Point`, `Tour`, `Euclidean2DTSPInstance`, `Euclidean2DTSPSolver` (interfaz)
-  - Solvers: `BruteForce`, `Christofides`, `SolverA`, `SolverB`, `SolverC`
+  - Solvers: `Christofides`, `SolverA`, `SolverB`, `SolverC` (y variantes)
   - Extensiones: `PointExtensions`, `ListExtensions`, `SetExtensions`, `CoordinateExtensions`
   - `jts/` — Funciones auxiliares con JTS (geometría)
 - `src/test/kotlin/` — Tests parametrizados con instancias TSPLIB (berlin52, st70, kro200, a280) e instancias pequeñas
@@ -46,7 +46,7 @@ Encontrar un algoritmo que resuelva el TSP Euclídeo 2D en tiempo polinómico.
 
 ### Restriccion fundamental
 
-Solo se investigan algoritmos con **complejidad polinomica** (O(n^k) para algun k constante). Algoritmos super-polinomicos (O(2^n), O(n!), etc.) quedan fuera del objetivo. BruteForce existe solo como herramienta de verificacion para instancias pequeñas.
+Solo se investigan algoritmos con **complejidad polinomica** (O(n^k) para algun k constante). Algoritmos super-polinomicos (O(2^n), O(n!), etc.) quedan fuera del objetivo. BruteForce existe solo como herramienta de verificacion en tests, no como solver de investigacion ni como referencia de comparacion.
 
 ### Metricas de comparacion de solvers
 

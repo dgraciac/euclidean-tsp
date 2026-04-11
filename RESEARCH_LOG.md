@@ -81,43 +81,27 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 
 ---
 
-## State of the art — Referencia externa
+## Referencia — Algoritmos polinomicos para TSP
 
-Comparacion de nuestros mejores solvers con los algoritmos de referencia en la literatura.
-Los datos de LKH y Concorde son de la literatura publicada, no de nuestras mediciones.
+Solo se compara con algoritmos de complejidad polinomica garantizada.
+Algoritmos no polinomicos (LKH, Concorde, etc.) quedan fuera del alcance del proyecto.
 
-**NOTA IMPORTANTE:** LKH y Concorde NO son polinomicos. La comparacion relevante para
-nuestro objetivo (algoritmo polinomico) es contra Christofides y otros algoritmos con
-costo polinomico garantizado. Nuestro SolverJ5 (O(n^3), media 1.010x) es una mejora
-empirica significativa sobre Christofides (O(n^3), media 1.147x) manteniendo la misma
-complejidad peor caso. LKH se incluye solo como referencia del maximo rendimiento
-posible sin restriccion de complejidad.
+| Algoritmo | Complejidad peor caso | Gap empirico | Garantia aprox. |
+|-----------|----------------------|-------------|-----------------|
+| **Nuestro SolverJ5** | **O(n^3)** | **~1.0%** | **Desconocida** |
+| Nuestro SolverH3 | O(n^4) | ~0.6% | Desconocida |
+| Christofides | O(n^3) | ~15% | 3/2 demostrada |
 
-| Algoritmo | Tipo | Complejidad | Gap al optimo | Garantia | Instancias |
-|-----------|------|-------------|--------------|----------|------------|
-| **Concorde** | Exacto | Exponencial | 0% (optimo) | Exacto | Hasta ~85,000 pts |
-| **LKH** (Helsgott) | Heuristico | No polinomico | <0.1% | Ninguna | Hasta millones |
-| **Nuestro SolverH3** | Heuristico | O(n^4) pc | ~0.6% | Ninguna | Hasta 442 pts |
-| **Nuestro SolverJ3** | Heuristico | O(n^3) pc | ~1.1% | Ninguna | Hasta 442 pts |
-| **Christofides** | Aproximacion | O(n^3) pc | ~15% empirico | 3/2 demostrada | Cualquier |
+SolverJ5 y Christofides tienen la misma complejidad peor caso O(n^3).
+SolverJ5 tiene gap empirico 15x menor (1.0% vs 15%).
+Pendiente: determinar la garantia de aproximacion de SolverJ5.
 
-**Que hace LKH que nosotros no:**
-1. α-nearness candidates (basados en 1-tree, no distancia simple)
-2. LK profundidad 5+ con backtracking (nosotros: profundidad 2 sin backtracking)
-3. Movimientos no secuenciales (double-bridge integrado en la busqueda LK)
-4. Optimizacion subgradiente para cotas inferiores y guia de candidatos
-5. Estructuras de datos O(log n) para operaciones de segmentos (nosotros: O(n))
-
-**Hoja de ruta para cerrar el gap con LKH:**
-
-| Paso | Solver | Tecnica | Gap esperado | Complejidad |
-|------|--------|---------|-------------|-------------|
-| Actual | SolverI2 | 2-opt-nl + or-opt + LK(2) + DB | ~1.2% | O(n^3) |
-| E029 | SolverJ1 | + α-nearness (1-tree candidates) | ~0.5% | O(n^3) |
-| E030 | SolverJ2 | + LK profundidad 5 con backtracking | ~0.2% | O(n^3) |
-| E031 | SolverJ3 | + movimientos no secuenciales | ~0.1% | O(n^3) |
-| E032 | SolverJ4 | + subgradient optimization | <0.1% | O(n^3) |
-| E033 | SolverJ5 | + segment trees O(log n) | <0.1% (rapido) | O(n^3) |
+**Tecnicas avanzadas integradas (de la literatura de busqueda local):**
+1. α-nearness candidates basados en 1-tree (E029) — integrado
+2. LK profundidad variable con backtracking (E030) — integrado
+3. Subgradient optimization (E032) — probado, sin mejora consistente
+4. Movimientos no secuenciales — pendiente
+5. Segment trees O(log n) — pendiente
 
 ---
 
@@ -182,7 +166,7 @@ posible sin restriccion de complejidad.
 ### E029 — SolverJ1/J2/J3: α-nearness candidates (2026-04-11)
 
 - **Solvers:** SolverJ1 (α solo), SolverJ2 (α5+dist5), SolverJ3 (α7+dist7)
-- **Linea:** J (tecnicas LKH)
+- **Linea:** J (busqueda local avanzada)
 - **Hipotesis:** α-nearness basado en 1-tree produce mejores candidatos que K-nearest por distancia.
 - **Complejidad:** O(n^3) — misma que SolverI2
 - **Resultados comparativos (vs SolverI2):**
@@ -600,9 +584,7 @@ posible sin restriccion de complejidad.
 - La propiedad de capas de convex hull se cumple en todas las instancias pequeñas (E008).
 - Delaunay NN no mejora sobre NN global — el NN ya elige aristas Delaunay naturalmente.
 
-### Hoja de ruta: cerrar el gap con LKH
-
-Ver seccion "State of the art" para la tabla completa. Gap actual: ~1.2% (SolverI2 O(n^3)).
+### Hoja de ruta: mejorar aproximacion empirica dentro de O(n^3)
 
 | Prioridad | Experimento | Tecnica | Detalle |
 |-----------|-------------|---------|---------|

@@ -9,7 +9,7 @@ import org.jgrapht.graph.DefaultWeightedEdge
 /**
  * Calcula listas de candidatos basadas en α-nearness (1-tree).
  *
- * α-nearness es la metrica usada por LKH para seleccionar candidatos.
+ * α-nearness es una metrica de la literatura de busqueda local para seleccionar candidatos.
  * Para cada arista (u,v), α(u,v) mide cuanto empeoraria el 1-tree si
  * se forzara a incluir esa arista. Aristas con α bajo son las mas probables
  * de estar en el tour optimo.

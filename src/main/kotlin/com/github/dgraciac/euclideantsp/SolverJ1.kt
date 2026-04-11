@@ -10,7 +10,7 @@ import org.locationtech.jts.geom.GeometryFactory
 /**
  * SolverJ1 — SolverI2 con α-nearness candidates (basados en 1-tree)
  *
- * Linea de investigacion: J (tecnicas LKH)
+ * Linea de investigacion: J (busqueda local avanzada)
  * Padre: SolverI2
  * Experimento: E029
  *

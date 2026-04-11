@@ -10,13 +10,13 @@ import org.locationtech.jts.geom.GeometryFactory
 /**
  * SolverJ4 — SolverJ3 + LK profundidad 5 con backtracking
  *
- * Linea de investigacion: J (tecnicas LKH)
+ * Linea de investigacion: J (busqueda local avanzada)
  * Padre: SolverJ3
  * Experimento: E030
  *
  * Hipotesis: LK con profundidad 5 y backtracking encuentra movimientos que LK
  * profundidad 2 no puede (incluyendo double-bridge integrado en la busqueda).
- * Combinado con α-nearness candidates, deberia acercarse significativamente a LKH.
+ * Combinado con α-nearness candidates, deberia mejorar significativamente la aproximacion.
  *
  * Algoritmo:
  * 1. α(7)+dist(7) candidates — O(n^2 log n)

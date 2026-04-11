@@ -10,7 +10,7 @@ import org.locationtech.jts.geom.GeometryFactory
 /**
  * SolverJ5 — Mejor de LK-2 y LK-5, con α-nearness combinados
  *
- * Linea de investigacion: J (tecnicas LKH)
+ * Linea de investigacion: J (busqueda local avanzada)
  * Padres: SolverJ3, SolverJ4
  * Experimento: E031b
  *
