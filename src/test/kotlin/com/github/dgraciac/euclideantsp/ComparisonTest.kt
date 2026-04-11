@@ -29,6 +29,7 @@ internal class ComparisonTest {
                 // "SolverE6" to SolverE6(), // Superado por SolverE7
                 "SolverE7" to SolverE7(),
                 "SolverG1" to SolverG1(),
+                "SolverG2" to SolverG2(),
             )
     }
 
