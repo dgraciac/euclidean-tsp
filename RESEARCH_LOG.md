@@ -51,7 +51,8 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 | SolverE3 | O(n^3.5) | O(n^3.5) | 1.018x | 1.034x | 1.1s |
 | SolverG1 | O(n^3.5) | O(n^3.5) | 1.015x | 1.034x | 2.0s |
 | SolverE7 | O(n^4) | O(n^4) | 1.011x | 1.021x | 83s |
-| **SolverJ3** | **O(n^3)** | **O(n^3)** | **1.011x** | **1.025x** | **2.30s** |
+| **SolverJ5** | **O(n^3)** | **O(n^3)** | **1.010x** | **1.025x** | **3.99s** |
+| SolverJ3 | O(n^3) | O(n^3) | 1.011x | 1.025x | 2.30s |
 | SolverI2 | O(n^3) | O(n^3) | 1.016x | 1.041x | 1.89s |
 | SolverI1 | O(n^3) | O(n^3) | 1.023x | 1.041x | 0.54s |
 | SolverC3 | O(n^3) | O(n^3) | 1.039x | 1.069x | 0.18s |
@@ -133,6 +134,24 @@ Los datos de LKH y Concorde son de la literatura publicada, no de nuestras medic
 ---
 
 ## Log de experimentos
+
+### E032 — SolverJ6: Subgradient optimization para candidatos (2026-04-11)
+
+- **Solver:** SolverJ6
+- **Linea:** J
+- **Complejidad:** O(n^3)
+- **Resultados:** Mejora marginal en eil76 (1.022x). Peor en a280 (1.014x vs 1.006x de J5).
+- **Metricas:** Media=1.011x | Peor caso=1.022x
+- **Conclusion:** Subgradient optimization no aporta mejora consistente. Los multiplicadores lagrangianos necesitan mas iteraciones o mejor tuning del step size.
+
+### E031b — SolverJ5: Mejor de LK-2 y LK-5 (2026-04-11)
+
+- **Solver:** SolverJ5
+- **Linea:** J
+- **Complejidad:** O(n^3)
+- **Resultados:** Toma lo mejor de J3 y J4 en cada instancia. kro200: 1.004x, a280: 1.006x, pcb442: 1.013x.
+- **Metricas:** Media=1.010x | Peor caso=1.025x
+- **Conclusion:** Mejor solver O(n^3) del proyecto. Simple y efectivo: dos ramas de busqueda, mejor resultado.
 
 ### E030 — SolverJ4: LK profundidad 5 con backtracking (2026-04-11)
 
