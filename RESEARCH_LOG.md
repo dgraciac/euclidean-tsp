@@ -28,27 +28,32 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 
 | Instancia | Optimo | Mejor Solver | Ratio | Tiempo | Complejidad | Fecha |
 |-----------|--------|-------------|-------|--------|-------------|-------|
-| berlin52 | 7542.0 | SolverC3 | 1.000x | 0.008s | O(n^3) | 2026-04-10 |
-| st70 | 675.0 | SolverC3 | 1.031x | 0.006s | O(n^3) | 2026-04-10 |
-| kro200 | 29368.0 | SolverC3 | 1.048x | 0.059s | O(n^3) | 2026-04-10 |
-| a280 | 2579.0 | SolverC3 | 1.069x | 0.036s | O(n^3) | 2026-04-10 |
+| berlin52 | 7542.0 | SolverC3/C4 | 1.000x | 0.010s | O(n^3) | 2026-04-10 |
+| st70 | 675.0 | SolverB3 | 1.020x | 0.003s | O(n^3) | 2026-04-11 |
+| kro200 | 29368.0 | SolverE1 | 1.016x | 0.009s | O(n^3) | 2026-04-11 |
+| a280 | 2579.0 | SolverE1 | 1.050x | 0.061s | O(n^3) | 2026-04-11 |
 
 ### Resumen agregado por solver
 
 | Solver | Complejidad | Media arit. | Media geom. | Peor caso | Tiempo max |
 |--------|-------------|------------|------------|-----------|------------|
-| **SolverC3** | **O(n^3)** | **1.037x** | **1.036x** | **1.069x** | **0.059s** |
+| **SolverE1** | **O(n^3)** | **1.041x** | **1.041x** | **1.053x** | **0.061s** |
+| SolverC3 | O(n^3) | 1.037x | 1.036x | 1.069x | 0.031s |
+| SolverC4 | O(n^3) | 1.037x | 1.036x | 1.069x | 0.085s |
+| SolverB3 | O(n^3) | 1.040x | 1.039x | 1.055x | 0.064s |
 | SolverB1 | O(n^4) | 1.052x | 1.051x | 1.081x | 140.2s |
-| SolverC2 | O(n^3) | 1.070x | 1.069x | 1.087x | 0.010s |
+| SolverF1 | O(n^3) | 1.058x | 1.057x | 1.065x | 0.054s |
 | SolverB2 | O(n^3) | 1.076x | 1.076x | 1.100x | 0.006s |
-| SolverB | O(n^4) | 1.105x | 1.102x | 1.212x | 138.5s |
+| SolverC2 | O(n^3) | 1.070x | 1.069x | 1.087x | 0.010s |
 | Christofides | O(n^3) | 1.137x | 1.137x | 1.156x | 0.10s |
 | SolverC1 | O(n^3) | 1.174x | 1.173x | 1.218x | 0.004s |
 
 **Notas:**
-- SolverC3 (O(n^3)) es el mejor solver en todas las metricas, superando incluso a SolverB1 (O(n^4)).
-- En berlin52, SolverC3 alcanza ratio 1.0003 — practicamente el tour optimo.
-- El pipeline peeling + insercion + 2-opt + or-opt + 2-opt es la mejor estrategia encontrada.
+- SolverC3 tiene la mejor media (1.036x) pero SolverE1 tiene mejor peor caso (1.053x vs 1.069x).
+- SolverC3/C4 son identicos — el orden de insercion de capas interiores no importa tras busqueda local.
+- SolverE1 (nearest neighbor) gana en kro200 (1.016x) y a280 (1.050x) — la busqueda local domina.
+- La propiedad de capas de convex hull se preserva en todas las instancias pequeñas (E008).
+- Berlin52: SolverC3/C4 alcanzan ratio 1.0003 — practicamente optimo.
 
 ---
 
@@ -72,6 +77,56 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 ---
 
 ## Log de experimentos
+
+### E010 — SolverF1: Delaunay nearest neighbor + busqueda local (2026-04-11)
+
+- **Solver:** SolverF1
+- **Linea:** F (basado en triangulacion de Delaunay)
+- **Hipotesis:** Usar aristas Delaunay para guiar nearest neighbor producira mejor semilla.
+- **Complejidad:** O(n^3)
+- **Resultados:** berlin52: 1.053x | st70: 1.047x | kro200: 1.061x | a280: 1.065x
+- **Metricas agregadas:** Media aritmetica=1.057x | Media geometrica=1.057x | Peor caso=1.065x
+- **Conclusion:** Peor que SolverE1 (NN global). La restriccion a aristas Delaunay empeora la semilla NN en vez de mejorarla. El NN global ya tiende a elegir aristas Delaunay naturalmente.
+
+### E009 — SolverE1: Nearest neighbor + busqueda local (2026-04-11)
+
+- **Solver:** SolverE1
+- **Linea:** E (nearest neighbor)
+- **Hipotesis:** Si NN + busqueda local da resultados similares a SolverC3, la busqueda local domina.
+- **Complejidad:** O(n^3)
+- **Resultados:** berlin52: 1.053x | st70: 1.047x | kro200: **1.016x** | a280: **1.050x**
+- **Metricas agregadas:** Media aritmetica=1.041x | Media geometrica=1.041x | Peor caso=1.053x
+- **Conclusion:** Resultado clave: SolverE1 gana en kro200 y a280, demostrando que la busqueda local (2-opt + or-opt) domina la calidad en instancias grandes. La estrategia de construccion importa menos. Mejor peor caso (1.053x) que SolverC3 (1.069x).
+
+### E008 — Propiedad teorica de capas de convex hull (2026-04-11)
+
+- **Test:** ConvexHullLayerOrderTest
+- **Hipotesis:** En el tour optimo, los vertices de cada capa de convex hull preservan su orden ciclico.
+- **Metodo:** BruteForce en 11 instancias pequeñas (3-10 puntos).
+- **Resultados:** **TODAS las capas preservan su orden en las 11 instancias.** 0 violaciones.
+  - Instancias con 1 capa: trivial, 4square, 4a, 5a — trivialmente preservado
+  - Instancias con 2 capas: 4b, 5b, 6a, 6b, 6c, 6d, 10a — todas preservadas
+- **Conclusion:** Fuerte evidencia empirica de que la propiedad se cumple. Necesita verificacion en instancias mas grandes y una demostracion formal. Si se confirma, reduce drasticamente el espacio de busqueda: solo hay que determinar como intercalar las capas.
+
+### E007 — SolverC4: Peeling + insercion ordenada + busqueda local (2026-04-11)
+
+- **Solver:** SolverC4
+- **Linea:** C
+- **Hipotesis:** Insertar puntos en orden del hull interno mejorara la semilla para busqueda local.
+- **Complejidad:** O(n^3)
+- **Resultados:** Identicos a SolverC3 en todas las instancias.
+- **Metricas agregadas:** Media aritmetica=1.037x | Media geometrica=1.036x | Peor caso=1.069x
+- **Conclusion:** El orden de insercion de los puntos interiores NO importa cuando se aplica busqueda local despues. SolverC4 = SolverC3. La busqueda local borra cualquier diferencia en la semilla.
+
+### E006 — SolverB3: Convex hull + insercion + busqueda local completa (2026-04-11)
+
+- **Solver:** SolverB3
+- **Linea:** B
+- **Hipotesis:** Aislar si peeling o busqueda local marca la diferencia.
+- **Complejidad:** O(n^3)
+- **Resultados:** berlin52: 1.042x | st70: **1.020x** | kro200: 1.041x | a280: 1.055x
+- **Metricas agregadas:** Media aritmetica=1.040x | Media geometrica=1.039x | Peor caso=1.055x
+- **Conclusion:** SolverB3 < SolverC3 en media pero > en st70 y kro200. La diferencia entre peeling y convex hull es minima cuando se aplica busqueda local completa. Confirma que la busqueda local domina.
 
 ### E005 — SolverC3: Peeling + insercion + 2-opt + or-opt (2026-04-10)
 
@@ -222,10 +277,20 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 
 ## Backlog de ideas (priorizado)
 
-1. **SolverC3 / SolverB3:** Añadir or-opt sobre SolverC2/SolverB2 — reubicar segmentos de 1-3 puntos. O(n^2) por pasada, mantiene O(n^3). Mejora esperada: 1-3%
-2. **SolverC4:** Peeling + intercalado de capas preservando orden geometrico — en vez de insertar puntos uno a uno, conectar capas completas respetando la orientacion de cada capa
-3. **3-opt sobre mejores solvers:** Movimientos mas complejos que 2-opt. O(n^3) por pasada, subiria a O(n^4). Evaluar si la mejora de calidad justifica el coste
-4. **Delaunay-based:** Usar triangulacion de Delaunay para restringir el espacio de busqueda. El tour optimo usa predominantemente aristas de Delaunay. JTS tiene implementacion de Delaunay.
-5. **SolverD:** Investigar si el orden de los vertices dentro de cada capa de convex hull se preserva en el tour optimo (propiedad teorica clave). Verificar empiricamente con BruteForce en instancias pequeñas.
-6. **Investigar por que SolverC2 supera a SolverB2:** Ambos usan 2-opt, la diferencia esta en la construccion. ¿El peeling produce una mejor semilla para 2-opt?
-7. **Nearest neighbor + 2-opt:** Baseline clasico. Nearest neighbor es O(n^2), combinado con 2-opt seria O(n^3). Comparar contra SolverB2/C2 para entender si la construccion importa o el 2-opt domina.
+### Hallazgos clave de E006-E010
+- La busqueda local (2-opt + or-opt) **domina** la calidad. La estrategia de construccion importa poco.
+- SolverC4 = SolverC3 — el orden de insercion no importa tras busqueda local.
+- La propiedad de capas de convex hull se cumple en todas las instancias pequeñas (E008).
+- Delaunay NN no mejora sobre NN global — el NN ya elige aristas Delaunay naturalmente.
+
+### Ideas pendientes
+1. **Mejorar la busqueda local** (mayor impacto dado que domina la calidad):
+   a. **Or-opt iterado con 2-opt:** Alternar 2-opt y or-opt multiples veces hasta convergencia global
+   b. **Delaunay-restricted 2-opt:** Limitar los intercambios de 2-opt a aristas cercanas (vecinos Delaunay) para acelerar sin perder calidad
+   c. **3-opt selectivo:** Aplicar 3-opt solo a segmentos del tour que no mejoran con 2-opt/or-opt
+2. **Explotar la propiedad de capas (E008):**
+   a. Verificar en instancias mas grandes (necesitaria un solver exacto o tours optimos conocidos)
+   b. Si se confirma: construir un solver que fije el orden de cada capa y solo busque el intercalado optimo
+   c. Formalizar como teorema y buscar demostracion
+3. **Multi-start:** Ejecutar el mismo pipeline desde multiples puntos iniciales de NN y quedarse con el mejor tour. Trivialmente paralelizable, no cambia la complejidad por ejecucion.
+4. **Investigar por que berlin52 da casi-optimo:** Entender que estructura geometrica la hace "facil" para nuestro pipeline.
