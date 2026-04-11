@@ -81,27 +81,68 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 
 ---
 
-## Referencia — Algoritmos polinomicos para TSP
+## State of the art — Algoritmos polinomicos para TSP Euclideo 2D
 
 Solo se compara con algoritmos de complejidad polinomica garantizada.
-Algoritmos no polinomicos (LKH, Concorde, etc.) quedan fuera del alcance del proyecto.
+Algoritmos no polinomicos quedan fuera del alcance del proyecto.
 
-| Algoritmo | Complejidad peor caso | Gap empirico | Garantia aprox. |
-|-----------|----------------------|-------------|-----------------|
+### Algoritmos con garantia teorica (de la literatura)
+
+| Algoritmo | Año | Complejidad peor caso | Garantia aprox. | Practico? |
+|-----------|-----|----------------------|-----------------|-----------|
+| Christofides | 1976 | O(n^3) | 3/2 | Si |
+| Arora PTAS | 1996 | O(n (log n)^O(1/ε)) | 1+ε para todo ε>0 | No (*) |
+| Rao-Smith PTAS | 1998 | O(2^(1/ε)^O(1) * n log n) | 1+ε para todo ε>0 | No (*) |
+| Bartal et al. | 2013 | O(2^(1/ε)^O(1) * n) | 1+ε para todo ε>0 | No (*) |
+| Karlin-Klein-Gharan | 2021 | O(n^3) | 3/2 - 10^-36 (metrico) | Si |
+
+(*) Los PTAS son polinomicos para ε fijo pero las constantes O(1/ε) los hacen impracticos
+para ε pequeño. Para ε=0.01 (1% gap), la constante 2^(1/0.01)^O(1) es astronomica.
+
+**Nota sobre 2-opt:** El numero de mejoras 2-opt en el peor caso es exponencial incluso para
+instancias euclideas (Englert, Roeglin, Voecking 2007). Sin embargo, bajo modelos probabilisticos
+(instancias perturbadas), el numero es polinomico. Nuestro safety limit (max n pasadas, E026)
+garantiza terminacion polinomica. Empiricamente converge en <=6 pasadas.
+
+**Nota sobre ratio de aproximacion de 2-opt:** El peor caso del ratio de aproximacion de un
+tour 2-opt local en instancias euclideas es Theta(log n / log log n) (Chandra, Karloff, Tovey 1999).
+Esto significa que 2-opt SIN multi-start no tiene garantia constante.
+
+### Nuestros mejores solvers vs el state of the art
+
+| Algoritmo | Complejidad peor caso | Gap empirico (8 inst.) | Garantia aprox. |
+|-----------|----------------------|----------------------|-----------------|
 | **Nuestro SolverJ5** | **O(n^3)** | **~1.0%** | **Desconocida** |
 | Nuestro SolverH3 | O(n^4) | ~0.6% | Desconocida |
 | Christofides | O(n^3) | ~15% | 3/2 demostrada |
+| Arora PTAS (ε=0.01) | O(n (log n)^O(100)) | 1% (teorico) | 1.01 demostrada |
 
 SolverJ5 y Christofides tienen la misma complejidad peor caso O(n^3).
-SolverJ5 tiene gap empirico 15x menor (1.0% vs 15%).
-Pendiente: determinar la garantia de aproximacion de SolverJ5.
+SolverJ5 tiene gap empirico ~15x menor (1.0% vs ~15%).
+El PTAS de Arora garantiza 1+ε pero es impractico para ε pequeño.
 
-**Tecnicas avanzadas integradas (de la literatura de busqueda local):**
+**Preguntas abiertas para nuestro proyecto:**
+1. Cual es la garantia de aproximacion de SolverJ5 en el peor caso?
+2. Existe un algoritmo O(n^3) con garantia demostrada mejor que 3/2 para TSP euclideo 2D?
+3. Puede nuestro enfoque (multi-start + busqueda local con safety limits) tener garantia sublineal?
+
+### Tecnicas integradas de la literatura de busqueda local
+
 1. α-nearness candidates basados en 1-tree (E029) — integrado
-2. LK profundidad variable con backtracking (E030) — integrado
+2. Lin-Kernighan profundidad variable con backtracking (E030) — integrado
 3. Subgradient optimization (E032) — probado, sin mejora consistente
 4. Movimientos no secuenciales — pendiente
 5. Segment trees O(log n) — pendiente
+
+### Fuentes
+
+- Arora (1996): "Polynomial Time Approximation Schemes for Euclidean TSP" — PTAS original
+- Rao, Smith (1998): Mejora del PTAS a O(n log n)
+- Bartal et al. (2013): PTAS en tiempo lineal O(n)
+- Christofides (1976): Algoritmo 3/2-aproximacion
+- Karlin, Klein, Oveis Gharan (2021): Primera mejora sobre 3/2 para TSP metrico general
+- Englert, Roeglin, Voecking (2007): Numero exponencial de mejoras 2-opt en peor caso
+- Chandra, Karloff, Tovey (1999): Ratio de aproximacion de 2-opt local es Theta(log n/log log n)
 
 ---
 
