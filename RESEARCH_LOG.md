@@ -83,6 +83,33 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 
 ## Log de experimentos
 
+### E017 — SolverE6: Multi-start selectivo + 3-opt (2026-04-11)
+
+- **Solver:** SolverE6
+- **Linea:** E
+- **Padre:** SolverE3
+- **Hipotesis:** 3-opt puede corregir estructuras que 2-opt+or-opt no resuelven.
+- **Complejidad:** O(n^3.5)
+- **Resultados:** Identico a SolverE3 en casi todas las instancias. Mejora marginal en kro200 (1.017x vs 1.023x).
+- **Metricas agregadas:** Media aritmetica=1.017x | Media geometrica=1.017x | Peor caso=1.034x
+- **Conclusion:** 3-opt no justifica su coste. 2-opt+or-opt ya cubre las estructuras que 3-opt podria resolver.
+
+### E016 — SolverE5: Or-opt extendido segmentos 1-5 (2026-04-11)
+
+- **Solver:** SolverE5
+- **Linea:** E
+- **Padre:** SolverE2
+- **Hipotesis:** Segmentos de 4-5 puntos en or-opt permiten mejoras que or-opt(3) no encuentra.
+- **Complejidad:** O(n^4)
+- **Resultados:** Mejora solo en st70 (1.003x vs 1.011x). En el resto, identico a E2.
+- **Metricas agregadas (8 instancias):** Media aritmetica=1.012x | Media geometrica=1.012x | Peor caso=1.027x
+- **Conclusion:** Segmentos >3 rara vez se reubican con ganancia. Mejora insuficiente para el coste extra.
+
+### Instancia pcb442 (442 puntos, placa de circuito impreso)
+
+- SolverE2: 1.018x en 52s | SolverE3: 1.033x en 1.2s | Christofides: 1.128x en 0.19s
+- Confirma escalabilidad de nuestros solvers a instancias medianas.
+
 ### E015 — SolverE3: Multi-start selectivo (vertices convex hull) (2026-04-11)
 
 - **Solver:** SolverE3
@@ -352,13 +379,15 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 - Delaunay NN no mejora sobre NN global — el NN ya elige aristas Delaunay naturalmente.
 
 ### Ideas pendientes
-1. **Mejorar la busqueda local:**
-   a. ~~Or-opt iterado con 2-opt~~ — E014 demostro que no aporta mejora
-   b. **3-opt selectivo:** Movimientos mas complejos. O(n^3) por pasada. Evaluar si mejora sobre 2-opt+or-opt
-   c. **Lin-Kernighan style moves:** Variable-depth search. Estado del arte en busqueda local para TSP
-   d. **Or-opt con segmentos mayores (4, 5 puntos):** Ampliar el rango de segmentos reubicados
-2. ~~**Reducir SolverE2 de O(n^4) a O(n^3)**~~ — E015 (SolverE3, O(n^3.5)) resuelve parcialmente
-3. ~~**Añadir mas instancias**~~ — Hecho: eil51, eil76, rat99 añadidas (total 7 instancias)
-4. **Investigar por que eil76 da el peor ratio (1.027x con E2):** Entender que estructura la hace dificil
-5. **Instancias aun mas grandes:** Importar instancias de 500+ puntos para evaluar escalabilidad
-6. **Multi-start con inicios distribuidos:** Usar K puntos equidistantes en el plano, no solo hull
+
+**Hallazgos de E014-E017 que acotan la busqueda:**
+- ~~Or-opt iterado~~ — E014: no aporta, una pasada ya converge
+- ~~Or-opt extendido (seg 4-5)~~ — E016: mejora marginal, no justifica coste
+- ~~3-opt~~ — E017: no mejora sobre 2-opt+or-opt
+- La busqueda local estandar (2-opt + or-opt) ya esta saturada. Necesitamos un enfoque diferente.
+
+**Nuevas direcciones:**
+1. **Lin-Kernighan (LK) moves:** Variable-depth search. El unico enfoque de busqueda local que el estado del arte dice que supera a 2-opt+or-opt de forma consistente. Complejo de implementar pero potencialmente transformativo.
+2. **Analizar el gap residual:** Comparar nuestros mejores tours con los optimos conocidos arista por arista. Identificar patrones en las aristas que difieren — esto puede revelar que tipo de movimiento local las corregiria.
+3. **Multi-start con inicios distribuidos:** Probar K puntos geometricamente distribuidos en vez de solo hull o todos. Buscar el sweet spot entre calidad y velocidad.
+4. **Instancias de 1000+ puntos:** pcb442 funciona bien. Probar con instancias mayores para stress-test.
