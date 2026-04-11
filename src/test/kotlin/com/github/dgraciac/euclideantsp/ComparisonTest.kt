@@ -39,6 +39,7 @@ internal class ComparisonTest {
                 "SolverJ1" to SolverJ1(),
                 "SolverJ2" to SolverJ2(),
                 "SolverJ3" to SolverJ3(),
+                "SolverJ4" to SolverJ4(),
             )
     }
 

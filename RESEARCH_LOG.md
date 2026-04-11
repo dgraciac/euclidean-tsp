@@ -134,6 +134,25 @@ Los datos de LKH y Concorde son de la literatura publicada, no de nuestras medic
 
 ## Log de experimentos
 
+### E030 — SolverJ4: LK profundidad 5 con backtracking (2026-04-11)
+
+- **Solver:** SolverJ4
+- **Linea:** J
+- **Padre:** SolverJ3
+- **Hipotesis:** LK profundidad 5 con backtracking encuentra movimientos profundos.
+- **Complejidad peor caso:** O(n^3)
+- **Resultados:**
+
+| Instancia | SolverJ3 (LK-2) | SolverJ4 (LK-5) |
+|-----------|-----------------|-----------------|
+| kro200 | 1.012x | 1.004x (mejora) |
+| a280 | 1.006x | 1.006x (igual) |
+| pcb442 | 1.013x | 1.016x (peor) |
+| Media | 1.011x | 1.010x |
+
+- **Metricas SolverJ4:** Media=1.010x | Peor caso=1.025x
+- **Conclusion:** El backtracking funciona y mejora en kro200, pero la reconstruccion de tours con 5+ segmentos es limitada (pocas reconexiones implementadas). Media ligeramente mejor (1.010x vs 1.011x). Pendiente: ampliar reconexiones para profundidades altas.
+
 ### E029 — SolverJ1/J2/J3: α-nearness candidates (2026-04-11)
 
 - **Solvers:** SolverJ1 (α solo), SolverJ2 (α5+dist5), SolverJ3 (α7+dist7)
