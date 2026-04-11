@@ -663,7 +663,7 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 | Segment trees O(log n) | — | Pendiente | Solo velocidad, no calidad |
 | Garantia de aproximacion | E033 | Parcial | Sin contraejemplo en ~46 instancias |
 | Instancias adversariales n=1000 | E034-E035 | Completado | J5 gana o iguala a Christofides en todas |
-| Instancias TSPLIB n>500 | E037 | En progreso | d657, rat783 importadas, tests corriendo |
+| Instancias TSPLIB n>500 | E037 | En progreso | d657 (n=657, opt=48912), rat783 (n=783, opt=8806) importadas. Test corriendo pero puede no terminar en esta sesion. Re-ejecutar: `./gradlew test --tests "*.ComparisonTest"`. SolverH3 es MUY lento en estas instancias (~30+ min) — considerar ejecutar solo J5 y Christofides. |
 
 ### Ideas completadas o descartadas
 
