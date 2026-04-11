@@ -51,6 +51,8 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 | SolverE3 | O(n^3.5) | O(n^3.5) | 1.018x | 1.034x | 1.1s |
 | SolverG1 | O(n^3.5) | O(n^3.5) | 1.015x | 1.034x | 2.0s |
 | SolverE7 | O(n^4) | O(n^4) | 1.011x | 1.021x | 83s |
+| **SolverI2** | **O(n^3)** | **O(n^3)** | **1.016x** | **1.041x** | **1.89s** |
+| SolverI1 | O(n^3) | O(n^3) | 1.023x | 1.041x | 0.54s |
 | SolverC3 | O(n^3) | O(n^3) | 1.039x | 1.069x | 0.18s |
 | SolverB3 | O(n^3) | O(n^3) | 1.039x | 1.055x | 0.064s |
 | SolverE1 | O(n^3) | O(n^3) | 1.043x | 1.075x | 0.054s |
@@ -97,6 +99,28 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 ---
 
 ## Log de experimentos
+
+### E027 — SolverI1/I2: Mejores solvers O(n^3) (2026-04-11)
+
+- **Solvers:** SolverI1, SolverI2
+- **Linea:** I (optimizar dentro de O(n^3))
+- **Hipotesis:** Multi-start(hull) con 2-opt-nl rapido + or-opt + LK + double-bridge, todo en O(n^3).
+- **Complejidad peor caso:** O(n^3) — misma que Christofides
+- **Resultados SolverI2 (mejor O(n^3)):**
+
+| Instancia | Christofides | SolverC3 | SolverI2 | Tiempo I2 |
+|-----------|-------------|----------|----------|-----------|
+| eil51 | 1.149x | 1.042x | 1.007x | 0.02s |
+| berlin52 | 1.123x | 1.000x | 1.000x | 0.01s |
+| st70 | 1.143x | 1.031x | 1.020x | 0.05s |
+| eil76 | 1.161x | 1.054x | 1.041x | 0.03s |
+| rat99 | 1.134x | 1.043x | 1.007x | 0.05s |
+| kro200 | 1.143x | 1.048x | 1.012x | 0.30s |
+| a280 | 1.157x | 1.069x | 1.017x | 0.66s |
+| pcb442 | 1.117x | 1.056x | 1.025x | 1.89s |
+
+- **Metricas SolverI2:** Media aritmetica=1.016x | Media geometrica=1.016x | Peor caso=1.041x
+- **Conclusion:** SolverI2 es el mejor solver O(n^3) por amplio margen. La clave es combinar multi-start rapido (2-opt-nl O(n^2) por start) + busqueda profunda (or-opt + 2-opt + LK) + double-bridge, todo dentro del presupuesto O(n^3). Media 1.016x vs Christofides 1.147x — misma complejidad, mucho mejor aproximacion empirica.
 
 ### E026 — Analisis de pasadas de 2-opt y or-opt (2026-04-11)
 
