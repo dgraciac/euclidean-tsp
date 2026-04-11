@@ -24,7 +24,7 @@ import org.jgrapht.graph.DefaultWeightedEdge
  *
  * Complejidad e2e: O(n^3)
  * - Paso 1: O(n^2) — construccion del grafo completo
- * - Paso 2: O(n^2 log n) — MST con Prim/Kruskal
+ * - Paso 2: O(n^2) — MST con Prim sobre grafo denso
  * - Paso 3: O(n^3) — matching de peso minimo (dominante)
  * - Pasos 4-5: O(n)
  *
