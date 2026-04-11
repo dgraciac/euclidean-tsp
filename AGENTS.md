@@ -39,3 +39,51 @@ Encontrar un algoritmo que resuelva el TSP Euclídeo 2D en tiempo polinómico.
 
 - **JGraphT** — Grafos y algoritmo de Christofides
 - **JTS** (LocationTech) — Geometría computacional
+
+## Protocolo de investigacion
+
+**IMPORTANTE: Leer `RESEARCH_LOG.md` al inicio de cada sesion.** Contiene el estado actual de la investigacion, mejores resultados, experimentos realizados y backlog de ideas.
+
+### Restriccion fundamental
+
+Solo se investigan algoritmos con **complejidad polinomica** (O(n^k) para algun k constante). Algoritmos super-polinomicos (O(2^n), O(n!), etc.) quedan fuera del objetivo. BruteForce existe solo como herramienta de verificacion para instancias pequeñas.
+
+### Convencion de nombres de solvers
+
+- **Letra** = linea de investigacion (A = centroide, B = convex hull + ratio, C = peeling, D/E/... = nuevas lineas)
+- **Numero** = variante dentro de la linea (SolverB1, SolverB2, ...)
+- Cada variante tiene su propio archivo Kotlin: `SolverB1.kt`, `SolverC1.kt`, etc.
+- Nuevas lineas de investigacion fundamentalmente diferentes reciben una letra nueva
+
+### Documentacion obligatoria — Funciones de utilidad
+
+Toda funcion de utilidad debe tener KDoc en español con:
+- Descripcion de lo que hace
+- Parametros y retorno
+- **Complejidad en notacion Big O**
+
+### Documentacion obligatoria — Solvers
+
+Todo solver debe tener KDoc en español con:
+- Linea de investigacion y solver padre
+- Numero de experimento (EXXX)
+- Hipotesis que se prueba
+- Algoritmo paso a paso
+- **Complejidad Big O e2e con desglose por paso**
+- Tabla de resultados (ratio + tiempo por instancia)
+- Conclusion
+
+### Protocolo de iteracion
+
+1. **Leer contexto:** `RESEARCH_LOG.md` — mejores resultados, experimentos recientes, backlog de ideas
+2. **Formular hipotesis:** Escribir una hipotesis clara y testeable
+3. **Implementar:** Crear `SolverXN.kt` con KDoc completo. Reutilizar funciones existentes
+4. **Añadir al test:** Una linea en `ComparisonTest.kt` companion object
+5. **Ejecutar:** `./gradlew spotlessApply && ./gradlew test`
+6. **Registrar:** Rellenar resultados en el KDoc del solver y en `RESEARCH_LOG.md`
+7. **Commit:** Formato `experiment(EXXX): SolverXN — descripcion breve`
+
+### Convencion de idioma
+
+- **Codigo** (nombres de variables, funciones, clases): siempre en **ingles**
+- **Documentacion** (KDoc, RESEARCH_LOG.md, AGENTS.md, README): siempre en **español**

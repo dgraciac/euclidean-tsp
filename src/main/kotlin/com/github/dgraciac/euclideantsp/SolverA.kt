@@ -13,6 +13,30 @@ import com.github.dgraciac.euclideantsp.shared.Tour
 import org.locationtech.jts.geom.LinearRing
 import org.locationtech.jts.geom.Point
 
+/**
+ * SolverA — Insercion desde el centroide con criterio de distancia absoluta
+ *
+ * Linea de investigacion: A (inicializacion basada en centroide)
+ * Experimento: E000 (baseline)
+ *
+ * Algoritmo:
+ * 1. Calcula el centroide del convex hull de los puntos — O(n log n)
+ * 2. Ordena los puntos por distancia al centroide — O(n log n)
+ * 3. Toma los 3 puntos mas cercanos al centroide, genera sus 6 permutaciones,
+ *    y elige la que forma el triangulo de menor perimetro como tour inicial — O(1)
+ * 4. Para cada punto no conectado (n-3 iteraciones):
+ *    a. Para cada punto no conectado, busca la mejor posicion de insercion
+ *       usando findBestIndexToInsertAt (distancia absoluta) — O(n^2) por punto
+ *    b. Inserta el punto que globalmente minimiza la distancia de insercion
+ *    Subtotal por iteracion: O(n * n^2) = O(n^3)
+ * 5. Repite paso 4 hasta conectar todos los puntos — n iteraciones
+ *
+ * Complejidad e2e: O(n^4)
+ * - Paso 1-3: O(n log n)
+ * - Paso 4-5: O(n) iteraciones * O(n) puntos no conectados * O(n^2) findBestIndexToInsertAt = O(n^4)
+ *
+ * Resultados: Comentado en ComparisonTest (underperforms vs SolverB en instancias grandes)
+ */
 class SolverA : Euclidean2DTSPSolver {
     override fun compute(instance: Euclidean2DTSPInstance): Tour {
         require(instance.points.size >= 3)

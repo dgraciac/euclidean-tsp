@@ -136,4 +136,7 @@ gradle-app.setting
 ### Gradle Patch ###
 **/build/
 
+### Kotlin Compiler ###
+.kotlin
+
 # End of https://www.gitignore.io/api/gradle,kotlin,intellij

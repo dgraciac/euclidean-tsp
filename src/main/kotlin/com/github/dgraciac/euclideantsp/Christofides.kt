@@ -10,6 +10,30 @@ import org.jgrapht.alg.tour.ChristofidesThreeHalvesApproxMetricTSP
 import org.jgrapht.graph.DefaultUndirectedWeightedGraph
 import org.jgrapht.graph.DefaultWeightedEdge
 
+/**
+ * Christofides — Algoritmo de Christofides (implementacion de JGraphT)
+ *
+ * Linea de investigacion: Ninguna (baseline de referencia con garantia de aproximacion 1.5x)
+ *
+ * Algoritmo:
+ * 1. Construye un grafo completo no dirigido ponderado con distancias euclideas — O(n^2)
+ * 2. Calcula el arbol generador minimo (MST) — O(n^2 log n)
+ * 3. Encuentra un matching de peso minimo sobre los vertices de grado impar — O(n^3)
+ * 4. Combina MST + matching para formar un multigrafo euleriano
+ * 5. Encuentra un circuito euleriano y lo convierte en tour hamiltoniano (shortcutting)
+ *
+ * Complejidad e2e: O(n^3)
+ * - Paso 1: O(n^2) — construccion del grafo completo
+ * - Paso 2: O(n^2 log n) — MST con Prim/Kruskal
+ * - Paso 3: O(n^3) — matching de peso minimo (dominante)
+ * - Pasos 4-5: O(n)
+ *
+ * Resultados:
+ *   berlin52: ratio=1.122, tiempo=0.127s
+ *   st70:     ratio=1.119, tiempo=0.019s
+ *   kro200:   ratio=1.155, tiempo=0.151s
+ *   a280:     ratio=1.172, tiempo=0.232s
+ */
 class Christofides : Euclidean2DTSPSolver {
     override fun compute(instance: Euclidean2DTSPInstance): Tour =
         buildGraph(instance).let { graph: Graph<Point, DefaultWeightedEdge> ->

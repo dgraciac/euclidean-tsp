@@ -12,6 +12,32 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Point
 
+/**
+ * SolverB — Insercion desde convex hull con criterio de ratio relativo
+ *
+ * Linea de investigacion: B (inicializacion con convex hull)
+ * Experimento: E000 (baseline)
+ *
+ * Algoritmo:
+ * 1. Calcula el convex hull de todos los puntos — O(n log n)
+ * 2. Usa el convex hull como tour inicial (poligono convexo cerrado)
+ * 3. Para cada punto interior no conectado (m iteraciones, m = n - |hull|):
+ *    a. Para cada punto no conectado, busca la mejor posicion de insercion
+ *       usando findBestIndexToInsertAt2 (ratio relativo) — O(n^2) por punto
+ *    b. Inserta el punto que globalmente minimiza el ratio de insercion
+ *    Subtotal por iteracion: O(m * n^2)
+ * 4. Repite paso 3 hasta conectar todos los puntos
+ *
+ * Complejidad e2e: O(n^4)
+ * - Paso 1: O(n log n)
+ * - Paso 3-4: O(m) iteraciones * O(m) puntos * O(n^2) findBestIndexToInsertAt2 = O(n^4)
+ *
+ * Resultados:
+ *   berlin52: ratio=1.021, tiempo=1.656s
+ *   st70:     ratio=1.075, tiempo=2.25s
+ *   kro200:   ratio=1.110, tiempo=159.232s
+ *   a280:     ratio=1.212, tiempo=653.635s
+ */
 class SolverB : Euclidean2DTSPSolver {
     override fun compute(instance: Euclidean2DTSPInstance): Tour {
         require(instance.points.size >= 3)
