@@ -26,34 +26,39 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 
 ## Mejores resultados actuales
 
-| Instancia | Optimo | Mejor Solver | Ratio | Tiempo | Complejidad | Fecha |
-|-----------|--------|-------------|-------|--------|-------------|-------|
-| berlin52 | 7542.0 | SolverE2 | 1.000x | 0.08s | O(n^4) | 2026-04-11 |
-| st70 | 675.0 | SolverE2 | 1.011x | 0.24s | O(n^4) | 2026-04-11 |
-| kro200 | 29368.0 | SolverE2 | 1.006x | 4.1s | O(n^4) | 2026-04-11 |
-| a280 | 2579.0 | SolverE2 | 1.021x | 10.5s | O(n^4) | 2026-04-11 |
+| Instancia | n | Optimo | Mejor Solver | Ratio | Tiempo | Complejidad | Fecha |
+|-----------|---|--------|-------------|-------|--------|-------------|-------|
+| eil51 | 51 | 426.0 | SolverE2/E4 | 1.007x | 0.10s | O(n^4) | 2026-04-11 |
+| berlin52 | 52 | 7542.0 | SolverE2/E4 | 1.000x | 0.10s | O(n^4) | 2026-04-11 |
+| st70 | 70 | 675.0 | SolverE2/E4 | 1.011x | 0.13s | O(n^4) | 2026-04-11 |
+| eil76 | 76 | 538.0 | SolverE2/E4 | 1.027x | 0.12s | O(n^4) | 2026-04-11 |
+| rat99 | 99 | 1211.0 | SolverE2/E4 | 1.016x | 0.24s | O(n^4) | 2026-04-11 |
+| kro200 | 200 | 29368.0 | SolverE2/E4 | 1.006x | 3.2s | O(n^4) | 2026-04-11 |
+| a280 | 279 | 2579.0 | SolverE2/E4 | 1.021x | 10.7s | O(n^4) | 2026-04-11 |
 
 ### Resumen agregado por solver
 
 | Solver | Complejidad | Media arit. | Media geom. | Peor caso | Tiempo max |
 |--------|-------------|------------|------------|-----------|------------|
-| **SolverE2** | **O(n^4)** | **1.010x** | **1.009x** | **1.021x** | **10.5s** |
-| SolverE1 | O(n^3) | 1.041x | 1.041x | 1.053x | 0.061s |
-| SolverC3 | O(n^3) | 1.037x | 1.036x | 1.069x | 0.031s |
-| SolverC4 | O(n^3) | 1.037x | 1.036x | 1.069x | 0.085s |
+Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat99, kro200, a280)
+
+| Solver | Complejidad | Media arit. | Media geom. | Peor caso | Tiempo max |
+|--------|-------------|------------|------------|-----------|------------|
+| **SolverE2/E4** | **O(n^4)** | **1.013x** | **1.012x** | **1.027x** | **13.6s** |
+| SolverE3 | O(n^3.5) | 1.018x | 1.018x | 1.034x | 0.48s |
+| SolverC3 | O(n^3) | 1.040x | 1.039x | 1.069x | 0.031s |
 | SolverB3 | O(n^3) | 1.040x | 1.039x | 1.055x | 0.064s |
-| SolverB1 | O(n^4) | 1.052x | 1.051x | 1.081x | 140.2s |
-| SolverF1 | O(n^3) | 1.058x | 1.057x | 1.065x | 0.054s |
-| SolverB2 | O(n^3) | 1.076x | 1.076x | 1.100x | 0.006s |
-| SolverC2 | O(n^3) | 1.070x | 1.069x | 1.087x | 0.010s |
-| Christofides | O(n^3) | 1.137x | 1.137x | 1.156x | 0.10s |
-| SolverC1 | O(n^3) | 1.174x | 1.173x | 1.218x | 0.004s |
+| SolverE1 | O(n^3) | 1.044x | 1.043x | 1.075x | 0.054s |
+| SolverF1 | O(n^3) | 1.057x | 1.057x | 1.065x | 0.087s |
+| Christofides | O(n^3) | 1.147x | 1.147x | 1.165x | 0.12s |
+| SolverC1 | O(n^3) | 1.174x | 1.173x | 1.218x | 0.014s |
 
 **Notas:**
-- SolverE2 (multi-start, O(n^4)) es el mejor en todas las metricas. Casi optimo (media 1.010x).
-- Entre los O(n^3): SolverC3 tiene la mejor media (1.036x), SolverE1 tiene mejor peor caso (1.053x).
-- La propiedad de capas NO se mantiene en instancias grandes (E011). Solo aplica a instancias pequeñas.
+- SolverE2/E4 (multi-start, O(n^4)) son los mejores. Media 1.012x, peor caso 1.027x.
+- SolverE3 (multi-start selectivo, O(n^3.5)) es casi tan bueno en <0.5s. Mejor tradeoff.
+- E014 confirma: busqueda local iterativa NO mejora sobre una sola pasada.
 - La busqueda local (2-opt + or-opt) domina la calidad. Multi-start amplifica este efecto.
+- Resultados validados en 7 instancias TSPLIB (51-279 puntos).
 
 ---
 
@@ -77,6 +82,39 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 ---
 
 ## Log de experimentos
+
+### E015 — SolverE3: Multi-start selectivo (vertices convex hull) (2026-04-11)
+
+- **Solver:** SolverE3
+- **Linea:** E
+- **Padre:** SolverE2
+- **Hipotesis:** Usar solo vertices del convex hull como puntos de inicio (h ≈ sqrt(n)) reduce de O(n^4) a O(n^3.5) manteniendo la calidad.
+- **Complejidad:** O(h * n^3) ≈ O(n^3.5)
+- **Resultados:**
+
+| Instancia | n | SolverE2 | SolverE3 | Tiempo E3 |
+|-----------|---|----------|----------|-----------|
+| eil51 | 51 | 1.007x | 1.007x | 0.02s |
+| berlin52 | 52 | 1.000x | 1.000x | 0.02s |
+| st70 | 70 | 1.011x | 1.016x | 0.02s |
+| eil76 | 76 | 1.027x | 1.034x | 0.03s |
+| rat99 | 99 | 1.016x | 1.016x | 0.05s |
+| kro200 | 200 | 1.006x | 1.023x | 0.27s |
+| a280 | 279 | 1.021x | 1.029x | 0.48s |
+
+- **Metricas agregadas:** Media aritmetica=1.018x | Media geometrica=1.018x | Peor caso=1.034x
+- **Conclusion:** Excelente tradeoff velocidad/calidad. Casi igual que E2 en instancias pequeñas (<100 puntos), pierde algo en kro200/a280. O(n^3.5) en la practica, <0.5s en todas las instancias. Mejor solver "rapido" del proyecto.
+
+### E014 — SolverE4: Busqueda local iterativa (2026-04-11)
+
+- **Solver:** SolverE4
+- **Linea:** E
+- **Padre:** SolverE2
+- **Hipotesis:** Repetir el ciclo 2-opt/or-opt mejorara la convergencia.
+- **Complejidad:** O(n^4)
+- **Resultados:** Identicos a SolverE2 en todas las instancias. El ciclo extra no aporta mejora.
+- **Metricas agregadas:** Media aritmetica=1.013x | Media geometrica=1.012x | Peor caso=1.027x
+- **Conclusion:** Una sola pasada (2-opt -> or-opt -> 2-opt) ya converge al optimo local. Repetir el ciclo no encuentra mejoras adicionales. La iteracion no aporta valor.
 
 ### E013 — SolverE2: Multi-start NN + busqueda local (2026-04-11)
 
@@ -314,12 +352,13 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 - Delaunay NN no mejora sobre NN global — el NN ya elige aristas Delaunay naturalmente.
 
 ### Ideas pendientes
-1. **Mejorar la busqueda local dentro de cada ejecucion:**
-   a. **Or-opt iterado con 2-opt:** Alternar 2-opt y or-opt multiples veces hasta convergencia global (no solo 2-opt -> or-opt -> 2-opt, sino repetir el ciclo)
-   b. **3-opt selectivo:** Movimientos mas complejos. O(n^3) por pasada, subiria a O(n^4) por ejecucion. Evaluar si mejora sobre 2-opt+or-opt
+1. **Mejorar la busqueda local:**
+   a. ~~Or-opt iterado con 2-opt~~ — E014 demostro que no aporta mejora
+   b. **3-opt selectivo:** Movimientos mas complejos. O(n^3) por pasada. Evaluar si mejora sobre 2-opt+or-opt
    c. **Lin-Kernighan style moves:** Variable-depth search. Estado del arte en busqueda local para TSP
-2. **Reducir SolverE2 de O(n^4) a O(n^3):**
-   a. En vez de multi-start con N=n, usar N=sqrt(n) inicios bien distribuidos (e.g., puntos del convex hull)
-   b. O seleccionar los K mejores tours de NN y solo aplicar busqueda local a esos
-3. **Añadir mas instancias de test:** Las 4 actuales son pocas para conclusiones robustas. Importar mas instancias TSPLIB.
-4. **Investigar por que kro200 da 1.006x pero a280 da 1.021x:** Entender que hace a a280 mas dificil para nuestros solvers.
+   d. **Or-opt con segmentos mayores (4, 5 puntos):** Ampliar el rango de segmentos reubicados
+2. ~~**Reducir SolverE2 de O(n^4) a O(n^3)**~~ — E015 (SolverE3, O(n^3.5)) resuelve parcialmente
+3. ~~**Añadir mas instancias**~~ — Hecho: eil51, eil76, rat99 añadidas (total 7 instancias)
+4. **Investigar por que eil76 da el peor ratio (1.027x con E2):** Entender que estructura la hace dificil
+5. **Instancias aun mas grandes:** Importar instancias de 500+ puntos para evaluar escalabilidad
+6. **Multi-start con inicios distribuidos:** Usar K puntos equidistantes en el plano, no solo hull
