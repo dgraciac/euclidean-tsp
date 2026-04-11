@@ -38,7 +38,7 @@ import org.locationtech.jts.geom.GeometryFactory
  *   rat99:    ratio=1.008, tiempo=0.050s
  *   kro200:   ratio=1.023, tiempo=0.219s
  *   a280:     ratio=1.020, tiempo=0.556s
- *   pcb442:   ratio=PENDIENTE (test interrumpido)
+ *   pcb442:   ratio=1.033, tiempo=2.162s
  *
  * Metricas agregadas (sin pcb442): Media aritmetica=1.015x | Media geometrica=1.015x | Peor caso=1.034x
  *

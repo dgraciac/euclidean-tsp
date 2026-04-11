@@ -37,7 +37,7 @@ import com.github.dgraciac.euclideantsp.shared.Tour
  *   rat99:    ratio=1.008, tiempo=0.254s
  *   kro200:   ratio=1.006, tiempo=5.799s
  *   a280:     ratio=1.021, tiempo=15.559s
- *   pcb442:   ratio=PENDIENTE (test interrumpido)
+ *   pcb442:   ratio=1.021, tiempo=82.691s
  *
  * Metricas agregadas (sin pcb442): Media aritmetica=1.011x | Media geometrica=1.011x | Peor caso=1.021x
  *
