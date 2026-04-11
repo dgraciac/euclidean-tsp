@@ -2,6 +2,10 @@
 
 Biblioteca en Kotlin para resolver el Problema del Viajante (TSP) en el plano euclídeo 2D. Contiene varias implementaciones de algoritmos y un framework de comparación para evaluar su rendimiento.
 
+## Objetivo
+
+Encontrar un algoritmo que resuelva el TSP Euclídeo 2D en tiempo polinómico.
+
 ## Estructura del proyecto
 
 - `src/main/kotlin/com/github/dgraciac/euclideantsp/` — Implementaciones de solvers y utilidades
@@ -20,9 +24,9 @@ Biblioteca en Kotlin para resolver el Problema del Viajante (TSP) en el plano eu
 ./gradlew spotlessCheck  # Verifica formato
 ```
 
-- Java 11 / Kotlin 1.3.72
-- Gradle con Kotlin DSL
-- Tests con JUnit 5 (parametrizados), AssertJ y MockK
+- Java 17 / Kotlin 2.3.20
+- Gradle 9.4.1 con Kotlin DSL
+- Tests con JUnit 6 (parametrizados) y AssertJ
 
 ## Convenciones
 
@@ -35,4 +39,3 @@ Biblioteca en Kotlin para resolver el Problema del Viajante (TSP) en el plano eu
 
 - **JGraphT** — Grafos y algoritmo de Christofides
 - **JTS** (LocationTech) — Geometría computacional
-- **Guava** — Utilidades
