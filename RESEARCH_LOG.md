@@ -34,7 +34,8 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 | eil76 | 76 | 538.0 | SolverE2/E4 | 1.027x | 0.12s | O(n^4) | 2026-04-11 |
 | rat99 | 99 | 1211.0 | SolverE2/E4 | 1.016x | 0.24s | O(n^4) | 2026-04-11 |
 | kro200 | 200 | 29368.0 | SolverE2/E4 | 1.006x | 3.2s | O(n^4) | 2026-04-11 |
-| a280 | 279 | 2579.0 | SolverE2/E4 | 1.021x | 10.7s | O(n^4) | 2026-04-11 |
+| a280 | 279 | 2579.0 | SolverH3 | 1.014x | 34.1s | O(n^5) | 2026-04-11 |
+| pcb442 | 442 | 50778.0 | SolverH3 | 1.012x | 156.2s | O(n^5) | 2026-04-11 |
 
 ### Resumen agregado por solver
 
@@ -96,6 +97,30 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 ---
 
 ## Log de experimentos
+
+### E024 — SolverH3: Multi-start completo + LK + double-bridge + LK (2026-04-11)
+
+- **Solver:** SolverH3
+- **Linea:** H
+- **Padre:** SolverH2 + SolverE7
+- **Hipotesis:** Aplicar LK a cada inicio de NN (multi-start completo) encuentra mas optimos locales profundos que solo multi-start selectivo.
+- **Complejidad e2e:** O(n^4) tipica
+- **Complejidad peor caso:** O(n^5)
+- **Resultados:**
+
+| Instancia | Mejor anterior | SolverH3 | Mejora | Tiempo |
+|-----------|---------------|----------|--------|--------|
+| eil51 | 1.007x (E2) | 1.008x | = | 0.2s |
+| berlin52 | 1.000x (E2) | 1.000x | = | 0.2s |
+| st70 | 1.003x (E5) | 1.003x | = | 0.9s |
+| eil76 | 1.021x (E7/G2) | 1.021x | = | 0.8s |
+| rat99 | 1.008x (G1/G2) | 1.007x | -0.1% | 1.5s |
+| kro200 | 1.004x (H2) | 1.005x | = | 17.8s |
+| a280 | 1.020x (G2) | 1.014x | -0.6% | 34.1s |
+| pcb442 | 1.018x (E2) | 1.012x | -0.6% | 156.2s |
+
+- **Metricas agregadas:** Media aritmetica=1.009x | Media geometrica=1.008x | Peor caso=1.021x
+- **Conclusion:** Mejor solver del proyecto. Mejora los records en a280 y pcb442. El multi-start completo con LK en cada start es mas efectivo que LK solo sobre el mejor tour. O(n^5) peor caso, 156s en pcb442.
 
 ### E023 — SolverH2: Multi-start selectivo + LK + double-bridge + LK (2026-04-11)
 
