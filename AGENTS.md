@@ -84,6 +84,10 @@ Todo solver debe tener KDoc en español con:
 - **Metricas agregadas: media aritmetica, media geometrica y peor caso** de los ratios
 - Conclusion
 
+### Reglas experimentales
+
+- **Ejecucion en serie:** Los solvers se ejecutan uno tras otro, nunca en paralelo. Esto garantiza que las mediciones de tiempo no se contaminen por compartir CPU entre solvers.
+
 ### Protocolo de iteracion
 
 1. **Leer contexto:** `RESEARCH_LOG.md` — mejores resultados, experimentos recientes, backlog de ideas
