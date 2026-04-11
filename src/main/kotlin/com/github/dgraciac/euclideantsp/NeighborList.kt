@@ -38,11 +38,11 @@ fun buildNeighborLists(
  * @param neighborLists mapa de vecinos cercanos
  * @return tour mejorado (cerrado: primero == ultimo)
  *
- * Complejidad peor caso: O(n^2 * n * K) = O(n^3 * K)
+ * Complejidad peor caso: O(n^2 * K)
  * - Por pasada: O(n * K) — para cada punto, prueba K vecinos
- * - Numero de pasadas: limitado a n^2 (safety limit)
- * - Total: O(n^2) * O(n * K) = O(n^3 * K)
- * - Con K constante (e.g., K=10): O(n^3)
+ * - Numero de pasadas: limitado a max(20, n) (E026: empiricamente <=6 pasadas)
+ * - Total: O(n) * O(n * K) = O(n^2 * K)
+ * - Con K constante (e.g., K=10): O(n^2)
  */
 fun twoOptWithNeighborLists(
     tourPoints: List<Point>,
@@ -55,7 +55,7 @@ fun twoOptWithNeighborLists(
     points.forEachIndexed { idx, p -> position[p] = idx }
 
     var improved = true
-    var maxPasses = n * n // Limite para garantizar terminacion polinomica
+    var maxPasses = maxOf(20, n) // E026: empiricamente <=6 pasadas. Limite conservador.
 
     while (improved && maxPasses-- > 0) {
         improved = false

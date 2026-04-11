@@ -13,10 +13,10 @@ import com.github.dgraciac.euclideantsp.shared.Point
  * @param tourPoints lista de puntos del tour (cerrado: primero == ultimo)
  * @return tour mejorado (cerrado: primero == ultimo)
  *
- * Complejidad peor caso: O(n^4)
- * - Por pasada: O(maxSegmentSize * n^2) — para cada segmento, prueba n posiciones
- * - Numero de pasadas: limitado a n^2 (safety limit)
- * - Total: O(n^2) * O(n^2) = O(n^4) con maxSegmentSize constante
+ * Complejidad peor caso: O(n^3)
+ * - Por pasada: O(maxSegmentSize * n^2) = O(n^2) con maxSegmentSize constante
+ * - Numero de pasadas: limitado a n (E026: empiricamente converge en ~0.2*n pasadas)
+ * - Total: O(n^2) * O(n) = O(n^3)
  */
 fun orOpt(tourPoints: List<Point>): List<Point> = orOpt(tourPoints, maxSegmentSize = 3)
 
@@ -27,9 +27,9 @@ fun orOpt(tourPoints: List<Point>): List<Point> = orOpt(tourPoints, maxSegmentSi
  * @param maxSegmentSize tamaño maximo de segmento a reubicar (por defecto 3)
  * @return tour mejorado (cerrado: primero == ultimo)
  *
- * Complejidad peor caso: O(n^4) con maxSegmentSize constante
- * - Por pasada: O(maxSegmentSize * n^2)
- * - Numero de pasadas: limitado a n^2 (safety limit)
+ * Complejidad peor caso: O(n^3) con maxSegmentSize constante
+ * - Por pasada: O(maxSegmentSize * n^2) = O(n^2)
+ * - Numero de pasadas: limitado a n (E026: empiricamente ~0.2*n)
  */
 fun orOpt(
     tourPoints: List<Point>,
@@ -37,7 +37,7 @@ fun orOpt(
 ): List<Point> {
     val points = tourPoints.dropLast(1).toMutableList()
     var improved = true
-    var maxIterations = points.size * points.size // Safety limit
+    var maxIterations = points.size // E026: converge en ~0.2*n pasadas. Limite conservador: n.
 
     while (improved && maxIterations-- > 0) {
         improved = false

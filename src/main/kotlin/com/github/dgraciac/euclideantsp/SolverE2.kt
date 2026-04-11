@@ -27,7 +27,7 @@ import com.github.dgraciac.euclideantsp.shared.Tour
  *
  * Complejidad e2e: O(n^4) — n ejecuciones de O(n^3) cada una
  * (Polinomico, pero un grado mas que Christofides)
- * Complejidad peor caso: O(n^5) — n starts × O(n^4) pipeline cada uno
+ * Complejidad peor caso: O(n^4) — n starts × O(n^3) pipeline cada uno
  *
  * Resultados:
  *   berlin52: ratio=1.000, tiempo=0.08s (vs Christofides 1.118: mucho mejor)

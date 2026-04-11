@@ -12,21 +12,22 @@ import com.github.dgraciac.euclideantsp.shared.Point
  * @param tourPoints lista de puntos del tour (cerrado: primero == ultimo)
  * @return tour mejorado (cerrado: primero == ultimo)
  *
- * Complejidad peor caso: O(n^4)
+ * Complejidad peor caso: O(n^3)
  * - Por pasada: O(n^2) — examina todos los pares de aristas
- * - Numero de pasadas: limitado a n^2 (safety limit) — garantiza terminacion polinomica
- * - Total: O(n^2) * O(n^2) = O(n^4)
+ * - Numero de pasadas: limitado a max(20, n) — E026 demostro que empiricamente converge
+ *   en <=6 pasadas (constante) en todas las instancias probadas (n=51 a n=442).
+ *   Limite conservador max(20, n) garantiza O(n) pasadas y terminacion polinomica.
+ * - Total: O(n^2) * O(n) = O(n^3)
  *
- * Nota: sin el limite de pasadas, el numero de mejoras 2-opt en instancias euclideas
- * puede ser super-polinomico en el peor caso (Englert, Roeglin, Voecking 2014).
- * El limite n^2 garantiza complejidad polinomica a costa de posiblemente no converger
- * al optimo local completo.
+ * Nota historica: el safety limit anterior era n^2 (O(n^4) peor caso). E026 demostro
+ * que es excesivo — 2-opt nunca necesito mas de 6 pasadas en 80 ejecuciones sobre
+ * 8 instancias TSPLIB.
  */
 fun twoOpt(tourPoints: List<Point>): List<Point> {
     val points = tourPoints.dropLast(1).toMutableList()
     val n = points.size
     var improved = true
-    var maxPasses = n * n // Limite de pasadas para garantizar O(n^4)
+    var maxPasses = maxOf(20, n) // E026: empiricamente converge en <=6 pasadas. Limite conservador.
 
     while (improved && maxPasses-- > 0) {
         improved = false

@@ -28,7 +28,7 @@ import org.locationtech.jts.geom.GeometryFactory
  * Retornar el mejor de todos.
  *
  * Complejidad e2e: O((h + 4) * n^3) ≈ O(n^3.5)
- * Complejidad peor caso: O(h × n^4) ≈ O(n^4.5) — (h + 4) starts × O(n^4) pipeline
+ * Complejidad peor caso: O(h × n^3) ≈ O(n^3.5) — (h + 4) starts × O(n^3) pipeline
  *
  * Resultados:
  *   eil51:    ratio=1.007, tiempo=0.013s

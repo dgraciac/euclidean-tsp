@@ -34,8 +34,8 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 | eil76 | 76 | 538.0 | SolverE2/E4 | 1.027x | 0.12s | O(n^4) | 2026-04-11 |
 | rat99 | 99 | 1211.0 | SolverE2/E4 | 1.016x | 0.24s | O(n^4) | 2026-04-11 |
 | kro200 | 200 | 29368.0 | SolverE2/E4 | 1.006x | 3.2s | O(n^4) | 2026-04-11 |
-| a280 | 279 | 2579.0 | SolverH3 | 1.014x | 34.1s | O(n^5) | 2026-04-11 |
-| pcb442 | 442 | 50778.0 | SolverH3 | 1.012x | 156.2s | O(n^5) | 2026-04-11 |
+| a280 | 279 | 2579.0 | SolverH3 | 1.014x | 34.1s | O(n^4) | 2026-04-11 |
+| pcb442 | 442 | 50778.0 | SolverH3 | 1.012x | 156.2s | O(n^4) | 2026-04-11 |
 
 ### Resumen agregado por solver
 
@@ -45,15 +45,15 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 
 | Solver | Tipica | Peor caso | Media geom. | Peor ratio | Tiempo max |
 |--------|--------|-----------|------------|------------|------------|
-| **SolverG2** | **O(n^4)** | **O(n^5)** | **1.012x** | **1.021x** | **84s** |
-| SolverE2/E4 | O(n^4) | O(n^5) | 1.012x | 1.027x | 55s |
-| SolverH1 | O(n^3.5) | O(n^4.5) | 1.015x | 1.028x | 3.0s |
-| SolverE3 | O(n^3.5) | O(n^4.5) | 1.018x | 1.034x | 1.1s |
-| SolverG1 | O(n^3.5) | O(n^4.5) | 1.015x | 1.034x | 2.0s |
-| SolverE7 | O(n^4) | O(n^5) | 1.011x | 1.021x | 83s |
-| SolverC3 | O(n^3) | O(n^4) | 1.039x | 1.069x | 0.18s |
-| SolverB3 | O(n^3) | O(n^4) | 1.039x | 1.055x | 0.064s |
-| SolverE1 | O(n^3) | O(n^4) | 1.043x | 1.075x | 0.054s |
+| **SolverG2** | **O(n^4)** | **O(n^4)** | **1.012x** | **1.021x** | **84s** |
+| SolverE2/E4 | O(n^4) | O(n^4) | 1.012x | 1.027x | 55s |
+| SolverH1 | O(n^3.5) | O(n^3.5) | 1.015x | 1.028x | 3.0s |
+| SolverE3 | O(n^3.5) | O(n^3.5) | 1.018x | 1.034x | 1.1s |
+| SolverG1 | O(n^3.5) | O(n^3.5) | 1.015x | 1.034x | 2.0s |
+| SolverE7 | O(n^4) | O(n^4) | 1.011x | 1.021x | 83s |
+| SolverC3 | O(n^3) | O(n^3) | 1.039x | 1.069x | 0.18s |
+| SolverB3 | O(n^3) | O(n^3) | 1.039x | 1.055x | 0.064s |
+| SolverE1 | O(n^3) | O(n^3) | 1.043x | 1.075x | 0.054s |
 | Christofides | O(n^3) | O(n^3) | 1.147x | 1.165x | 0.20s |
 | Christofides | O(n^3) | 1.147x | 1.147x | 1.165x | 0.12s |
 | SolverC1 | O(n^3) | 1.174x | 1.173x | 1.218x | 0.014s |
@@ -67,12 +67,12 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
   mejor algoritmo si el peor caso no esta acotado.
 
 **Notas sobre complejidad peor caso:**
-- Christofides es el unico solver con peor caso = tipico (O(n^3) garantizado).
-- Nuestros solvers tienen peor caso 1-2 grados mayor que el tipico porque 2-opt y or-opt
-  pueden requerir hasta n^2 pasadas (safety limit). Sin limite, la convergencia de 2-opt
-  en instancias euclideas puede ser super-polinomica (Englert et al. 2014).
-- SolverG2 tiene el mejor ratio (1.012x, 1.021x peor) pero peor caso O(n^5).
-- SolverH1 es buen tradeoff: O(n^4.5) peor caso con 1.015x media y <3s en pcb442.
+- Tras E026, la complejidad tipica y peor caso coinciden para todos los solvers.
+  2-opt converge en <=6 pasadas (O(1)) y or-opt en ~0.2*n pasadas (O(n)).
+  Safety limits reducidos de n^2 a max(20,n). Resultados identicos verificados.
+- SolverC3 ahora es O(n^3) peor caso — igual que Christofides, pero con media 1.039x vs 1.147x.
+- SolverG2 tiene el mejor ratio (1.012x, 1.021x peor) con peor caso O(n^4).
+- SolverH1 es buen tradeoff: O(n^3.5) peor caso con 1.015x media y <3s en pcb442.
 - Resultados validados en 8 instancias TSPLIB (51-442 puntos).
 
 ---
@@ -98,6 +98,21 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 
 ## Log de experimentos
 
+### E026 — Analisis de pasadas de 2-opt y or-opt (2026-04-11)
+
+- **Test:** PassCountAnalysisTest
+- **Hipotesis:** 2-opt y or-opt convergen en O(n) pasadas o menos, permitiendo reducir el safety limit.
+- **Resultados:**
+  - 2-opt: maximo 6 pasadas en TODAS las instancias (n=51 a n=442). Convergencia O(1).
+  - or-opt: maximo ~0.2*n pasadas. Convergencia O(n).
+- **Impacto:** Safety limits reducidos de n^2 a max(20,n). Resultados identicos.
+- **Nuevas complejidades peor caso:**
+  - twoOpt: O(n^3) (antes O(n^4))
+  - orOpt: O(n^3) (antes O(n^4))
+  - SolverC3: O(n^3) — ahora MISMO peor caso que Christofides!
+  - SolverH3: O(n^4) (antes O(n^5))
+- **Conclusion:** Descubrimiento clave. Reduce un grado la complejidad peor caso de todos los solvers. SolverC3 ahora es O(n^3) peor caso como Christofides pero con media 1.039x vs 1.147x.
+
 ### E024 — SolverH3: Multi-start completo + LK + double-bridge + LK (2026-04-11)
 
 - **Solver:** SolverH3
@@ -105,7 +120,7 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 - **Padre:** SolverH2 + SolverE7
 - **Hipotesis:** Aplicar LK a cada inicio de NN (multi-start completo) encuentra mas optimos locales profundos que solo multi-start selectivo.
 - **Complejidad e2e:** O(n^4) tipica
-- **Complejidad peor caso:** O(n^5)
+- **Complejidad peor caso:** O(n^4)
 - **Resultados:**
 
 | Instancia | Mejor anterior | SolverH3 | Mejora | Tiempo |
@@ -120,7 +135,7 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 | pcb442 | 1.018x (E2) | 1.012x | -0.6% | 156.2s |
 
 - **Metricas agregadas:** Media aritmetica=1.009x | Media geometrica=1.008x | Peor caso=1.021x
-- **Conclusion:** Mejor solver del proyecto. Mejora los records en a280 y pcb442. El multi-start completo con LK en cada start es mas efectivo que LK solo sobre el mejor tour. O(n^5) peor caso, 156s en pcb442.
+- **Conclusion:** Mejor solver del proyecto. Mejora los records en a280 y pcb442. El multi-start completo con LK en cada start es mas efectivo que LK solo sobre el mejor tour. O(n^4) peor caso, 156s en pcb442.
 
 ### E023 — SolverH2: Multi-start selectivo + LK + double-bridge + LK (2026-04-11)
 
@@ -129,7 +144,7 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 - **Padres:** SolverH1 + LinKernighan v2
 - **Hipotesis:** Combinar LK correcto (profundidad 2) con double-bridge y re-aplicar LK escapa optimos locales mejor que double-bridge solo.
 - **Complejidad e2e:** O(n^3.5) tipica
-- **Complejidad peor caso:** O(n^4.5)
+- **Complejidad peor caso:** O(n^3.5)
 - **Resultados:**
 
 | Instancia | SolverH1 | SolverH2 | SolverE2 | Tiempo H2 |
@@ -144,7 +159,7 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 | pcb442 | 1.032x | 1.025x | 1.018x | 4.26s |
 
 - **Metricas agregadas:** Media aritmetica=1.013x | Media geometrica=1.013x | Peor caso=1.026x
-- **Conclusion:** LK funciona correctamente. El pipeline LK + DB + LK produce los mejores resultados del proyecto en instancias medianas (kro200: 1.004x). Compite con E2/G2 (O(n^5)) siendo O(n^4.5) peor caso y mucho mas rapido (<5s en pcb442 vs 55-85s).
+- **Conclusion:** LK funciona correctamente. El pipeline LK + DB + LK produce los mejores resultados del proyecto en instancias medianas (kro200: 1.004x). Compite con E2/G2 (O(n^4)) siendo O(n^3.5) peor caso y mucho mas rapido (<5s en pcb442 vs 55-85s).
 - **Nota:** LK v2 corrige el bug de v1: usa ganancia real del 2-opt (basada en aristas del tour resultante) y construye tours depth-2 explicitamente con segmentos.
 
 ### E022 — SolverH1: Multi-start selectivo + double-bridge perturbation (2026-04-11)

@@ -25,7 +25,7 @@ import org.locationtech.jts.geom.GeometryFactory
  *    Cada intento: perturbar + 2-opt + or-opt + 2-opt — O(n^3) por intento
  *
  * Complejidad e2e: O(h * n^3 + 20 * n^3) = O((h + 20) * n^3) ≈ O(n^3.5)
- * Complejidad peor caso: O(n^4.5) — h starts × O(n^4) + 20 × O(n^4)
+ * Complejidad peor caso: O(n^3.5) — h starts × O(n^3) + 20 × O(n^3)
  *
  * Resultados:
  *   eil51:    ratio=1.007, tiempo=0.018s

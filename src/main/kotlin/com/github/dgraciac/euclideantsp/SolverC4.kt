@@ -30,7 +30,7 @@ import org.locationtech.jts.geom.GeometryFactory
  * 4. 2-opt -> or-opt -> 2-opt — O(n^3)
  *
  * Complejidad e2e: O(n^3)
- * Complejidad peor caso: O(n^4) — igual que SolverC3
+ * Complejidad peor caso: O(n^3) — igual que SolverC3
  *
  * Resultados:
  *   berlin52: ratio=1.000, tiempo=0.010s

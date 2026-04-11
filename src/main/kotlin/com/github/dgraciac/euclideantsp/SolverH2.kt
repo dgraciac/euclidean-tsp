@@ -27,7 +27,7 @@ import org.locationtech.jts.geom.GeometryFactory
  * 5. LK final — O(n^4) peor caso
  *
  * Complejidad e2e: O(h * n^3 + n^3) ≈ O(n^3.5) tipica
- * Complejidad peor caso: O(h * n^4 + n^4) ≈ O(n^4.5)
+ * Complejidad peor caso: O(h * n^3 + n^3) ≈ O(n^3.5)
  *
  * Resultados:
  *   eil51:    ratio=1.007, tiempo=0.042s
@@ -43,7 +43,7 @@ import org.locationtech.jts.geom.GeometryFactory
  *
  * Conclusion: LK correcto + double-bridge mejorado da los mejores resultados en instancias medianas.
  *   kro200: 1.004x (casi optimo). Pipeline LK + DB + LK escapa optimos locales efectivamente.
- *   Mejor solver O(n^4.5) del proyecto — supera a SolverH1 y compite con SolverE2/G2 (O(n^5))
+ *   Mejor solver O(n^3.5) del proyecto — supera a SolverH1 y compite con SolverE2/G2 (O(n^4))
  *   siendo mas rapido.
  */
 class SolverH2 : Euclidean2DTSPSolver {

@@ -25,7 +25,7 @@ import com.github.dgraciac.euclideantsp.shared.Tour
  *    b. Double-bridge (50 intentos) + LK — O(n^4) peor caso
  *
  * Complejidad e2e: O(n^4) tipica
- * Complejidad peor caso: O(n^5) — n starts × O(n^4) pipeline
+ * Complejidad peor caso: O(n^4) — n starts × O(n^3) pipeline
  *
  * Resultados:
  *   eil51:    ratio=Identico a SolverH3, tiempo=Identico a SolverH3

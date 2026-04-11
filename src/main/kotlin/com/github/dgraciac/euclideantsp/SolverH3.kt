@@ -27,7 +27,7 @@ import com.github.dgraciac.euclideantsp.shared.Tour
  * 4. Retornar el mejor
  *
  * Complejidad e2e: O(n^4) tipica, dominada por n starts con LK
- * Complejidad peor caso: O(n^5) — n starts × O(n^4) pipeline
+ * Complejidad peor caso: O(n^4) — n starts × O(n^3) pipeline
  *
  * Resultados:
  *   eil51:    ratio=1.008, tiempo=0.212s
@@ -45,7 +45,7 @@ import com.github.dgraciac.euclideantsp.shared.Tour
  * con LK en cada start encuentra optimos locales mas profundos. Mejora significativa en a280
  * (1.014x vs 1.020x anterior) y pcb442 (1.012x vs 1.018x). El pipeline NN + 2-opt-nl + or-opt
  * + LK por start, seguido de DB + LK sobre el mejor, es la mejor combinacion encontrada.
- * O(n^5) peor caso, 156s en pcb442.
+ * O(n^4) peor caso, 156s en pcb442.
  */
 class SolverH3 : Euclidean2DTSPSolver {
     override fun compute(instance: Euclidean2DTSPInstance): Tour {

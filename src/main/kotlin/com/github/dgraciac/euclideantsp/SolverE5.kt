@@ -24,7 +24,7 @@ import com.github.dgraciac.euclideantsp.shared.Tour
  * Retornar el mejor tour.
  *
  * Complejidad e2e: O(n^4) — n ejecuciones de O(n^3)
- * Complejidad peor caso: O(n^5) — n starts × O(n^4) pipeline
+ * Complejidad peor caso: O(n^4) — n starts × O(n^3) pipeline
  *
  * Resultados:
  *   eil51:    ratio=1.007, tiempo=0.077s
