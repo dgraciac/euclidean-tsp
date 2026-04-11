@@ -652,15 +652,18 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 - La propiedad de capas de convex hull se cumple en todas las instancias pequeñas (E008).
 - Delaunay NN no mejora sobre NN global — el NN ya elige aristas Delaunay naturalmente.
 
-### Hoja de ruta: mejorar aproximacion empirica dentro de O(n^3)
+### Hoja de ruta — Estado (todas completadas o descartadas)
 
-| Prioridad | Experimento | Tecnica | Detalle |
-|-----------|-------------|---------|---------|
-| **1 (siguiente)** | E029 | α-nearness candidates | Calcular 1-tree (MST + 1 arista). Para cada arista, α = coste de forzarla en el 1-tree. Usar aristas con α bajo como candidatos en LK y 2-opt. JGraphT tiene MST. |
-| 2 | E030 | LK profundidad 5 + backtracking | Extender la cadena LK a profundidad 5. Cuando depth d no mejora, backtrack a d-1 y probar siguiente candidato. Explorar espacio exponencialmente mayor. |
-| 3 | E031 | Movimientos no secuenciales | Permitir que la cadena LK cruce el tour (puntos no consecutivos). Equivale a double-bridge integrado. Requiere representacion de tour mas sofisticada. |
-| 4 | E032 | Subgradient optimization | Relajacion lagrangiana sobre el 1-tree para calcular cotas inferiores. Usa los multiplicadores para mejorar las α-nearness lists. Iterativo. |
-| 5 | E033 | Segment trees O(log n) | Reemplazar reversiones O(n) por operaciones O(log n). Permite explorar mas movimientos en el mismo tiempo. |
+| Tecnica | Experimento | Estado | Resultado |
+|---------|-------------|--------|-----------|
+| α-nearness (1-tree) | E029 | Completado | Mejora en a280/pcb442, integrado en SolverJ5 |
+| LK profundidad 5 + backtracking | E030 | Completado | Mejora en kro200, integrado |
+| Subgradient optimization | E032 | Completado | Sin mejora consistente |
+| Movimientos no secuenciales | E036 | Completado | Sin mejora, DB ya lo cubre |
+| Segment trees O(log n) | — | Pendiente | Solo velocidad, no calidad |
+| Garantia de aproximacion | E033 | Parcial | Sin contraejemplo en ~46 instancias |
+| Instancias adversariales n=1000 | E034-E035 | Completado | J5 gana o iguala a Christofides en todas |
+| Instancias TSPLIB n>500 | E037 | En progreso | d657, rat783 importadas, tests corriendo |
 
 ### Ideas completadas o descartadas
 
@@ -670,3 +673,12 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 - ~~4-opt~~ — E025: redundante con LK+DB
 - ~~Propiedad de capas de convex hull~~ — E011: no se mantiene en instancias grandes
 - ~~Multi-start con inicios distribuidos~~ — E019/E020: cubierto por SolverG1/G2
+- ~~Movimientos no secuenciales en LK~~ — E036: identico a J5, DB ya lo cubre
+- ~~Subgradient optimization~~ — E032: sin mejora consistente
+
+### Ideas pendientes
+
+1. **Garantia teorica de SolverJ5** — Demostrar cota o encontrar contraejemplo grande
+2. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada
+3. **Segment trees O(log n)** — Solo mejora velocidad, no calidad
+4. **Instancias TSPLIB 1000+** — pr1002, u1060 (necesitan SolverJ5, no H3 que es demasiado lento)
