@@ -36,6 +36,9 @@ internal class ComparisonTest {
                 // "SolverH4" to SolverH4(), // Identico a SolverH3 (E025: 4-opt redundante con LK+DB)
                 "SolverI1" to SolverI1(),
                 "SolverI2" to SolverI2(),
+                "SolverJ1" to SolverJ1(),
+                "SolverJ2" to SolverJ2(),
+                "SolverJ3" to SolverJ3(),
             )
     }
 

@@ -51,7 +51,8 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 | SolverE3 | O(n^3.5) | O(n^3.5) | 1.018x | 1.034x | 1.1s |
 | SolverG1 | O(n^3.5) | O(n^3.5) | 1.015x | 1.034x | 2.0s |
 | SolverE7 | O(n^4) | O(n^4) | 1.011x | 1.021x | 83s |
-| **SolverI2** | **O(n^3)** | **O(n^3)** | **1.016x** | **1.041x** | **1.89s** |
+| **SolverJ3** | **O(n^3)** | **O(n^3)** | **1.011x** | **1.025x** | **2.30s** |
+| SolverI2 | O(n^3) | O(n^3) | 1.016x | 1.041x | 1.89s |
 | SolverI1 | O(n^3) | O(n^3) | 1.023x | 1.041x | 0.54s |
 | SolverC3 | O(n^3) | O(n^3) | 1.039x | 1.069x | 0.18s |
 | SolverB3 | O(n^3) | O(n^3) | 1.039x | 1.055x | 0.064s |
@@ -89,7 +90,7 @@ Los datos de LKH y Concorde son de la literatura publicada, no de nuestras medic
 | **Concorde** | Exacto | Exponencial | 0% (optimo) | Exacto | Hasta ~85,000 pts |
 | **LKH** (Helsgott) | Heuristico | No polinomico | <0.1% | Ninguna | Hasta millones |
 | **Nuestro SolverH3** | Heuristico | O(n^4) pc | ~0.6% | Ninguna | Hasta 442 pts |
-| **Nuestro SolverI2** | Heuristico | O(n^3) pc | ~1.2% | Ninguna | Hasta 442 pts |
+| **Nuestro SolverJ3** | Heuristico | O(n^3) pc | ~1.1% | Ninguna | Hasta 442 pts |
 | **Christofides** | Aproximacion | O(n^3) pc | ~15% empirico | 3/2 demostrada | Cualquier |
 
 **Que hace LKH que nosotros no:**
@@ -132,6 +133,23 @@ Los datos de LKH y Concorde son de la literatura publicada, no de nuestras medic
 ---
 
 ## Log de experimentos
+
+### E029 — SolverJ1/J2/J3: α-nearness candidates (2026-04-11)
+
+- **Solvers:** SolverJ1 (α solo), SolverJ2 (α5+dist5), SolverJ3 (α7+dist7)
+- **Linea:** J (tecnicas LKH)
+- **Hipotesis:** α-nearness basado en 1-tree produce mejores candidatos que K-nearest por distancia.
+- **Complejidad:** O(n^3) — misma que SolverI2
+- **Resultados comparativos (vs SolverI2):**
+
+| Instancia | SolverI2 | J1 (α) | J2 (α5+d5) | J3 (α7+d7) |
+|-----------|----------|--------|-----------|-----------|
+| a280 | 1.017x | 1.047x | 1.006x | 1.006x |
+| pcb442 | 1.027x | 1.012x | 1.027x | 1.013x |
+| Media | 1.012x | 1.015x | 1.014x | 1.011x |
+
+- **Metricas SolverJ3:** Media=1.011x | Peor caso=1.025x
+- **Conclusion:** α-nearness ayuda significativamente en instancias grandes (a280, pcb442) pero puede empeorar en pequeñas si K es bajo. La combinacion α(7)+dist(7) da la mejor estabilidad. SolverJ3 es el nuevo mejor solver O(n^3): media 1.011x, peor caso 1.025x. En a280 da 1.006x, superando SolverH3 (O(n^4), 1.008x).
 
 ### E027 — SolverI1/I2: Mejores solvers O(n^3) (2026-04-11)
 
