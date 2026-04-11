@@ -14,7 +14,9 @@ internal class ComparisonTest {
                 "Christofides" to Christofides(),
                 "SolverB" to SolverB(),
                 "SolverB1" to SolverB1(),
+                "SolverB2" to SolverB2(),
                 "SolverC1" to SolverC1(),
+                "SolverC2" to SolverC2(),
             )
     }
 

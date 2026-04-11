@@ -30,14 +30,19 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 
 ### Resumen agregado por solver
 
-| Solver | Complejidad | Media aritmetica | Media geometrica | Peor caso |
-|--------|-------------|-----------------|-----------------|-----------|
-| Christofides | O(n^3) | 1.137x | 1.137x | 1.156x |
-| SolverB | O(n^4) | 1.105x | 1.102x | 1.212x |
-| SolverB1 | O(n^4) | 1.052x | 1.051x | 1.081x |
-| SolverC1 | O(n^3) | 1.174x | 1.173x | 1.218x |
+| Solver | Complejidad | Media arit. | Media geom. | Peor caso | Tiempo max |
+|--------|-------------|------------|------------|-----------|------------|
+| Christofides | O(n^3) | 1.137x | 1.137x | 1.156x | 0.10s |
+| SolverC1 | O(n^3) | 1.174x | 1.173x | 1.218x | 0.004s |
+| **SolverC2** | **O(n^3)** | **1.070x** | **1.069x** | **1.087x** | **0.010s** |
+| **SolverB2** | **O(n^3)** | **1.076x** | **1.076x** | **1.100x** | **0.006s** |
+| SolverB | O(n^4) | 1.105x | 1.102x | 1.212x | 138.5s |
+| SolverB1 | O(n^4) | 1.052x | 1.051x | 1.081x | 140.2s |
 
-**Nota:** SolverB1 (O(n^4)) supera a Christofides (O(n^3)) en las tres metricas. Primera "buena señal".
+**Notas:**
+- SolverB1 (O(n^4)) tiene la mejor aproximacion pero es muy lento.
+- SolverC2 y SolverB2 (ambos O(n^3)) superan a Christofides en todas las metricas y son mas rapidos.
+- SolverC2 es el mejor solver O(n^3): mejor media y mejor peor caso que SolverB2.
 
 ---
 
@@ -61,6 +66,54 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 ---
 
 ## Log de experimentos
+
+### E004 — SolverC2: Peeling + insercion + 2-opt (2026-04-10)
+
+- **Solver:** SolverC2
+- **Linea:** C
+- **Padre:** SolverC1
+- **Hipotesis:** Combinar el peeling de SolverC1 con 2-opt corregira las deficiencias de la insercion simple y producira tours competitivos manteniendo O(n^3).
+- **Algoritmo:**
+  1. Pelar convex hulls sucesivos — O(n^2 log n)
+  2. Usar capa exterior como tour inicial, insertar capas interiores por ratio — O(n^2)
+  3. Aplicar 2-opt hasta convergencia — O(n^3)
+- **Complejidad:** O(n^3)
+- **Resultados:**
+
+| Instancia | SolverC1 | SolverC2 | Mejora | Tiempo | vs Christofides |
+|-----------|----------|----------|--------|--------|-----------------|
+| berlin52 | 1.147x | 1.026x | -12.1% | 0.001s | mejor |
+| st70 | 1.123x | 1.080x | -4.3% | 0.003s | mejor |
+| kro200 | 1.206x | 1.085x | -12.1% | 0.006s | mejor |
+| a280 | 1.218x | 1.087x | -13.1% | 0.010s | mejor |
+
+- **Metricas agregadas:** Media aritmetica=1.070x | Media geometrica=1.069x | Peor caso=1.087x
+- **Conclusion:** Excelente resultado. SolverC2 supera a Christofides en todas las instancias siendo O(n^3). Incluso supera a SolverB2 en media (1.070x vs 1.076x). El peeling como estrategia de construccion es viable cuando se combina con 2-opt. Mejor solver O(n^3) del proyecto.
+- **Siguientes pasos:** SolverC3 con intercalado de capas preservando orden geometrico, o SolverC4 con or-opt adicional.
+
+### E003 — SolverB2: Construccion optimizada + 2-opt (2026-04-10)
+
+- **Solver:** SolverB2
+- **Linea:** B
+- **Padre:** SolverB1
+- **Hipotesis:** Eliminar la validacion isLinearRing reduce la complejidad de O(n^4) a O(n^2) sin degradar calidad, ya que 2-opt corrige auto-intersecciones. Resultado: O(n^3) como Christofides.
+- **Algoritmo:**
+  1. Convex hull como tour inicial — O(n log n)
+  2. Insercion por ratio sin validacion — O(n^2)
+  3. 2-opt hasta convergencia — O(n^3)
+- **Complejidad:** O(n^3)
+- **Resultados:**
+
+| Instancia | SolverB1 | SolverB2 | Cambio | Tiempo | vs Christofides |
+|-----------|----------|----------|--------|--------|-----------------|
+| berlin52 | 1.010x | 1.048x | +3.8% | 0.001s | mejor |
+| st70 | 1.051x | 1.069x | +1.8% | 0.002s | mejor |
+| kro200 | 1.064x | 1.100x | +3.6% | 0.004s | mejor |
+| a280 | 1.081x | 1.086x | +0.5% | 0.006s | mejor |
+
+- **Metricas agregadas:** Media aritmetica=1.076x | Media geometrica=1.076x | Peor caso=1.100x
+- **Conclusion:** Hipotesis confirmada. La calidad baja ligeramente vs SolverB1 (1.076x vs 1.052x media) pero el solver pasa de O(n^4) a O(n^3) y de minutos a milisegundos. Supera a Christofides en todas las instancias. Tradeoff excelente.
+- **Siguientes pasos:** Añadir or-opt, o investigar si la validacion isLinearRing en la construccion original de SolverB aportaba calidad real o era solo overhead.
 
 ### E002 — SolverC1: Convex hull peeling + insercion por ratio (2026-04-10)
 
@@ -138,10 +191,10 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 
 ## Backlog de ideas (priorizado)
 
-1. **SolverB2:** SolverB1 + or-opt (reubicar segmentos de 1-3 puntos) — esperada mejora adicional de 1-3%
-2. **Optimizar construccion de SolverB:** Eliminar la validacion isLinearRing en findBestIndexToInsertAt2 (innecesaria si partimos de un poligono convexo), reduciendo de O(n^4) a O(n^2)
-3. **SolverC2:** SolverC1 + 2-opt post-insercion — combinar la rapidez del peeling con la mejora local del 2-opt
-4. **SolverC3:** Peeling + intercalado de capas preservando orden geometrico — en vez de insertar puntos uno a uno, conectar capas completas
-5. **SolverB3:** 3-opt — movimientos mas complejos que 2-opt, puede resolver estructuras que 2-opt no puede
-6. **Delaunay-based:** Usar triangulacion de Delaunay para restringir el espacio de busqueda. El tour optimo usa predominantemente aristas de Delaunay.
-7. **SolverD:** Investigar si el orden de los vertices dentro de cada capa de convex hull se preserva en el tour optimo (propiedad teorica clave)
+1. **SolverC3 / SolverB3:** Añadir or-opt sobre SolverC2/SolverB2 — reubicar segmentos de 1-3 puntos. O(n^2) por pasada, mantiene O(n^3). Mejora esperada: 1-3%
+2. **SolverC4:** Peeling + intercalado de capas preservando orden geometrico — en vez de insertar puntos uno a uno, conectar capas completas respetando la orientacion de cada capa
+3. **3-opt sobre mejores solvers:** Movimientos mas complejos que 2-opt. O(n^3) por pasada, subiria a O(n^4). Evaluar si la mejora de calidad justifica el coste
+4. **Delaunay-based:** Usar triangulacion de Delaunay para restringir el espacio de busqueda. El tour optimo usa predominantemente aristas de Delaunay. JTS tiene implementacion de Delaunay.
+5. **SolverD:** Investigar si el orden de los vertices dentro de cada capa de convex hull se preserva en el tour optimo (propiedad teorica clave). Verificar empiricamente con BruteForce en instancias pequeñas.
+6. **Investigar por que SolverC2 supera a SolverB2:** Ambos usan 2-opt, la diferencia esta en la construccion. ¿El peeling produce una mejor semilla para 2-opt?
+7. **Nearest neighbor + 2-opt:** Baseline clasico. Nearest neighbor es O(n^2), combinado con 2-opt seria O(n^3). Comparar contra SolverB2/C2 para entender si la construccion importa o el 2-opt domina.
