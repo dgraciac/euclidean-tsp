@@ -28,16 +28,17 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 
 | Instancia | Optimo | Mejor Solver | Ratio | Tiempo | Complejidad | Fecha |
 |-----------|--------|-------------|-------|--------|-------------|-------|
-| berlin52 | 7542.0 | SolverC3/C4 | 1.000x | 0.010s | O(n^3) | 2026-04-10 |
-| st70 | 675.0 | SolverB3 | 1.020x | 0.003s | O(n^3) | 2026-04-11 |
-| kro200 | 29368.0 | SolverE1 | 1.016x | 0.009s | O(n^3) | 2026-04-11 |
-| a280 | 2579.0 | SolverE1 | 1.050x | 0.061s | O(n^3) | 2026-04-11 |
+| berlin52 | 7542.0 | SolverE2 | 1.000x | 0.08s | O(n^4) | 2026-04-11 |
+| st70 | 675.0 | SolverE2 | 1.011x | 0.24s | O(n^4) | 2026-04-11 |
+| kro200 | 29368.0 | SolverE2 | 1.006x | 4.1s | O(n^4) | 2026-04-11 |
+| a280 | 2579.0 | SolverE2 | 1.021x | 10.5s | O(n^4) | 2026-04-11 |
 
 ### Resumen agregado por solver
 
 | Solver | Complejidad | Media arit. | Media geom. | Peor caso | Tiempo max |
 |--------|-------------|------------|------------|-----------|------------|
-| **SolverE1** | **O(n^3)** | **1.041x** | **1.041x** | **1.053x** | **0.061s** |
+| **SolverE2** | **O(n^4)** | **1.010x** | **1.009x** | **1.021x** | **10.5s** |
+| SolverE1 | O(n^3) | 1.041x | 1.041x | 1.053x | 0.061s |
 | SolverC3 | O(n^3) | 1.037x | 1.036x | 1.069x | 0.031s |
 | SolverC4 | O(n^3) | 1.037x | 1.036x | 1.069x | 0.085s |
 | SolverB3 | O(n^3) | 1.040x | 1.039x | 1.055x | 0.064s |
@@ -49,11 +50,10 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 | SolverC1 | O(n^3) | 1.174x | 1.173x | 1.218x | 0.004s |
 
 **Notas:**
-- SolverC3 tiene la mejor media (1.036x) pero SolverE1 tiene mejor peor caso (1.053x vs 1.069x).
-- SolverC3/C4 son identicos — el orden de insercion de capas interiores no importa tras busqueda local.
-- SolverE1 (nearest neighbor) gana en kro200 (1.016x) y a280 (1.050x) — la busqueda local domina.
-- La propiedad de capas de convex hull se preserva en todas las instancias pequeñas (E008).
-- Berlin52: SolverC3/C4 alcanzan ratio 1.0003 — practicamente optimo.
+- SolverE2 (multi-start, O(n^4)) es el mejor en todas las metricas. Casi optimo (media 1.010x).
+- Entre los O(n^3): SolverC3 tiene la mejor media (1.036x), SolverE1 tiene mejor peor caso (1.053x).
+- La propiedad de capas NO se mantiene en instancias grandes (E011). Solo aplica a instancias pequeñas.
+- La busqueda local (2-opt + or-opt) domina la calidad. Multi-start amplifica este efecto.
 
 ---
 
@@ -77,6 +77,36 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 ---
 
 ## Log de experimentos
+
+### E013 — SolverE2: Multi-start NN + busqueda local (2026-04-11)
+
+- **Solver:** SolverE2
+- **Linea:** E
+- **Padre:** SolverE1
+- **Hipotesis:** Multi-start (ejecutar desde cada punto) reducira la varianza y mejorara la calidad.
+- **Complejidad:** O(n^4) — n ejecuciones de O(n^3)
+- **Resultados:**
+
+| Instancia | SolverE1 | SolverE2 | Mejora | Tiempo |
+|-----------|----------|----------|--------|--------|
+| berlin52 | 1.053x | 1.000x | -5.3% | 0.08s |
+| st70 | 1.047x | 1.011x | -3.6% | 0.24s |
+| kro200 | 1.016x | 1.006x | -1.0% | 4.1s |
+| a280 | 1.050x | 1.021x | -2.9% | 10.5s |
+
+- **Metricas agregadas:** Media aritmetica=1.010x | Media geometrica=1.009x | Peor caso=1.021x
+- **Conclusion:** Mejor solver del proyecto por amplio margen. Multi-start reduce la media de 1.041x a 1.010x — casi optimo en todas las instancias. Es O(n^4) pero en la practica tarda segundos. El impacto de probar N puntos de inicio es enorme: cada inicio lleva a un optimo local distinto y el mejor es casi-global.
+
+### E011 — Propiedad de capas en instancias grandes (2026-04-11)
+
+- **Test:** ConvexHullLayerOrderLargeTest
+- **Hipotesis:** La propiedad de capas (E008) se mantiene en instancias grandes.
+- **Resultados:** **La propiedad NO se mantiene.** Las capas exteriores tienden a preservarse pero las interiores se rompen frecuentemente:
+  - berlin52 (8 capas): 3-4 preservadas, 4-5 rotas — incluso con ratio 1.0003 (SolverC3)
+  - st70 (8 capas): 3-5 preservadas, 3-5 rotas
+  - kro200 (17 capas): 6-7 preservadas, 9-10 rotas
+  - a280 (22 capas): 4-7 preservadas, 14-17 rotas
+- **Conclusion:** La propiedad de capas es un fenomeno de instancias pequeñas. En instancias grandes, el tour optimo necesita romper el orden de las capas interiores para optimizar la longitud. El enfoque SolverD1 (fijar orden de capas) queda descartado.
 
 ### E010 — SolverF1: Delaunay nearest neighbor + busqueda local (2026-04-11)
 
@@ -284,13 +314,12 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 - Delaunay NN no mejora sobre NN global — el NN ya elige aristas Delaunay naturalmente.
 
 ### Ideas pendientes
-1. **Mejorar la busqueda local** (mayor impacto dado que domina la calidad):
-   a. **Or-opt iterado con 2-opt:** Alternar 2-opt y or-opt multiples veces hasta convergencia global
-   b. **Delaunay-restricted 2-opt:** Limitar los intercambios de 2-opt a aristas cercanas (vecinos Delaunay) para acelerar sin perder calidad
-   c. **3-opt selectivo:** Aplicar 3-opt solo a segmentos del tour que no mejoran con 2-opt/or-opt
-2. **Explotar la propiedad de capas (E008):**
-   a. Verificar en instancias mas grandes (necesitaria un solver exacto o tours optimos conocidos)
-   b. Si se confirma: construir un solver que fije el orden de cada capa y solo busque el intercalado optimo
-   c. Formalizar como teorema y buscar demostracion
-3. **Multi-start:** Ejecutar el mismo pipeline desde multiples puntos iniciales de NN y quedarse con el mejor tour. Trivialmente paralelizable, no cambia la complejidad por ejecucion.
-4. **Investigar por que berlin52 da casi-optimo:** Entender que estructura geometrica la hace "facil" para nuestro pipeline.
+1. **Mejorar la busqueda local dentro de cada ejecucion:**
+   a. **Or-opt iterado con 2-opt:** Alternar 2-opt y or-opt multiples veces hasta convergencia global (no solo 2-opt -> or-opt -> 2-opt, sino repetir el ciclo)
+   b. **3-opt selectivo:** Movimientos mas complejos. O(n^3) por pasada, subiria a O(n^4) por ejecucion. Evaluar si mejora sobre 2-opt+or-opt
+   c. **Lin-Kernighan style moves:** Variable-depth search. Estado del arte en busqueda local para TSP
+2. **Reducir SolverE2 de O(n^4) a O(n^3):**
+   a. En vez de multi-start con N=n, usar N=sqrt(n) inicios bien distribuidos (e.g., puntos del convex hull)
+   b. O seleccionar los K mejores tours de NN y solo aplicar busqueda local a esos
+3. **Añadir mas instancias de test:** Las 4 actuales son pocas para conclusiones robustas. Importar mas instancias TSPLIB.
+4. **Investigar por que kro200 da 1.006x pero a280 da 1.021x:** Entender que hace a a280 mas dificil para nuestros solvers.
