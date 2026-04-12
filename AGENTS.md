@@ -84,6 +84,10 @@ Encontrar un algoritmo que resuelva el TSP Euclídeo 2D en tiempo polinómico.
 
 Solo se investigan algoritmos con **complejidad polinomica** (O(n^k) para algun k constante). Algoritmos super-polinomicos (O(2^n), O(n!), etc.) quedan fuera del objetivo. BruteForce existe solo como herramienta de verificacion en tests, no como solver de investigacion ni como referencia de comparacion.
 
+### Criterio de progreso
+
+Cada nuevo solver debe buscar **mejorar la aproximacion Y reducir (o mantener) la complejidad algoritmica**. No se permite "ejecutar dos solvers y quedarse con el mejor" como estrategia — eso no es un algoritmo mejor, es fuerza bruta sobre algoritmos. El objetivo es encontrar UN algoritmo que sea mejor, no una cartera de algoritmos.
+
 ### Metricas de comparacion de solvers
 
 Se registran tres metricas agregadas sobre los ratios de aproximacion de todas las instancias:
