@@ -90,6 +90,7 @@ Cada nuevo solver debe buscar **mejorar la aproximacion Y reducir (o mantener) l
 
 - **No combinar solvers:** No se permite "ejecutar dos solvers y quedarse con el mejor" — eso no es un algoritmo mejor, es fuerza bruta sobre algoritmos.
 - **No hacer solvers adaptativos:** No se permite que un solver cambie su comportamiento segun n u otras propiedades de la instancia (e.g., "si n<500 haz X, si n>700 haz Y"). Queremos analizar las fortalezas y debilidades de cada enfoque con claridad. Estrategias adaptativas en un mismo solver lo dificultan. Los solvers adaptativos serian para productos comerciales, no para investigacion.
+- **Solo O(n^3):** Todos los nuevos solvers deben tener complejidad peor caso O(n^3) hasta agotar todas las posibilidades de mejora en rapidez y calidad dentro de esa cota. No subir a O(n^4) ni superior salvo decision explicita del investigador.
 - El objetivo es encontrar UN algoritmo puro que sea mejor, no una cartera ni un meta-algoritmo.
 
 ### Metricas de comparacion de solvers
