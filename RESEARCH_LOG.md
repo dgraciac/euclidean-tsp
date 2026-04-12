@@ -689,15 +689,35 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 ### Ideas pendientes
 
-1. ~~Solver adaptativo segun n~~ — Descartado. Los solvers adaptativos dificultan el analisis de fortalezas/debilidades de cada enfoque. Reservado para productos comerciales, no para investigacion.
-2. ~~Mejorar DB sin perder calidad~~ — E041 completado. DoubleBridgeFast (dos fases) reduce tiempo 1.5-4x. SolverL2 integra esta mejora.
-3. **Verificar escalabilidad de L2 vs J5 en instancias mas grandes** — L2 es 1.5-4x mas rapido en n<=2103. Verificar si la tendencia se mantiene o invierte en n>2000.
-4. **Garantia teorica** — Demostrar cota de aproximacion o encontrar contraejemplo grande. Trabajo matematico.
-5. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada. Linea completamente nueva: particion recursiva del plano + programacion dinamica.
-6. **Instancias TSPLIB 5000+** — rl5915 (n=5915, opt=565530). SolverJ5 tardaria ~1.4h, L2 ~0.9h.
+#### Resumen de mejores solvers actuales (todos O(n^3))
+- **J5**: mejor calidad (media ~1.010x), lento (225s en d2103)
+- **L2**: misma calidad que J5, 1.5-4x mas rapido (DB dos fases)
+- **L3**: -0.3% calidad, 3-7x mas rapido que J5 (sin LK-deep)
+- **L1**: mejor en n>600 (multi-start completo), peor en n<500
+- **Christofides**: garantia 3/2, media ~1.137x
+
+#### Mejorar rapidez sin perder calidad
+1. **Precomputar matriz de distancias** — Actualmente cada `Point.distance()` crea objetos JTS y calcula sqrt. Una matriz precalculada (n^2 doubles, ~35MB para n=2103) convertiria cada lookup en O(1) con acceso directo a array. Beneficia TODAS las fases (2-opt, or-opt, LK, DB). No cambia nada del algoritmo, solo la implementacion de distancia.
+2. **Reducir candidatos α-nearness de K=7+7 a K=5+5** — E029 mostro que K=5+5 era inestable. Pero con el pipeline mejorado de L2 (DB dos fases + LK), K=5+5 podria ser suficiente. Menos candidatos = LK y 2-opt-nl mas rapidos.
+3. **Or-opt con neighbor lists** — Or-opt actual es O(n^2) por pasada (prueba todas las posiciones). Restringir a neighbor lists como 2-opt-nl lo haria O(n*K). Or-opt es ~2% del tiempo, mejora menor.
+
+#### Mejorar calidad sin perder rapidez
+4. **Mas intentos de DB con el tiempo ahorrado por L2/L3** — L3 ahorra ~140s en d2103. Usar ese tiempo para 20 intentos de DB extra (profundos) podria mejorar la calidad. Seria un L3 con mas DB en vez de LK-deep.
+5. **Mejores candidatos para DB** — DB actual corta en las 12 aristas mas largas. Usar α-nearness para identificar aristas "fuera de lugar" (alta α) como candidatos de corte podria encontrar perturbaciones mas productivas.
+6. **LK con mas candidatos (K=20) solo en la fase final** — Aumentar K solo para la ultima pasada de LK (post-DB) podria encontrar movimientos que K=14 no ve, sin ralentizar las fases anteriores.
+
+#### Investigacion fundamental
+7. **Garantia teorica** — Demostrar cota de aproximacion o encontrar contraejemplo grande. Trabajo matematico.
+8. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada. Linea completamente nueva.
+9. **Instancias TSPLIB 5000+** — rl5915 (n=5915). L3 tardaria ~20min (viable).
 
 ### Ideas completadas o descartadas
 
+- ~~Solver adaptativo~~ — Descartado por regla de investigacion (dificulta analisis)
+- ~~Combinar solvers~~ — Descartado por regla de investigacion (no es un algoritmo mejor)
+- ~~Mejorar DB~~ — E041: DoubleBridgeFast (dos fases), integrado en L2
+- ~~Eliminar LK-deep~~ — E043: L3, 3-7x mas rapido, -0.3% calidad
+- ~~Escalabilidad L2~~ — E042: confirmada hasta n=2103
 - ~~Or-opt iterado~~ — E014: no aporta
 - ~~Or-opt extendido (seg 4-5)~~ — E016: mejora marginal
 - ~~3-opt~~ — E017: no mejora sobre 2-opt+or-opt
@@ -707,4 +727,4 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 - ~~Movimientos no secuenciales en LK~~ — E036: identico a J5, DB ya lo cubre
 - ~~Subgradient optimization~~ — E032: sin mejora consistente
 - ~~Segment trees~~ — E038: cuello de botella es DB, no reversiones
-- ~~Instancias TSPLIB 1000+~~ — E037: completado (pr1002, d1291, d2103)
+- ~~Instancias TSPLIB 1000+~~ — E037/E042: completado hasta n=2103
