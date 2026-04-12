@@ -18,7 +18,8 @@ internal class ComparisonTest {
                 // "SolverH3" to SolverH3(), // O(n^4) — DEMASIADO LENTO para d657/rat783 (>1h)
                 "SolverK1" to SolverK1(), // E038: multi-start completo + DB ligero
                 // "SolverK2" to SolverK2(), // E039: descartado (combina solvers, viola criterio)
-                "SolverL1" to SolverL1(), // E040: multi-start completo + pipeline profundo
+                // "SolverL1" to SolverL1(), // E040: gana en n>600 pero pierde en n<500
+                "SolverL2" to SolverL2(), // E041: J5 + DB rapido en dos fases
                 // "SolverJ7" to SolverJ7(), // E036: LK no secuencial — identico a J5
                 // === Solvers anteriores (superados, descomentar si se necesitan) ===
                 // "SolverJ6" to SolverJ6(), // Subgradient, no mejora sobre J5 (E032)
