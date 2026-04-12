@@ -678,7 +678,7 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 ### Ideas pendientes
 
-1. **SolverK2: combinar J5 + K1** — Ejecutar ambos y quedarse con el mejor por instancia. J5 gana en n<500, K1 en n>700. Simple y efectivo. O(n^3).
+1. ~~SolverK2: combinar J5 + K1~~ — E039 en progreso. Test corriendo (~30 min). Re-ejecutar con `./gradlew cleanTest test --tests "*.ComparisonTest" --no-build-cache` si no termino.
 2. **Garantia teorica de SolverJ5** — Demostrar cota o encontrar contraejemplo grande. Trabajo matematico.
 3. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada. Linea completamente nueva: particion recursiva del plano + programacion dinamica.
 4. **Instancias TSPLIB 5000+** — rl5915 (n=5915, opt=565530). SolverJ5 tardaria ~1.4h. Viabilidad limite.
