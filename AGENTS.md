@@ -41,10 +41,18 @@ Encontrar un algoritmo que resuelva el TSP Euclídeo 2D en tiempo polinómico.
   - `TSPInstanceProvider.kt` — Provee las instancias TSPLIB para tests parametrizados
   - Instancias TSPLIB: `Eil51`, `Berlin52`, `ST70`, `Eil76`, `Rat99`, `Kro200`, `A280`, `Pcb442`
   - Instancias pequeñas: `Trivial`, `Instance4*`, `Instance5*`, `Instance6*`, `Instance10A`
+  - Instancias TSPLIB grandes: `D657`, `Rat783`, `Pr1002`, `U1060`, `D1291`, `Fl1577`, `D2103`
   - `ConvexHullLayerOrderTest.kt` — Verificacion de propiedad de capas (E008)
   - `ConvexHullLayerOrderLargeTest.kt` — Idem en instancias grandes (E011)
   - `GapAnalysisTest.kt` — Analisis arista por arista del gap (E018)
   - `PassCountAnalysisTest.kt` — Conteo de pasadas de 2-opt/or-opt (E026)
+  - `ApproximationGuaranteeTest.kt` — Busqueda de contraejemplos (E033)
+  - `AdversarialInstancesTest.kt` — Instancias adversariales (E034)
+  - `LargeScaleTest.kt` — Tests a gran escala n=100-1000 (E035)
+  - `ProfilingTest.kt` — Profiling de fases del pipeline (E038)
+  - `AblationTest.kt` — Ablacion de componentes (E040)
+  - `L2ScalabilityTest.kt` — Escalabilidad L2 vs J5 (E042)
+  - `L3VsL2Test.kt` — Comparacion L3 vs L2 (E043)
   - `InstanceValidationTest.kt` — Validacion de instancias importadas
 - `RESEARCH_LOG.md` — **Fuente principal de contexto para la investigacion**
 

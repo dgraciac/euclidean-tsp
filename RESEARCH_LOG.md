@@ -26,22 +26,32 @@ Se registran tres metricas agregadas sobre los ratios de aproximacion de todas l
 
 ## Mejores resultados actuales
 
-| Instancia | n | Optimo | Mejor Solver | Ratio | Tiempo | Complejidad | Fecha |
-|-----------|---|--------|-------------|-------|--------|-------------|-------|
-| eil51 | 51 | 426.0 | SolverE2/E4 | 1.007x | 0.10s | O(n^4) | 2026-04-11 |
-| berlin52 | 52 | 7542.0 | SolverE2/E4 | 1.000x | 0.10s | O(n^4) | 2026-04-11 |
-| st70 | 70 | 675.0 | SolverE2/E4 | 1.011x | 0.13s | O(n^4) | 2026-04-11 |
-| eil76 | 76 | 538.0 | SolverE2/E4 | 1.027x | 0.12s | O(n^4) | 2026-04-11 |
-| rat99 | 99 | 1211.0 | SolverE2/E4 | 1.016x | 0.24s | O(n^4) | 2026-04-11 |
-| kro200 | 200 | 29368.0 | SolverE2/E4 | 1.006x | 3.2s | O(n^4) | 2026-04-11 |
-| a280 | 279 | 2579.0 | SolverH3 | 1.014x | 34.1s | O(n^4) | 2026-04-11 |
-| pcb442 | 442 | 50778.0 | SolverH3 | 1.012x | 156.2s | O(n^4) | 2026-04-11 |
+15 instancias TSPLIB con optimo demostrado (n=51 a n=2103):
+
+| Instancia | n | Optimo | Mejor O(n^3) | Ratio | Christofides |
+|-----------|---|--------|-------------|-------|-------------|
+| eil51 | 51 | 426 | SolverJ5 | 1.007x | 1.137x |
+| berlin52 | 52 | 7542 | SolverJ5 | 1.000x | 1.118x |
+| st70 | 70 | 675 | SolverJ5 | 1.020x | 1.135x |
+| eil76 | 76 | 538 | SolverJ5 | 1.025x | 1.161x |
+| rat99 | 99 | 1211 | SolverJ5 | 1.007x | 1.139x |
+| kro200 | 200 | 29368 | SolverJ5 | 1.004x | 1.148x |
+| a280 | 279 | 2579 | SolverJ5 | 1.006x | 1.152x |
+| pcb442 | 442 | 50778 | SolverJ5 | 1.013x | 1.117x |
+| d657 | 657 | 48912 | SolverL1 | 1.030x | 1.129x |
+| rat783 | 783 | 8806 | SolverL1 | 1.021x | 1.154x |
+| pr1002 | 1002 | 259045 | SolverJ5 | 1.026x | 1.118x |
+| u1060 | 1060 | 224094 | SolverJ5 | 1.042x | ~1.13x |
+| d1291 | 1291 | 50801 | SolverL1 | 1.038x | 1.144x |
+| fl1577 | 1577 | 22249 | SolverJ5 | 1.014x | ~1.13x |
+| d2103 | 2103 | 80450 | SolverL1 | 1.011x | 1.045x |
 
 ### Resumen agregado por solver
 
 | Solver | Complejidad | Media arit. | Media geom. | Peor caso | Tiempo max |
 |--------|-------------|------------|------------|-----------|------------|
-Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat99, kro200, a280)
+Total de experimentos documentados: E000-E043 (43 experimentos).
+Nota: metricas agregadas de la tabla siguiente calculadas sobre instancias disponibles en el momento de cada solver. Consultar KDoc de cada solver para metricas exactas.
 
 | Solver | Tipica | Peor caso | Media geom. | Peor ratio | Tiempo max |
 |--------|--------|-----------|------------|------------|------------|
@@ -51,8 +61,10 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 | SolverE3 | O(n^3.5) | O(n^3.5) | 1.018x | 1.034x | 1.1s |
 | SolverG1 | O(n^3.5) | O(n^3.5) | 1.015x | 1.034x | 2.0s |
 | SolverE7 | O(n^4) | O(n^4) | 1.011x | 1.021x | 83s |
-| **SolverK2** | **O(n^3)** | **O(n^3)** | **1.015x** | **1.038x** | **469s** |
-| **SolverJ5** | **O(n^3)** | **O(n^3)** | **1.010x** | **1.025x** | **3.99s** |
+| ~~SolverK2~~ | O(n^3) | O(n^3) | 1.015x | 1.038x | 469s | (descartado: combina solvers)
+| **SolverJ5** | **O(n^3)** | **O(n^3)** | **1.010x** | **1.025x** | **3.99s** | (mejor calidad O(n^3))
+| **SolverL2** | **O(n^3)** | **O(n^3)** | **~1.018x** | **~1.047x** | **194s** | (J5 + DB rapido, 1.5-4x mas rapido)
+| **SolverL3** | **O(n^3)** | **O(n^3)** | **~1.019x** | **~1.061x** | **61s** | (L2 sin LK-deep, 3-7x mas rapido que J5)
 | SolverJ3 | O(n^3) | O(n^3) | 1.011x | 1.025x | 2.30s |
 | SolverI2 | O(n^3) | O(n^3) | 1.016x | 1.041x | 1.89s |
 | SolverI1 | O(n^3) | O(n^3) | 1.023x | 1.041x | 0.54s |
