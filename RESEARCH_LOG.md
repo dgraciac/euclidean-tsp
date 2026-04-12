@@ -689,11 +689,12 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 ### Ideas pendientes
 
-1. **Solver adaptativo segun n** — E040 demostro que J5 gana en n<500 (pocos starts, pipeline profundo) y L1 gana en n>600 (multi-start completo). Un unico solver que ajuste internamente el numero de starts segun n ganaria en todas las escalas. Ejemplo: starts = min(n, c*sqrt(n)) para algun c. O(n^3).
-2. **Mejorar DB sin perder calidad** — DB es 60% del tiempo (E038 profiling). Si el DB fuera 2x mas rapido, podriamos hacer mas starts o mas intentos. Ideas: restringir candidatos de DB a neighbor lists, pre-evaluar ganancia antes de re-optimizar.
-3. **Garantia teorica** — Demostrar cota de aproximacion o encontrar contraejemplo grande. Trabajo matematico.
-4. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada. Linea completamente nueva: particion recursiva del plano + programacion dinamica.
-5. **Instancias TSPLIB 5000+** — rl5915 (n=5915, opt=565530). SolverJ5 tardaria ~1.4h.
+1. ~~Solver adaptativo segun n~~ — Descartado. Los solvers adaptativos dificultan el analisis de fortalezas/debilidades de cada enfoque. Reservado para productos comerciales, no para investigacion.
+2. ~~Mejorar DB sin perder calidad~~ — E041 completado. DoubleBridgeFast (dos fases) reduce tiempo 1.5-4x. SolverL2 integra esta mejora.
+3. **Verificar escalabilidad de L2 vs J5 en instancias mas grandes** — L2 es 1.5-4x mas rapido en n<=2103. Verificar si la tendencia se mantiene o invierte en n>2000.
+4. **Garantia teorica** — Demostrar cota de aproximacion o encontrar contraejemplo grande. Trabajo matematico.
+5. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada. Linea completamente nueva: particion recursiva del plano + programacion dinamica.
+6. **Instancias TSPLIB 5000+** — rl5915 (n=5915, opt=565530). SolverJ5 tardaria ~1.4h, L2 ~0.9h.
 
 ### Ideas completadas o descartadas
 
