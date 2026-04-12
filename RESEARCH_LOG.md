@@ -712,7 +712,7 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 1. ~~Precomputar matriz de distancias~~ — E044: mejora marginal. Solo acelera neighbor lists, no el pipeline. Refactorizacion completa no justificada.
 2. ~~Reducir candidatos K=7+7 a K=5+5~~ — E045: PIERDE CALIDAD (pcb442: 1.035x vs 1.017x). K=5+5 insuficiente.
 3. ~~Or-opt con neighbor lists~~ — E046: inconsistente. Mas lento en instancias medianas por overhead de position map.
-4. **Refactorizar pipeline completo para usar DistanceMatrix** — E044 mostro que la mejora parcial (solo neighbor lists) es insuficiente. Si TODAS las funciones (twoOpt, orOpt, LK, DB) usaran la matriz, el impacto seria mayor. Requiere refactorizacion profunda.
+4. **Refactorizar pipeline completo para usar DistanceMatrix** — E047 EN PROGRESO. Plan aprobado: añadir `dm: DistanceMatrix?` a las 10 funciones compartidas (~91 call sites), crear SolverL7, verificar resultados identicos a L2, migrar todos los solvers si speedup confirmado, y finalmente eliminar el condicional null. Ver plan detallado en `.claude/plans/refactored-jumping-aurora.md`.
 
 #### Mejorar calidad sin perder rapidez
 4. **Mas intentos de DB con el tiempo ahorrado por L2/L3** — L3 ahorra ~140s en d2103. Usar ese tiempo para 20 intentos de DB extra (profundos) podria mejorar la calidad. Seria un L3 con mas DB en vez de LK-deep.
