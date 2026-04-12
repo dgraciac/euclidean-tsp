@@ -12,10 +12,14 @@ import com.github.dgraciac.euclideantsp.shared.Point
  * ya que se asume que 2-opt ya se ejecuto previamente.
  *
  * @param tourPoints lista de puntos del tour (cerrado: primero == ultimo)
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return tour mejorado (cerrado: primero == ultimo)
  * Complejidad: O(n^3) por pasada, O(1) pasadas tipicas tras 2-opt+or-opt
  */
-fun threeOpt(tourPoints: List<Point>): List<Point> {
+fun threeOpt(
+    tourPoints: List<Point>,
+    dm: DistanceMatrix? = null,
+): List<Point> {
     val points = tourPoints.dropLast(1).toMutableList()
     val n = points.size
     if (n < 6) return tourPoints
@@ -30,9 +34,9 @@ fun threeOpt(tourPoints: List<Point>): List<Point> {
                 for (k in j + 2 until n) {
                     if (i == 0 && k == n - 1) continue
 
-                    val gain = bestThreeOptMove(points, n, i, j, k)
+                    val gain = bestThreeOptMove(points, n, i, j, k, dm)
                     if (gain > 1e-10) {
-                        applyBestThreeOptMove(points, n, i, j, k)
+                        applyBestThreeOptMove(points, n, i, j, k, dm)
                         improved = true
                         break
                     }
@@ -60,6 +64,7 @@ private fun bestThreeOptMove(
     i: Int,
     j: Int,
     k: Int,
+    dm: DistanceMatrix? = null,
 ): Double {
     val p0 = points[i]
     val p1 = points[i + 1]
@@ -68,18 +73,18 @@ private fun bestThreeOptMove(
     val p4 = points[k]
     val p5 = points[(k + 1) % n]
 
-    val d01 = p0.distance(p1)
-    val d23 = p2.distance(p3)
-    val d45 = p4.distance(p5)
+    val d01 = d(p0, p1, dm)
+    val d23 = d(p2, p3, dm)
+    val d45 = d(p4, p5, dm)
     val currentCost = d01 + d23 + d45
 
     // Movimiento 3-opt puro tipo 1: A, reverso(B), C -> conectar (p0,p3), (p2,p5), (p4,p1)
     // Segmentos: [..i] -> [j+1..k] -> [j..i+1] -> [k+1..]
-    val newCost1 = p0.distance(p3) + p4.distance(p1) + p2.distance(p5)
+    val newCost1 = d(p0, p3, dm) + d(p4, p1, dm) + d(p2, p5, dm)
 
     // Movimiento 3-opt puro tipo 2: reverso(A), B, reverso(C) -> (p0,p4), (p3,p1), (p2,p5)
     // Segmentos: [..i] -> [k..j+1] -> [i+1..j] -> [k+1..]
-    val newCost2 = p0.distance(p4) + p3.distance(p1) + p2.distance(p5)
+    val newCost2 = d(p0, p4, dm) + d(p3, p1, dm) + d(p2, p5, dm)
 
     val bestNewCost = minOf(newCost1, newCost2)
     return currentCost - bestNewCost
@@ -95,6 +100,7 @@ private fun applyBestThreeOptMove(
     i: Int,
     j: Int,
     k: Int,
+    dm: DistanceMatrix? = null,
 ) {
     val p0 = points[i]
     val p1 = points[i + 1]
@@ -103,13 +109,13 @@ private fun applyBestThreeOptMove(
     val p4 = points[k]
     val p5 = points[(k + 1) % n]
 
-    val d01 = p0.distance(p1)
-    val d23 = p2.distance(p3)
-    val d45 = p4.distance(p5)
+    val d01 = d(p0, p1, dm)
+    val d23 = d(p2, p3, dm)
+    val d45 = d(p4, p5, dm)
     val currentCost = d01 + d23 + d45
 
-    val newCost1 = p0.distance(p3) + p4.distance(p1) + p2.distance(p5)
-    val newCost2 = p0.distance(p4) + p3.distance(p1) + p2.distance(p5)
+    val newCost1 = d(p0, p3, dm) + d(p4, p1, dm) + d(p2, p5, dm)
+    val newCost2 = d(p0, p4, dm) + d(p3, p1, dm) + d(p2, p5, dm)
 
     // Segmentos originales: A = [i+1..j], B = [j+1..k]
     val segA = (i + 1..j).map { points[it] }

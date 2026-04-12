@@ -15,6 +15,7 @@ import com.github.dgraciac.euclideantsp.shared.Point
  *
  * @param tourPoints tour de entrada (cerrado: primero == ultimo)
  * @param maxCandidates numero de aristas candidatas para puntos de corte
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return tour mejorado (cerrado: primero == ultimo)
  *
  * Complejidad peor caso: O(n^2 * C(maxCandidates, 4) * reconexiones)
@@ -23,6 +24,7 @@ import com.github.dgraciac.euclideantsp.shared.Point
 fun fourOpt(
     tourPoints: List<Point>,
     maxCandidates: Int = 12,
+    dm: DistanceMatrix? = null,
 ): List<Point> {
     var tour = tourPoints.dropLast(1).toMutableList()
     val n = tour.size
@@ -37,7 +39,7 @@ fun fourOpt(
         // Encontrar aristas mas largas como candidatas
         val candidates =
             (0 until n)
-                .map { i -> Pair(i, tour[i].distance(tour[(i + 1) % n])) }
+                .map { i -> Pair(i, d(tour[i], tour[(i + 1) % n], dm)) }
                 .sortedByDescending { it.second }
                 .take(minOf(maxCandidates, n))
                 .map { it.first }
@@ -50,17 +52,17 @@ fun fourOpt(
                 if (improved) break
                 for (c in b + 1 until candidates.size) {
                     if (improved) break
-                    for (d in c + 1 until candidates.size) {
+                    for (dd in c + 1 until candidates.size) {
                         val i1 = candidates[a]
                         val i2 = candidates[b]
                         val i3 = candidates[c]
-                        val i4 = candidates[d]
+                        val i4 = candidates[dd]
 
                         // Verificar que los 4 segmentos tienen al menos 1 punto
                         if (i2 - i1 < 1 || i3 - i2 < 1 || i4 - i3 < 1) continue
                         if (n - i4 + i1 < 1) continue
 
-                        val result = tryFourOptMove(tour, n, i1, i2, i3, i4)
+                        val result = tryFourOptMove(tour, n, i1, i2, i3, i4, dm)
                         if (result != null) {
                             tour = result.toMutableList()
                             improved = true
@@ -90,6 +92,7 @@ private fun tryFourOptMove(
     i2: Int,
     i3: Int,
     i4: Int,
+    dm: DistanceMatrix? = null,
 ): List<Point>? {
     val segA = (i1 + 1..i2).map { tour[it] }
     val segB = (i2 + 1..i3).map { tour[it] }
@@ -105,49 +108,49 @@ private fun tryFourOptMove(
 
     if (segA.isEmpty() || segB.isEmpty() || segC.isEmpty() || segD.isEmpty()) return null
 
-    val origLength = fourOptTourLength(tour, n)
+    val origLength = fourOptTourLength(tour, n, dm)
     var bestTour: List<Point>? = null
     var bestLength = origLength
 
     // Double-bridge: D + B + A + C
-    tryReconnection(segD + segB + segA + segC, bestLength)?.let {
-        bestLength = fourOptTourLength(it, it.size)
+    tryReconnection(segD + segB + segA + segC, bestLength, dm)?.let {
+        bestLength = fourOptTourLength(it, it.size, dm)
         bestTour = it
     }
 
     // D + C + B + A (reverse all order)
-    tryReconnection(segD + segC + segB + segA, bestLength)?.let {
-        bestLength = fourOptTourLength(it, it.size)
+    tryReconnection(segD + segC + segB + segA, bestLength, dm)?.let {
+        bestLength = fourOptTourLength(it, it.size, dm)
         bestTour = it
     }
 
     // D + A + C + B
-    tryReconnection(segD + segA + segC + segB, bestLength)?.let {
-        bestLength = fourOptTourLength(it, it.size)
+    tryReconnection(segD + segA + segC + segB, bestLength, dm)?.let {
+        bestLength = fourOptTourLength(it, it.size, dm)
         bestTour = it
     }
 
     // Con inversiones: D + rev(B) + A + C
-    tryReconnection(segD + segB.reversed() + segA + segC, bestLength)?.let {
-        bestLength = fourOptTourLength(it, it.size)
+    tryReconnection(segD + segB.reversed() + segA + segC, bestLength, dm)?.let {
+        bestLength = fourOptTourLength(it, it.size, dm)
         bestTour = it
     }
 
     // D + B + rev(A) + C
-    tryReconnection(segD + segB + segA.reversed() + segC, bestLength)?.let {
-        bestLength = fourOptTourLength(it, it.size)
+    tryReconnection(segD + segB + segA.reversed() + segC, bestLength, dm)?.let {
+        bestLength = fourOptTourLength(it, it.size, dm)
         bestTour = it
     }
 
     // D + B + A + rev(C)
-    tryReconnection(segD + segB + segA + segC.reversed(), bestLength)?.let {
-        bestLength = fourOptTourLength(it, it.size)
+    tryReconnection(segD + segB + segA + segC.reversed(), bestLength, dm)?.let {
+        bestLength = fourOptTourLength(it, it.size, dm)
         bestTour = it
     }
 
     // D + rev(C) + rev(B) + A (double bridge con inversiones)
-    tryReconnection(segD + segC.reversed() + segB.reversed() + segA, bestLength)?.let {
-        bestLength = fourOptTourLength(it, it.size)
+    tryReconnection(segD + segC.reversed() + segB.reversed() + segA, bestLength, dm)?.let {
+        bestLength = fourOptTourLength(it, it.size, dm)
         bestTour = it
     }
 
@@ -157,18 +160,20 @@ private fun tryFourOptMove(
 private fun tryReconnection(
     candidate: List<Point>,
     currentBest: Double,
+    dm: DistanceMatrix? = null,
 ): List<Point>? {
-    val len = fourOptTourLength(candidate, candidate.size)
+    val len = fourOptTourLength(candidate, candidate.size, dm)
     return if (len < currentBest - 1e-10) candidate else null
 }
 
 private fun fourOptTourLength(
     tour: List<Point>,
     n: Int,
+    dm: DistanceMatrix? = null,
 ): Double {
     var length = 0.0
     for (i in 0 until n) {
-        length += tour[i].distance(tour[(i + 1) % n])
+        length += d(tour[i], tour[(i + 1) % n], dm)
     }
     return length
 }

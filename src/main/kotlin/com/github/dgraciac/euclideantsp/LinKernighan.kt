@@ -16,6 +16,7 @@ import com.github.dgraciac.euclideantsp.shared.Point
  *
  * @param tourPoints lista de puntos del tour (cerrado: primero == ultimo)
  * @param neighborLists vecinos cercanos para restringir candidatos
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return tour mejorado (cerrado: primero == ultimo)
  *
  * Complejidad peor caso: O(n^2 * K^2) por mejora, O(n) mejoras max = O(n^3 * K^2)
@@ -24,6 +25,7 @@ import com.github.dgraciac.euclideantsp.shared.Point
 fun linKernighan(
     tourPoints: List<Point>,
     neighborLists: Map<Point, List<Point>>,
+    dm: DistanceMatrix? = null,
 ): List<Point> {
     var tour = tourPoints.dropLast(1).toMutableList()
     val n = tour.size
@@ -46,7 +48,7 @@ fun linKernighan(
             val idx2 = (idx1 + 1) % n
             val t1 = tour[idx1]
             val t2 = tour[idx2]
-            val distT1T2 = t1.distance(t2)
+            val distT1T2 = d(t1, t2, dm)
 
             val neighbors2 = neighborLists[t2] ?: continue
 
@@ -56,11 +58,11 @@ fun linKernighan(
                 val idx3 = pos[t3] ?: continue
 
                 // Ganancia nivel 1: romper (t1,t2)
-                val g1 = distT1T2 - t2.distance(t3)
+                val g1 = distT1T2 - d(t2, t3, dm)
                 if (g1 <= 0) continue
 
                 // Profundidad 1: 2-opt estandar
-                val gain1 = try2OptGain(tour, n, idx1, idx3)
+                val gain1 = try2OptGain(tour, n, idx1, idx3, dm)
                 if (gain1 > 1e-10) {
                     applyReverse(tour, idx2, idx3, n)
                     rebuildPos()
@@ -77,10 +79,10 @@ fun linKernighan(
                     if (t5 == t1 || t5 == t2 || t5 == t3) continue
                     val idx5 = pos[t5] ?: continue
 
-                    val newTour = buildDepth2Tour(tour, n, idx1, idx3, idx5)
+                    val newTour = buildDepth2Tour(tour, n, idx1, idx3, idx5, dm)
                     if (newTour != null) {
-                        val oldLength = tourLength(tour)
-                        val newLength = tourLength(newTour)
+                        val oldLength = tourLength(tour, dm)
+                        val newLength = tourLength(newTour, dm)
                         if (newLength < oldLength - 1e-10) {
                             tour = newTour.toMutableList()
                             rebuildPos()
@@ -110,6 +112,7 @@ private fun try2OptGain(
     n: Int,
     idx1: Int,
     idx3: Int,
+    dm: DistanceMatrix? = null,
 ): Double {
     val idx2 = (idx1 + 1) % n
     val idx4 = (idx3 + 1) % n
@@ -117,7 +120,7 @@ private fun try2OptGain(
     val t2 = tour[idx2]
     val t3 = tour[idx3]
     val t4 = tour[idx4]
-    return t1.distance(t2) + t3.distance(t4) - t1.distance(t3) - t2.distance(t4)
+    return d(t1, t2, dm) + d(t3, t4, dm) - d(t1, t3, dm) - d(t2, t4, dm)
 }
 
 /**
@@ -136,6 +139,7 @@ private fun buildDepth2Tour(
     idx1: Int,
     idx3: Int,
     idx5: Int,
+    dm: DistanceMatrix? = null,
 ): List<Point>? {
     // Normalizar indices para que esten en orden
     val indices = listOf(idx1, idx3, idx5).sorted()
@@ -153,7 +157,7 @@ private fun buildDepth2Tour(
     val revA = segA.reversed()
     val revB = segB.reversed()
     val revC = segC.reversed()
-    val origLength = tourLength(tour)
+    val origLength = tourLength(tour, dm)
 
     // Probar todas las reconexiones 3-opt no triviales (que no son 2-opt ni identidad)
     // 2-opt moves (reverse one segment): ya cubiertos por twoOpt, se omiten
@@ -172,7 +176,7 @@ private fun buildDepth2Tour(
 
     for (candidate in candidates) {
         if (candidate.size != n) continue
-        val len = tourLength(candidate)
+        val len = tourLength(candidate, dm)
         if (len < bestLength - 1e-10) {
             bestLength = len
             bestTour = candidate
@@ -208,10 +212,13 @@ private fun extractSegment(
  * Calcula la longitud de un tour (lista de puntos sin cierre, como ciclo).
  * Complejidad: O(n)
  */
-private fun tourLength(tour: List<Point>): Double {
+private fun tourLength(
+    tour: List<Point>,
+    dm: DistanceMatrix? = null,
+): Double {
     var length = 0.0
     for (i in tour.indices) {
-        length += tour[i].distance(tour[(i + 1) % tour.size])
+        length += d(tour[i], tour[(i + 1) % tour.size], dm)
     }
     return length
 }

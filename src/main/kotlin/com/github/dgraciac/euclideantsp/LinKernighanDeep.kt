@@ -18,6 +18,7 @@ import com.github.dgraciac.euclideantsp.shared.Point
  * @param tourPoints tour de entrada (cerrado: primero == ultimo)
  * @param neighborLists candidatos por punto
  * @param maxDepth profundidad maxima de la cadena LK
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return tour mejorado (cerrado: primero == ultimo)
  *
  * Complejidad peor caso: O(n * K^maxDepth * n) por mejora, O(n) mejoras
@@ -28,6 +29,7 @@ fun linKernighanDeep(
     tourPoints: List<Point>,
     neighborLists: Map<Point, List<Point>>,
     maxDepth: Int = 5,
+    dm: DistanceMatrix? = null,
 ): List<Point> {
     var tour = tourPoints.dropLast(1).toMutableList()
     val n = tour.size
@@ -50,7 +52,7 @@ fun linKernighanDeep(
             val t2 = tour[(idx1 + 1) % n]
 
             // Intentar cadena LK empezando por arista (t1, t2)
-            val result = lkChainSearch(tour, pos, n, t1, idx1, t2, neighborLists, maxDepth)
+            val result = lkChainSearch(tour, pos, n, t1, idx1, t2, neighborLists, maxDepth, dm)
             if (result != null) {
                 tour = result.toMutableList()
                 rebuildPos()
@@ -74,6 +76,7 @@ fun linKernighanDeep(
  * @param t2 segundo punto de la primera arista rota
  * @param neighborLists candidatos
  * @param maxDepth profundidad maxima
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return nuevo tour mejorado o null
  */
 private fun lkChainSearch(
@@ -85,8 +88,9 @@ private fun lkChainSearch(
     t2: Point,
     neighborLists: Map<Point, List<Point>>,
     maxDepth: Int,
+    dm: DistanceMatrix? = null,
 ): List<Point>? {
-    val distT1T2 = t1.distance(t2)
+    val distT1T2 = d(t1, t2, dm)
 
     // Recopilar la cadena de puntos cortados
     val cutPoints = mutableListOf(idx1)
@@ -102,6 +106,7 @@ private fun lkChainSearch(
         1,
         maxDepth,
         neighborLists,
+        dm,
     )
 }
 
@@ -110,6 +115,7 @@ private fun lkChainSearch(
  *
  * @param cumulativeGain ganancia acumulada hasta este punto (sum de broken - sum de added)
  * @param depth profundidad actual
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  */
 private fun lkRecurse(
     tour: List<Point>,
@@ -123,6 +129,7 @@ private fun lkRecurse(
     depth: Int,
     maxDepth: Int,
     neighborLists: Map<Point, List<Point>>,
+    dm: DistanceMatrix? = null,
 ): List<Point>? {
     val neighbors = neighborLists[currentEnd] ?: return null
     var bestResult: List<Point>? = null
@@ -136,7 +143,7 @@ private fun lkRecurse(
         if (idxCandidate in cutPoints) continue
 
         // Ganancia de añadir arista (currentEnd, candidate)
-        val addCost = currentEnd.distance(candidate)
+        val addCost = d(currentEnd, candidate, dm)
         val gain = cumulativeGain - addCost
         if (gain <= 0 && depth > 1) continue // Criterio de ganancia positiva (relajado en depth 1)
 
@@ -151,19 +158,19 @@ private fun lkRecurse(
 
         for ((idxBreak, breakPoint) in directions) {
             if (idxBreak in cutPoints) continue
-            val breakGain = candidate.distance(breakPoint)
+            val breakGain = d(candidate, breakPoint, dm)
             val newCumulativeGain = gain + breakGain
 
             // Intentar cerrar: añadir arista (breakPoint, t1)
-            val closeGain = newCumulativeGain - breakPoint.distance(t1)
+            val closeGain = newCumulativeGain - d(breakPoint, t1, dm)
             if (closeGain > bestGain + 1e-10) {
                 cutPoints.add(idxCandidate)
                 val newTour = buildTourFromCuts(tour, n, cutPoints, idx1)
                 cutPoints.removeLast()
 
                 if (newTour != null && newTour.size == n) {
-                    val origLen = cyclicLength(tour)
-                    val newLen = cyclicLength(newTour)
+                    val origLen = cyclicLength(tour, dm)
+                    val newLen = cyclicLength(newTour, dm)
                     if (newLen < origLen - 1e-10 && origLen - newLen > bestGain) {
                         bestGain = origLen - newLen
                         bestResult = newTour
@@ -187,12 +194,13 @@ private fun lkRecurse(
                         depth + 1,
                         maxDepth,
                         neighborLists,
+                        dm,
                     )
                 cutPoints.removeLast()
 
                 if (deeper != null) {
-                    val deepLen = cyclicLength(deeper)
-                    val origLen = cyclicLength(tour)
+                    val deepLen = cyclicLength(deeper, dm)
+                    val origLen = cyclicLength(tour, dm)
                     if (deepLen < origLen - 1e-10 && origLen - deepLen > bestGain) {
                         bestGain = origLen - deepLen
                         bestResult = deeper
@@ -286,13 +294,13 @@ private fun buildTourFromCuts(
 
     // Para 4 segmentos: double-bridge y variantes
     if (numSegments == 4) {
-        val (a, b, c, d) = segments
+        val (a, b, c, dd) = segments
         val candidates =
             listOf(
-                a + c + b + d, // double bridge
-                a + c.reversed() + b.reversed() + d,
-                a + b.reversed() + c + d,
-                a + d + c + b, // reverse order
+                a + c + b + dd, // double bridge
+                a + c.reversed() + b.reversed() + dd,
+                a + b.reversed() + c + dd,
+                a + dd + c + b, // reverse order
             )
         for (candidate in candidates) {
             if (candidate.size != n) continue
@@ -339,10 +347,13 @@ private fun extractSegmentDeep(
     return result
 }
 
-private fun cyclicLength(tour: List<Point>): Double {
+private fun cyclicLength(
+    tour: List<Point>,
+    dm: DistanceMatrix? = null,
+): Double {
     var length = 0.0
     for (i in tour.indices) {
-        length += tour[i].distance(tour[(i + 1) % tour.size])
+        length += d(tour[i], tour[(i + 1) % tour.size], dm)
     }
     return length
 }

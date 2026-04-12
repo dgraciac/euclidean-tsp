@@ -10,12 +10,14 @@ import org.locationtech.jts.geom.GeometryFactory
  *
  * @param points todos los puntos de la instancia
  * @param start punto de inicio
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return tour cerrado (primero == ultimo)
  * Complejidad: O(n^2)
  */
 fun nearestNeighborFrom(
     points: Set<Point>,
     start: Point,
+    dm: DistanceMatrix? = null,
 ): List<Point> {
     val remaining = points.toMutableSet()
     val tour = mutableListOf<Point>()
@@ -24,7 +26,7 @@ fun nearestNeighborFrom(
 
     while (remaining.isNotEmpty()) {
         val current = tour.last()
-        val nearest = remaining.minBy { it.distance(current) }
+        val nearest = remaining.minBy { d(it, current, dm) }
         tour.add(nearest)
         remaining.remove(nearest)
     }
@@ -38,10 +40,14 @@ fun nearestNeighborFrom(
  * el punto mas lejano al tour actual en la posicion que minimiza el incremento de longitud.
  *
  * @param points todos los puntos de la instancia
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return tour cerrado (primero == ultimo)
  * Complejidad: O(n^2) — n iteraciones, cada una busca el punto mas lejano O(n) y la mejor posicion O(n)
  */
-fun farthestInsertion(points: Set<Point>): List<Point> {
+fun farthestInsertion(
+    points: Set<Point>,
+    dm: DistanceMatrix? = null,
+): List<Point> {
     val remaining = points.toMutableList()
 
     // Encontrar el par mas distante como semilla
@@ -50,9 +56,9 @@ fun farthestInsertion(points: Set<Point>): List<Point> {
     var p2 = remaining[1]
     for (i in remaining.indices) {
         for (j in i + 1 until remaining.size) {
-            val d = remaining[i].distance(remaining[j])
-            if (d > maxDist) {
-                maxDist = d
+            val dist = d(remaining[i], remaining[j], dm)
+            if (dist > maxDist) {
+                maxDist = dist
                 p1 = remaining[i]
                 p2 = remaining[j]
             }
@@ -68,7 +74,7 @@ fun farthestInsertion(points: Set<Point>): List<Point> {
         var farthest = remaining[0]
         var farthestDist = 0.0
         for (point in remaining) {
-            val minDistToTour = tour.dropLast(1).minOf { it.distance(point) }
+            val minDistToTour = tour.dropLast(1).minOf { d(it, point, dm) }
             if (minDistToTour > farthestDist) {
                 farthestDist = minDistToTour
                 farthest = point
@@ -79,7 +85,7 @@ fun farthestInsertion(points: Set<Point>): List<Point> {
         var bestIdx = 1
         var bestCost = Double.POSITIVE_INFINITY
         for (i in 0 until tour.size - 1) {
-            val cost = tour[i].distance(farthest) + farthest.distance(tour[i + 1]) - tour[i].distance(tour[i + 1])
+            val cost = d(tour[i], farthest, dm) + d(farthest, tour[i + 1], dm) - d(tour[i], tour[i + 1], dm)
             if (cost < bestCost) {
                 bestCost = cost
                 bestIdx = i + 1
@@ -98,10 +104,14 @@ fun farthestInsertion(points: Set<Point>): List<Point> {
  * Usa el convex hull como tour inicial e inserta puntos interiores.
  *
  * @param points todos los puntos de la instancia
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return tour cerrado (primero == ultimo)
  * Complejidad: O(n^2)
  */
-fun convexHullInsertion(points: Set<Point>): List<Point> {
+fun convexHullInsertion(
+    points: Set<Point>,
+    dm: DistanceMatrix? = null,
+): List<Point> {
     val coordinates = points.map { it.toCoordinate() }.toTypedArray()
     val hull = ConvexHull(coordinates, GeometryFactory()).convexHull
     val hullCoords = hull.coordinates.dropLast(1)
@@ -118,9 +128,9 @@ fun convexHullInsertion(points: Set<Point>): List<Point> {
         var bestIdx = 1
         var bestRatio = Double.POSITIVE_INFINITY
         for (i in 0 until tour.size - 1) {
-            val distAB = tour[i].distance(tour[i + 1])
+            val distAB = d(tour[i], tour[i + 1], dm)
             if (distAB == 0.0) continue
-            val ratio = (tour[i].distance(point) + point.distance(tour[i + 1])) / distAB
+            val ratio = (d(tour[i], point, dm) + d(point, tour[i + 1], dm)) / distAB
             if (ratio < bestRatio) {
                 bestRatio = ratio
                 bestIdx = i + 1
@@ -137,10 +147,14 @@ fun convexHullInsertion(points: Set<Point>): List<Point> {
  * Descompone en capas concentricas e inserta punto a punto.
  *
  * @param points todos los puntos de la instancia
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return tour cerrado (primero == ultimo)
  * Complejidad: O(n^2)
  */
-fun peelingInsertion(points: Set<Point>): List<Point> {
+fun peelingInsertion(
+    points: Set<Point>,
+    dm: DistanceMatrix? = null,
+): List<Point> {
     val layers = mutableListOf<List<Point>>()
     val remaining = points.toMutableSet()
 
@@ -168,9 +182,9 @@ fun peelingInsertion(points: Set<Point>): List<Point> {
             var bestIdx = 1
             var bestRatio = Double.POSITIVE_INFINITY
             for (i in 0 until tour.size - 1) {
-                val distAB = tour[i].distance(tour[i + 1])
+                val distAB = d(tour[i], tour[i + 1], dm)
                 if (distAB == 0.0) continue
-                val ratio = (tour[i].distance(point) + point.distance(tour[i + 1])) / distAB
+                val ratio = (d(tour[i], point, dm) + d(point, tour[i + 1], dm)) / distAB
                 if (ratio < bestRatio) {
                     bestRatio = ratio
                     bestIdx = i + 1
@@ -188,10 +202,14 @@ fun peelingInsertion(points: Set<Point>): List<Point> {
  * al tour si no violan las restricciones (grado max 2, no cierran ciclo prematuro).
  *
  * @param points todos los puntos de la instancia
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return tour cerrado (primero == ultimo)
  * Complejidad: O(n^2 log n) — O(n^2) aristas, ordenar, iterar
  */
-fun greedyConstruction(points: Set<Point>): List<Point> {
+fun greedyConstruction(
+    points: Set<Point>,
+    dm: DistanceMatrix? = null,
+): List<Point> {
     val pointList = points.toList()
     val n = pointList.size
 
@@ -205,7 +223,7 @@ fun greedyConstruction(points: Set<Point>): List<Point> {
     val edges = mutableListOf<Edge>()
     for (i in 0 until n) {
         for (j in i + 1 until n) {
-            edges.add(Edge(i, j, pointList[i].distance(pointList[j])))
+            edges.add(Edge(i, j, d(pointList[i], pointList[j], dm)))
         }
     }
     edges.sortBy { it.dist }

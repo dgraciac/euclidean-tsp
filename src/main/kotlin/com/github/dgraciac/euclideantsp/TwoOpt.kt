@@ -10,6 +10,7 @@ import com.github.dgraciac.euclideantsp.shared.Point
  * Repite hasta que no se encuentre ninguna mejora o se alcance el limite de pasadas.
  *
  * @param tourPoints lista de puntos del tour (cerrado: primero == ultimo)
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return tour mejorado (cerrado: primero == ultimo)
  *
  * Complejidad peor caso: O(n^3)
@@ -18,16 +19,15 @@ import com.github.dgraciac.euclideantsp.shared.Point
  *   en <=6 pasadas (constante) en todas las instancias probadas (n=51 a n=442).
  *   Limite conservador max(20, n) garantiza O(n) pasadas y terminacion polinomica.
  * - Total: O(n^2) * O(n) = O(n^3)
- *
- * Nota historica: el safety limit anterior era n^2 (O(n^4) peor caso). E026 demostro
- * que es excesivo — 2-opt nunca necesito mas de 6 pasadas en 80 ejecuciones sobre
- * 8 instancias TSPLIB.
  */
-fun twoOpt(tourPoints: List<Point>): List<Point> {
+fun twoOpt(
+    tourPoints: List<Point>,
+    dm: DistanceMatrix? = null,
+): List<Point> {
     val points = tourPoints.dropLast(1).toMutableList()
     val n = points.size
     var improved = true
-    var maxPasses = maxOf(20, n) // E026: empiricamente converge en <=6 pasadas. Limite conservador.
+    var maxPasses = maxOf(20, n)
 
     while (improved && maxPasses-- > 0) {
         improved = false
@@ -38,10 +38,10 @@ fun twoOpt(tourPoints: List<Point>): List<Point> {
                 val a = points[i]
                 val b = points[i + 1]
                 val c = points[j]
-                val d = points[(j + 1) % n]
+                val dd = points[(j + 1) % n]
 
-                val currentDist = a.distance(b) + c.distance(d)
-                val newDist = a.distance(c) + b.distance(d)
+                val currentDist = d(a, b, dm) + d(c, dd, dm)
+                val newDist = d(a, c, dm) + d(b, dd, dm)
 
                 if (newDist < currentDist) {
                     points.subList(i + 1, j + 1).reverse()

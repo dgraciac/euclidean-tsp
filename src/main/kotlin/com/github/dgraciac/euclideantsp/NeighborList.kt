@@ -36,6 +36,7 @@ fun buildNeighborLists(
  *
  * @param tourPoints lista de puntos del tour (cerrado: primero == ultimo)
  * @param neighborLists mapa de vecinos cercanos
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return tour mejorado (cerrado: primero == ultimo)
  *
  * Complejidad peor caso: O(n^2 * K)
@@ -47,6 +48,7 @@ fun buildNeighborLists(
 fun twoOptWithNeighborLists(
     tourPoints: List<Point>,
     neighborLists: Map<Point, List<Point>>,
+    dm: DistanceMatrix? = null,
 ): List<Point> {
     val points = tourPoints.dropLast(1).toMutableList()
     val n = points.size
@@ -62,7 +64,7 @@ fun twoOptWithNeighborLists(
         for (i in 0 until n - 1) {
             val a = points[i]
             val b = points[i + 1]
-            val distAB = a.distance(b)
+            val distAB = d(a, b, dm)
 
             val neighbors = neighborLists[a] ?: continue
             for (c in neighbors) {
@@ -70,10 +72,10 @@ fun twoOptWithNeighborLists(
                 if (j <= i + 1 || j >= n - 1) continue
                 if (i == 0 && j == n - 1) continue
 
-                val d = points[(j + 1) % n]
-                val distCD = c.distance(d)
+                val dd = points[(j + 1) % n]
+                val distCD = d(c, dd, dm)
 
-                if (distAB + distCD > a.distance(c) + b.distance(d)) {
+                if (distAB + distCD > d(a, c, dm) + d(b, dd, dm)) {
                     points.subList(i + 1, j + 1).reverse()
                     for (idx in i + 1..j) {
                         position[points[idx]] = idx

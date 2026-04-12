@@ -16,6 +16,7 @@ import com.github.dgraciac.euclideantsp.shared.Point
  *
  * @param tourPoints tour de entrada (cerrado: primero == ultimo)
  * @param maxAttempts numero maximo de double-bridges a probar
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return mejor tour encontrado tras perturbacion + re-optimizacion
  *
  * Complejidad peor caso: O(maxAttempts * n^4)
@@ -25,18 +26,19 @@ import com.github.dgraciac.euclideantsp.shared.Point
 fun doubleBridgePerturbation(
     tourPoints: List<Point>,
     maxAttempts: Int = 50,
+    dm: DistanceMatrix? = null,
 ): List<Point> {
     val points = tourPoints.dropLast(1)
     val n = points.size
     if (n < 8) return tourPoints
 
     var bestTour = tourPoints
-    var bestLength = computeTourLength(bestTour)
+    var bestLength = computeTourLength(bestTour, dm)
 
     // Encontrar las aristas mas largas como candidatas para puntos de corte
     val edgesByLength =
         (0 until n)
-            .map { i -> Pair(i, points[i].distance(points[(i + 1) % n])) }
+            .map { i -> Pair(i, d(points[i], points[(i + 1) % n], dm)) }
             .sortedByDescending { it.second }
 
     // Usar las top K aristas como candidatas para los 4 puntos de corte
@@ -69,10 +71,10 @@ fun doubleBridgePerturbation(
                 perturbed.add(perturbed.first())
 
                 // Re-optimizar
-                val afterTwoOpt = twoOpt(perturbed)
-                val afterOrOpt = orOpt(afterTwoOpt)
-                val finalTour = twoOpt(afterOrOpt)
-                val finalLength = computeTourLength(finalTour)
+                val afterTwoOpt = twoOpt(perturbed, dm)
+                val afterOrOpt = orOpt(afterTwoOpt, dm)
+                val finalTour = twoOpt(afterOrOpt, dm)
+                val finalLength = computeTourLength(finalTour, dm)
 
                 if (finalLength < bestLength - 1e-10) {
                     bestTour = finalTour
@@ -91,10 +93,13 @@ fun doubleBridgePerturbation(
  * Calcula la longitud de un tour (cerrado: primero == ultimo).
  * Complejidad: O(n)
  */
-private fun computeTourLength(tour: List<Point>): Double {
+private fun computeTourLength(
+    tour: List<Point>,
+    dm: DistanceMatrix? = null,
+): Double {
     var length = 0.0
     for (i in 0 until tour.size - 1) {
-        length += tour[i].distance(tour[i + 1])
+        length += d(tour[i], tour[i + 1], dm)
     }
     return length
 }

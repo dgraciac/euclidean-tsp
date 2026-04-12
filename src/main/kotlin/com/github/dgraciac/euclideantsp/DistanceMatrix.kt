@@ -65,3 +65,18 @@ class DistanceMatrix(
         return length
     }
 }
+
+/**
+ * Funcion helper para calcular distancia usando DistanceMatrix si esta disponible.
+ * Si dm es null, usa Point.distance() (compatibilidad con codigo existente).
+ * Si dm no es null, usa lookup O(1) en la matriz precalculada.
+ *
+ * Uso: `d(a, b, dm)` en vez de `a.distance(b)` en todas las funciones compartidas.
+ *
+ * Complejidad: O(1)
+ */
+fun d(
+    a: Point,
+    b: Point,
+    dm: DistanceMatrix?,
+): Double = dm?.dist(a, b) ?: a.distance(b)

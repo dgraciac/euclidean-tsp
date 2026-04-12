@@ -15,6 +15,7 @@ import com.github.dgraciac.euclideantsp.shared.Point
  * @param neighborLists candidatos para 2-opt-nl
  * @param quickAttempts numero de perturbaciones en fase rapida
  * @param deepAttempts numero de mejores perturbaciones a refinar en fase profunda
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return mejor tour encontrado
  *
  * Complejidad peor caso: O(quickAttempts * n^2 + deepAttempts * n^3)
@@ -25,17 +26,18 @@ fun doubleBridgeFast(
     neighborLists: Map<Point, List<Point>>,
     quickAttempts: Int = 50,
     deepAttempts: Int = 5,
+    dm: DistanceMatrix? = null,
 ): List<Point> {
     val points = tourPoints.dropLast(1)
     val n = points.size
     if (n < 8) return tourPoints
 
-    val originalLength = points.indices.sumOf { points[it].distance(points[(it + 1) % n]) }
+    val originalLength = points.indices.sumOf { d(points[it], points[(it + 1) % n], dm) }
 
     // Candidatos: top 12 aristas mas largas
     val candidates =
         (0 until n)
-            .map { i -> Pair(i, points[i].distance(points[(i + 1) % n])) }
+            .map { i -> Pair(i, d(points[i], points[(i + 1) % n], dm)) }
             .sortedByDescending { it.second }
             .take(minOf(12, n))
             .map { it.first }
@@ -72,10 +74,10 @@ fun doubleBridgeFast(
                 perturbed.add(perturbed.first())
 
                 // Evaluacion rapida: solo 2-opt-nl
-                val quick = twoOptWithNeighborLists(perturbed, neighborLists)
+                val quick = twoOptWithNeighborLists(perturbed, neighborLists, dm)
                 val quickLen =
                     quick.dropLast(1).let { pts ->
-                        pts.indices.sumOf { pts[it].distance(pts[(it + 1) % pts.size]) }
+                        pts.indices.sumOf { d(pts[it], pts[(it + 1) % pts.size], dm) }
                     }
 
                 quickResults.add(QuickResult(quick, quickLen))
@@ -94,12 +96,12 @@ fun doubleBridgeFast(
         // Solo refinar si la evaluacion rapida es prometedora
         if (candidate.length > originalLength * 1.05) continue
 
-        val afterTwoOpt = twoOpt(candidate.tour)
-        val afterOrOpt = orOpt(afterTwoOpt)
-        val finalTour = twoOpt(afterOrOpt)
+        val afterTwoOpt = twoOpt(candidate.tour, dm)
+        val afterOrOpt = orOpt(afterTwoOpt, dm)
+        val finalTour = twoOpt(afterOrOpt, dm)
         val finalLength =
             finalTour.dropLast(1).let { pts ->
-                pts.indices.sumOf { pts[it].distance(pts[(it + 1) % pts.size]) }
+                pts.indices.sumOf { d(pts[it], pts[(it + 1) % pts.size], dm) }
             }
 
         if (finalLength < bestLength - 1e-10) {

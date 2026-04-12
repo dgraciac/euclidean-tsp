@@ -11,6 +11,7 @@ import com.github.dgraciac.euclideantsp.shared.Point
  * de insertarlo en cada posicion alternativa. Si alguna mejora el tour, la ejecuta.
  *
  * @param tourPoints lista de puntos del tour (cerrado: primero == ultimo)
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return tour mejorado (cerrado: primero == ultimo)
  *
  * Complejidad peor caso: O(n^3)
@@ -18,13 +19,17 @@ import com.github.dgraciac.euclideantsp.shared.Point
  * - Numero de pasadas: limitado a n (E026: empiricamente converge en ~0.2*n pasadas)
  * - Total: O(n^2) * O(n) = O(n^3)
  */
-fun orOpt(tourPoints: List<Point>): List<Point> = orOpt(tourPoints, maxSegmentSize = 3)
+fun orOpt(
+    tourPoints: List<Point>,
+    dm: DistanceMatrix? = null,
+): List<Point> = orOpt(tourPoints, maxSegmentSize = 3, dm = dm)
 
 /**
  * Version parametrizable de or-opt que permite especificar el tamaño maximo de segmento.
  *
  * @param tourPoints lista de puntos del tour (cerrado: primero == ultimo)
  * @param maxSegmentSize tamaño maximo de segmento a reubicar (por defecto 3)
+ * @param dm matriz de distancias precalculada (null = usar Point.distance())
  * @return tour mejorado (cerrado: primero == ultimo)
  *
  * Complejidad peor caso: O(n^3) con maxSegmentSize constante
@@ -34,6 +39,7 @@ fun orOpt(tourPoints: List<Point>): List<Point> = orOpt(tourPoints, maxSegmentSi
 fun orOpt(
     tourPoints: List<Point>,
     maxSegmentSize: Int,
+    dm: DistanceMatrix? = null,
 ): List<Point> {
     val points = tourPoints.dropLast(1).toMutableList()
     var improved = true
@@ -44,7 +50,7 @@ fun orOpt(
         for (segSize in 1..minOf(maxSegmentSize, points.size - 3)) {
             if (improved) break
             for (i in 0 until points.size - segSize) {
-                if (tryRelocate(points, i, segSize)) {
+                if (tryRelocate(points, i, segSize, dm)) {
                     improved = true
                     break
                 }
@@ -65,6 +71,7 @@ private fun tryRelocate(
     points: MutableList<Point>,
     i: Int,
     segSize: Int,
+    dm: DistanceMatrix? = null,
 ): Boolean {
     val n = points.size
     val segEnd = i + segSize - 1
@@ -76,9 +83,9 @@ private fun tryRelocate(
 
     // Ahorro de extraer el segmento
     val extractSaving =
-        points[prevIdx].distance(segFirst) +
-            segLast.distance(points[nextIdx]) -
-            points[prevIdx].distance(points[nextIdx])
+        d(points[prevIdx], segFirst, dm) +
+            d(segLast, points[nextIdx], dm) -
+            d(points[prevIdx], points[nextIdx], dm)
 
     // Indices que son parte del segmento o adyacentes (no vale insertar ahi)
     val forbidden = mutableSetOf<Int>()
@@ -97,7 +104,7 @@ private fun tryRelocate(
 
         val a = points[j]
         val b = points[jNext]
-        val insertCost = a.distance(segFirst) + segLast.distance(b) - a.distance(b)
+        val insertCost = d(a, segFirst, dm) + d(segLast, b, dm) - d(a, b, dm)
         val netGain = extractSaving - insertCost
 
         if (netGain > bestGain) {
