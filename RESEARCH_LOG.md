@@ -689,10 +689,13 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 ### Ideas pendientes
 
-1. ~~SolverK2~~ — E039 completado. Mejor solver O(n^3) en todas las instancias. Media 1.015x.
-2. **Garantia teorica de SolverJ5** — Demostrar cota o encontrar contraejemplo grande. Trabajo matematico.
+1. **Un solver unico que supere a J5 en todas las escalas** — J5 pierde en n>700 (K1 gana ahi con multi-start completo). Combinar solvers no vale (regla de criterio de progreso). Hay que encontrar UN algoritmo O(n^3) o menor que sea mejor en todas las escalas. Ideas:
+   a. Adaptar el numero de multi-starts segun n (pocos en n pequeño, mas en n grande) dentro de O(n^3)
+   b. Mejorar el DB para que sea mas rapido sin perder calidad (cuello de botella, 60% del tiempo)
+   c. Investigar por que K1 (multi-start completo + DB ligero) gana en n>700: es por mas starts o por DB distinto?
+2. **Garantia teorica** — Demostrar cota de aproximacion o encontrar contraejemplo grande. Trabajo matematico.
 3. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada. Linea completamente nueva: particion recursiva del plano + programacion dinamica.
-4. **Instancias TSPLIB 5000+** — rl5915 (n=5915, opt=565530). SolverJ5 tardaria ~1.4h. Viabilidad limite.
+4. **Instancias TSPLIB 5000+** — rl5915 (n=5915, opt=565530). SolverJ5 tardaria ~1.4h.
 
 ### Ideas completadas o descartadas
 
