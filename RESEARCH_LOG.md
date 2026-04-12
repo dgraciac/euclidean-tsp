@@ -689,13 +689,11 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 ### Ideas pendientes
 
-1. **Un solver unico que supere a J5 en todas las escalas** — J5 pierde en n>700 (K1 gana ahi con multi-start completo). Combinar solvers no vale (regla de criterio de progreso). Hay que encontrar UN algoritmo O(n^3) o menor que sea mejor en todas las escalas. Ideas:
-   a. Adaptar el numero de multi-starts segun n (pocos en n pequeño, mas en n grande) dentro de O(n^3)
-   b. Mejorar el DB para que sea mas rapido sin perder calidad (cuello de botella, 60% del tiempo)
-   c. Investigar por que K1 (multi-start completo + DB ligero) gana en n>700: es por mas starts o por DB distinto?
-2. **Garantia teorica** — Demostrar cota de aproximacion o encontrar contraejemplo grande. Trabajo matematico.
-3. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada. Linea completamente nueva: particion recursiva del plano + programacion dinamica.
-4. **Instancias TSPLIB 5000+** — rl5915 (n=5915, opt=565530). SolverJ5 tardaria ~1.4h.
+1. **Solver adaptativo segun n** — E040 demostro que J5 gana en n<500 (pocos starts, pipeline profundo) y L1 gana en n>600 (multi-start completo). Un unico solver que ajuste internamente el numero de starts segun n ganaria en todas las escalas. Ejemplo: starts = min(n, c*sqrt(n)) para algun c. O(n^3).
+2. **Mejorar DB sin perder calidad** — DB es 60% del tiempo (E038 profiling). Si el DB fuera 2x mas rapido, podriamos hacer mas starts o mas intentos. Ideas: restringir candidatos de DB a neighbor lists, pre-evaluar ganancia antes de re-optimizar.
+3. **Garantia teorica** — Demostrar cota de aproximacion o encontrar contraejemplo grande. Trabajo matematico.
+4. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada. Linea completamente nueva: particion recursiva del plano + programacion dinamica.
+5. **Instancias TSPLIB 5000+** — rl5915 (n=5915, opt=565530). SolverJ5 tardaria ~1.4h.
 
 ### Ideas completadas o descartadas
 
