@@ -709,9 +709,10 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 - **Christofides**: garantia 3/2, media ~1.137x
 
 #### Mejorar rapidez sin perder calidad
-1. **Precomputar matriz de distancias** — Actualmente cada `Point.distance()` crea objetos JTS y calcula sqrt. Una matriz precalculada (n^2 doubles, ~35MB para n=2103) convertiria cada lookup en O(1) con acceso directo a array. Beneficia TODAS las fases (2-opt, or-opt, LK, DB). No cambia nada del algoritmo, solo la implementacion de distancia.
-2. **Reducir candidatos α-nearness de K=7+7 a K=5+5** — E029 mostro que K=5+5 era inestable. Pero con el pipeline mejorado de L2 (DB dos fases + LK), K=5+5 podria ser suficiente. Menos candidatos = LK y 2-opt-nl mas rapidos.
-3. **Or-opt con neighbor lists** — Or-opt actual es O(n^2) por pasada (prueba todas las posiciones). Restringir a neighbor lists como 2-opt-nl lo haria O(n*K). Or-opt es ~2% del tiempo, mejora menor.
+1. ~~Precomputar matriz de distancias~~ — E044: mejora marginal. Solo acelera neighbor lists, no el pipeline. Refactorizacion completa no justificada.
+2. ~~Reducir candidatos K=7+7 a K=5+5~~ — E045: PIERDE CALIDAD (pcb442: 1.035x vs 1.017x). K=5+5 insuficiente.
+3. ~~Or-opt con neighbor lists~~ — E046: inconsistente. Mas lento en instancias medianas por overhead de position map.
+4. **Refactorizar pipeline completo para usar DistanceMatrix** — E044 mostro que la mejora parcial (solo neighbor lists) es insuficiente. Si TODAS las funciones (twoOpt, orOpt, LK, DB) usaran la matriz, el impacto seria mayor. Requiere refactorizacion profunda.
 
 #### Mejorar calidad sin perder rapidez
 4. **Mas intentos de DB con el tiempo ahorrado por L2/L3** — L3 ahorra ~140s en d2103. Usar ese tiempo para 20 intentos de DB extra (profundos) podria mejorar la calidad. Seria un L3 con mas DB en vez de LK-deep.
