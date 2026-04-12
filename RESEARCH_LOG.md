@@ -51,6 +51,7 @@ Nota: metricas calculadas sobre 7 instancias (eil51, berlin52, st70, eil76, rat9
 | SolverE3 | O(n^3.5) | O(n^3.5) | 1.018x | 1.034x | 1.1s |
 | SolverG1 | O(n^3.5) | O(n^3.5) | 1.015x | 1.034x | 2.0s |
 | SolverE7 | O(n^4) | O(n^4) | 1.011x | 1.021x | 83s |
+| **SolverK2** | **O(n^3)** | **O(n^3)** | **1.015x** | **1.038x** | **469s** |
 | **SolverJ5** | **O(n^3)** | **O(n^3)** | **1.010x** | **1.025x** | **3.99s** |
 | SolverJ3 | O(n^3) | O(n^3) | 1.011x | 1.025x | 2.30s |
 | SolverI2 | O(n^3) | O(n^3) | 1.016x | 1.041x | 1.89s |
@@ -193,6 +194,16 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 ---
 
 ## Log de experimentos
+
+### E039 — SolverK2: Mejor de J5 y K1 (2026-04-11)
+
+- **Solver:** SolverK2
+- **Linea:** K
+- **Complejidad:** O(n^3)
+- **Resultados:** Mejor que J5 y K1 en todas las instancias simultaneamente.
+  Records: st70 1.003x, rat783 1.026x, d1291 1.038x.
+- **Metricas:** Media=1.015x (13 instancias, n=51 a n=2103) | Peor caso=1.038x
+- **Conclusion:** Combinar J5+K1 es simple y efectivo. Cada uno gana en su rango de n.
 
 ### E032 — SolverJ6: Subgradient optimization para candidatos (2026-04-11)
 
@@ -678,7 +689,7 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 ### Ideas pendientes
 
-1. ~~SolverK2: combinar J5 + K1~~ — E039 en progreso. Test corriendo (~30 min). Re-ejecutar con `./gradlew cleanTest test --tests "*.ComparisonTest" --no-build-cache` si no termino.
+1. ~~SolverK2~~ — E039 completado. Mejor solver O(n^3) en todas las instancias. Media 1.015x.
 2. **Garantia teorica de SolverJ5** — Demostrar cota o encontrar contraejemplo grande. Trabajo matematico.
 3. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada. Linea completamente nueva: particion recursiva del plano + programacion dinamica.
 4. **Instancias TSPLIB 5000+** — rl5915 (n=5915, opt=565530). SolverJ5 tardaria ~1.4h. Viabilidad limite.
