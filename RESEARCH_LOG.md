@@ -678,7 +678,20 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 ### Ideas pendientes
 
-1. **Garantia teorica de SolverJ5** — Demostrar cota o encontrar contraejemplo grande
-2. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada
-3. **Segment trees O(log n)** — Solo mejora velocidad, no calidad
-4. **Instancias TSPLIB 1000+** — pr1002, u1060 (necesitan SolverJ5, no H3 que es demasiado lento)
+1. **SolverK2: combinar J5 + K1** — Ejecutar ambos y quedarse con el mejor por instancia. J5 gana en n<500, K1 en n>700. Simple y efectivo. O(n^3).
+2. **Garantia teorica de SolverJ5** — Demostrar cota o encontrar contraejemplo grande. Trabajo matematico.
+3. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada. Linea completamente nueva: particion recursiva del plano + programacion dinamica.
+4. **Instancias TSPLIB 5000+** — rl5915 (n=5915, opt=565530). SolverJ5 tardaria ~1.4h. Viabilidad limite.
+
+### Ideas completadas o descartadas
+
+- ~~Or-opt iterado~~ — E014: no aporta
+- ~~Or-opt extendido (seg 4-5)~~ — E016: mejora marginal
+- ~~3-opt~~ — E017: no mejora sobre 2-opt+or-opt
+- ~~4-opt~~ — E025: redundante con LK+DB
+- ~~Propiedad de capas de convex hull~~ — E011: no se mantiene en instancias grandes
+- ~~Multi-start con inicios distribuidos~~ — E019/E020: cubierto por SolverG1/G2
+- ~~Movimientos no secuenciales en LK~~ — E036: identico a J5, DB ya lo cubre
+- ~~Subgradient optimization~~ — E032: sin mejora consistente
+- ~~Segment trees~~ — E038: cuello de botella es DB, no reversiones
+- ~~Instancias TSPLIB 1000+~~ — E037: completado (pr1002, d1291, d2103)
