@@ -154,7 +154,14 @@ Todo solver debe tener KDoc en español con:
 3. **Implementar:** Crear `SolverXN.kt` con KDoc completo. Reutilizar funciones existentes
 4. **Añadir al test:** Una linea en `ComparisonTest.kt` companion object
 5. **Ejecutar:** `./gradlew spotlessApply && ./gradlew test`
-6. **Registrar:** Rellenar resultados en el KDoc del solver y en `RESEARCH_LOG.md`
+6. **Registrar resultados en TRES lugares:**
+   a. KDoc del solver (resultados por instancia + metricas agregadas + conclusion)
+   b. Entrada del experimento en RESEARCH_LOG.md (al principio del log de experimentos)
+   c. **Tablas centrales de RESEARCH_LOG.md** — OBLIGATORIO actualizar:
+      - "Mejores resultados actuales" si hay nuevo record en alguna instancia
+      - "Resumen agregado por solver" si el solver es relevante (mejor en alguna categoria)
+      - "Backlog" si la idea se completo o surgen ideas nuevas
+      - Numero total de instancias si se importaron nuevas
 7. **Commit:** Formato `experiment(EXXX): SolverXN — descripcion breve`
 
 ### Convencion de idioma
