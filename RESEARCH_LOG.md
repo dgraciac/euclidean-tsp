@@ -210,6 +210,22 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 ## Log de experimentos
 
+### E061 — SolverM9: M5 + KD-tree para buildNeighborLists (2026-04-13)
+
+- **Solver:** SolverM9
+- **Linea:** M
+- **Cambio:** Reemplazar buildNeighborLists (O(n^2 log n) brute force sort) por
+  buildNeighborListsKdTree (O(n K log n) con KD-tree). Combinado con M5 (LK-deep K=7).
+- **Infraestructura:** KdTreeKnn.kt implementado desde cero. Bug inicial: empates de distancia
+  producian vecinos diferentes. Corregido con desempate determinista por coordenadas (x, y)
+  tanto en KD-tree como en brute force. Validado con 0 mismatches en a280 (279 puntos).
+- **Resultados:** Calidad **identica** a M5 (diff=0.0000 en las 12 instancias). Speedup **~1.0x**
+  (sin mejora medible). buildNeighborLists no es el cuello de botella a n<=3038.
+- **Conclusion:** **KD-tree no aporta velocidad** en n<=3038. El overhead (allocations, recursion)
+  anula la mejora teorica. Solo aportaria en n>10,000 donde O(n^2 log n) dominaria. Pero a esa
+  escala alpha-nearness O(n^2) es el verdadero cuello de botella, no neighbor lists.
+  **La infraestructura KdTreeKnn queda disponible** para uso futuro si se necesita.
+
 ### E060 — SolverM8: Combinar M4+M5 (prof 3, K=7) con post-DB (2026-04-13)
 
 - **Solver:** SolverM8
@@ -976,16 +992,8 @@ igual que M7. Combinar prof 3 + K=7 es demasiado agresivo. **Solo M5 no pierde c
 
 **Prioridad 2 — Mejorar infraestructura**
 
-**5. KD-tree para buildNeighborLists**
-- **Solvers afectados:** Todos (M2, M1, J5, N1 — todos usan buildNeighborLists).
-- **Que:** Reemplazar el sort O(n log n) por punto por consultas K-nearest con KD-tree.
-- **Objetivo:** Reducir buildNeighborLists de O(n^2 log n) a O(n log n * K). Para n=5915
-  con K=15: de ~470M ops a ~170K ops (2,700x menor).
-- **Por que se cree factible:** KD-tree para K-nearest neighbors en 2D es una estructura
-  clasica, bien entendida, con implementaciones eficientes. JTS podria tener una utilizable.
-- **Riesgo:** El overhead de construir el KD-tree podria no compensar en instancias pequenas.
-  Solo impacta instancias grandes (n>2000) donde buildNeighborLists es costoso.
-- **Esfuerzo:** Medio (implementar KD-tree o integrar libreria).
+~~**5. KD-tree para buildNeighborLists**~~ — E061 (M9): **COMPLETADO.** Sin mejora de velocidad
+en n<=3038. buildNeighborLists no es cuello de botella. KdTreeKnn disponible para n>10000.
 
 **6. Optimizar buildAlphaNearnessListLean**
 - **Solvers afectados:** M2, M1, J5 (todos los que usan alpha-nearness).
@@ -1124,3 +1132,4 @@ Cada item debe incluir:
 - ~~LK-deep sin post-DB (M6)~~ — E058: speedup nulo. No aporta velocidad
 - ~~Combinar M4+M5+M6 (M7)~~ — E059: speedup 3x pero pierde calidad en pcb442 (+0.015). Inaceptable
 - ~~Combinar M4+M5 con post-DB (M8)~~ — E060: pierde calidad pcb442 (+0.014). Igual que M7
+- ~~KD-tree para neighborLists (M9)~~ — E061: sin mejora velocidad en n<=3038. No es cuello de botella

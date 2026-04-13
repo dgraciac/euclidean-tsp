@@ -24,7 +24,7 @@ fun buildNeighborLists(
     return pointList.associateWith { point ->
         pointList
             .filter { it != point }
-            .sortedBy { it.distance(point) }
+            .sortedWith(compareBy<Point> { it.distance(point) }.thenBy { it.x }.thenBy { it.y })
             .take(kActual)
     }
 }
