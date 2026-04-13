@@ -44,11 +44,20 @@ Licenciar el solver TSP euclideo 2D como biblioteca/SDK a fabricantes de maquina
   - **Conclusion:** SolverJ5 tal cual solo es comercialmente viable para n<500 (~5s).
     Esto cubre wire bonding (50-500 pads) pero NO taladrado de PCB (500-300,000 agujeros).
 
-  **Opciones para desbloquear (por investigar):**
-  1. **Optimizar constante:** Reducir el factor constante de O(n^3) (mejores estructuras de datos, neighbor lists mas agresivos, etc.). Podria ganar 2-5x, insuficiente para n>3,000.
-  2. **Particionamiento:** Dividir instancias grandes en clusters, resolver cada uno, fusionar. Rompe la pureza del algoritmo pero es la solucion industrial estandar.
-  3. **Algoritmo sub-cubico:** Investigar si es posible reducir la complejidad a O(n^2 log n) o similar manteniendo calidad. Es el camino mas ambicioso pero el de mayor impacto.
-  4. **Cambiar mercado objetivo:** Apuntar a wire bonding (n<500) en lugar de PCB drilling como primera vertical. Mercado mas pequeno pero el solver ya funciona.
+  **Opciones investigadas (E052-E063, 2026-04-13):**
+  1. ~~**Optimizar constante**~~ — Probado en 12 variantes (M1-M11). Unico cambio sin perdida
+     de calidad: M5 (LK-deep K=7, 1.5x speedup). Insuficiente para n>3,000.
+  2. **Particionamiento:** No investigado aun. Rompe pureza pero es solucion industrial estandar.
+  3. ~~**Algoritmo sub-cubico**~~ — M1/M2 son O(n^2) teorico pero LK-deep tiene factor K^5=537,824
+     que hace que en practica sea ~O(n^2.5). Eliminar componentes O(n^2) individuales no ayuda
+     (hay multiples: Prim, DFS, alpha-pairs, multi-start NN, LK-deep). Se necesitaria rediseno
+     completo del pipeline.
+  4. **Cambiar mercado objetivo:** Viable. Wire bonding (n<500) funciona hoy con M5 (~1.2s).
+
+  **Mejor solver actual para uso practico: SolverM5** (M2 + LK-deep K=7 alpha-only).
+  - Calidad identica a J5/M2 (media ~1.011x, peor 1.031x)
+  - 1.5x mas rapido que M2: 1.2s en pcb442, 16s en pr1002
+  - Sin perdida de calidad vs M2 en ninguna instancia
 
 - [ ] **0.2 Benchmarking formal contra competidores**
   - Comparar contra LKH-3, Google OR-Tools, y 2-opt/or-opt estandar.

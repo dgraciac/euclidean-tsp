@@ -20,17 +20,26 @@ Encontrar un algoritmo que resuelva el TSP Euclídeo 2D en tiempo polinómico.
     - Linea H: `SolverH1`-`SolverH4` (perturbacion + LK)
     - Linea I: `SolverI1`-`SolverI2` (optimizar dentro de O(n^3))
     - Linea J: `SolverJ1`-`SolverJ6` (busqueda local avanzada: α-nearness, LK deep, subgradient)
+    - Linea K: `SolverK1` (multi-start complete + light DB)
+    - Linea L: `SolverL1`-`SolverL3` (variantes de J5: DB rapido, sin LK-deep)
+    - Linea M: `SolverM1`-`SolverM11` (escalabilidad sub-cubica: NL everywhere, alpha lean, KD-tree, Delaunay MST)
+    - Linea N: `SolverN1` (insercion geometrica guiada por Delaunay — pausada)
   - Utilidades compartidas de busqueda local:
     - `TwoOpt.kt` — 2-opt con safety limit (O(n^3) peor caso)
-    - `OrOpt.kt` — or-opt parametrizable (O(n^3) peor caso)
+    - `OrOpt.kt` — or-opt parametrizable (O(n^3) peor caso) + `orOptWithNeighborLists` (O(n^2))
     - `LinKernighan.kt` — LK profundidad 2 con position map
     - `LinKernighanDeep.kt` — LK profundidad 5 con backtracking
-    - `DoubleBridge.kt` — perturbacion double-bridge determinista
+    - `DoubleBridge.kt` — perturbacion double-bridge determinista + `doubleBridgePerturbationNl` (NL)
     - `FourOpt.kt` — 4-opt directo sobre candidatos
     - `LocalSearch.kt` — busqueda local iterativa (ciclo 2-opt/or-opt)
+    - `M2Base.kt` — pipeline comun M2 (candidatos + multi-start + construcciones + fase comun)
   - Utilidades de candidatos:
     - `NeighborList.kt` — K-nearest y 2-opt acelerado con neighbor lists
-    - `AlphaNearness.kt` — α-nearness basado en 1-tree/MST
+    - `KdTreeKnn.kt` — KD-tree para K-nearest neighbors en 2D + `buildNeighborListsKdTree`
+    - `AlphaNearness.kt` — α-nearness basado en 1-tree/MST (original con JGraphT)
+    - `AlphaNearnessLean.kt` — α-nearness sin JGraphT, O(n) memoria (Prim implicito)
+    - `AlphaNearnessDelaunay.kt` — α-nearness con MST via Delaunay+Kruskal
+    - `AlphaNearnessHld.kt` — α-nearness con binary lifting para maxEdgeOnPath
     - `SubgradientOptimization.kt` — optimizacion Held-Karp para candidatos
   - Construcciones:
     - `Construction.kt` — nearestNeighborFrom, farthestInsertion, convexHullInsertion, peelingInsertion, greedyConstruction
@@ -41,7 +50,11 @@ Encontrar un algoritmo que resuelva el TSP Euclídeo 2D en tiempo polinómico.
   - `TSPInstanceProvider.kt` — Provee las instancias TSPLIB para tests parametrizados
   - Instancias TSPLIB: `Eil51`, `Berlin52`, `ST70`, `Eil76`, `Rat99`, `Kro200`, `A280`, `Pcb442`
   - Instancias pequeñas: `Trivial`, `Instance4*`, `Instance5*`, `Instance6*`, `Instance10A`
-  - Instancias TSPLIB grandes: `D657`, `Rat783`, `Pr1002`, `U1060`, `D1291`, `Fl1577`, `D2103`
+  - Instancias TSPLIB grandes (inlineadas): `D657`, `Rat783`, `Pr1002`, `U1060`, `D1291`, `Fl1577`, `D2103`
+  - Instancias TSPLIB muy grandes (desde fichero .tsp en resources, lazy):
+    - `LargeInstances.kt` — define `PCB_3038`, `RL_5915`, `RL_11849`, `USA_13509`
+    - `TspLibParser.kt` — parser de ficheros .tsp TSPLIB
+    - `src/test/resources/tsplib/` — ficheros .tsp (pcb3038, rl5915, rl11849, usa13509)
   - `ConvexHullLayerOrderTest.kt` — Verificacion de propiedad de capas (E008)
   - `ConvexHullLayerOrderLargeTest.kt` — Idem en instancias grandes (E011)
   - `GapAnalysisTest.kt` — Analisis arista por arista del gap (E018)
@@ -54,7 +67,16 @@ Encontrar un algoritmo que resuelva el TSP Euclídeo 2D en tiempo polinómico.
   - `L2ScalabilityTest.kt` — Escalabilidad L2 vs J5 (E042)
   - `L3VsL2Test.kt` — Comparacion L3 vs L2 (E043)
   - `InstanceValidationTest.kt` — Validacion de instancias importadas
+  - `CommercialScalabilityTest.kt` — Escalabilidad J5 a escala industrial (E052)
+  - `M1VsJ5Test.kt` — Comparacion M1 vs J5 (E052)
+  - `M4toM7Test.kt` — Comparacion M4/M5/M6/M7 vs M2 (E056-E059)
+  - `M8VsM2Test.kt`, `M9VsM5Test.kt`, `M10VsM5Test.kt`, `M11VsM5Test.kt` — E060-E063
+  - `KdTreeValidationTest.kt` — Validacion KD-tree vs brute force
+  - `AlphaDelaunayValidationTest.kt` — Validacion alpha Delaunay vs lean
+  - `N1Test.kt` — SolverN1 insercion geometrica (E055)
 - `RESEARCH_LOG.md` — **Fuente principal de contexto para la investigacion**
+- `MARKET_ANALYSIS.md` — Analisis de mercado TSP euclideo 2D en industria
+- `COMMERCIALIZATION_PLAN.md` — Plan de licenciamiento como SDK (Fase 0.1 completada)
 
 ## Build y tests
 
