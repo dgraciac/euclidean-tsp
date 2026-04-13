@@ -121,6 +121,7 @@ Cada nuevo solver debe buscar **mejorar la aproximacion Y reducir (o mantener) l
 - **No combinar solvers:** No se permite "ejecutar dos solvers y quedarse con el mejor" — eso no es un algoritmo mejor, es fuerza bruta sobre algoritmos.
 - **No hacer solvers adaptativos:** No se permite que un solver cambie su comportamiento segun n u otras propiedades de la instancia (e.g., "si n<500 haz X, si n>700 haz Y"). Queremos analizar las fortalezas y debilidades de cada enfoque con claridad. Estrategias adaptativas en un mismo solver lo dificultan. Los solvers adaptativos serian para productos comerciales, no para investigacion.
 - **Solo O(n^3):** Todos los nuevos solvers deben tener complejidad peor caso O(n^3) hasta agotar todas las posibilidades de mejora en rapidez y calidad dentro de esa cota. No subir a O(n^4) ni superior salvo decision explicita del investigador.
+- **No perder calidad de aproximacion:** Un nuevo solver solo se acepta si mantiene o mejora la calidad de aproximacion del solver padre en TODAS las instancias. Incluso perdidas pequenas (+0.008) son inaceptables. Si un cambio mejora velocidad pero pierde calidad, se documenta como resultado negativo y se descarta.
 - El objetivo es encontrar UN algoritmo puro que sea mejor, no una cartera ni un meta-algoritmo.
 
 ### Metricas de comparacion de solvers
@@ -163,7 +164,7 @@ Todo solver debe tener KDoc en español con:
 
 ### Reglas experimentales
 
-- **Ejecucion en serie:** Los solvers se ejecutan uno tras otro, nunca en paralelo. Esto garantiza que las mediciones de tiempo no se contaminen por compartir CPU entre solvers.
+- **Ejecucion en serie — incluye background tasks:** Los solvers se ejecutan uno tras otro, nunca en paralelo. Esto incluye tests lanzados como background tasks: nunca lanzar un segundo test mientras otro esta corriendo en background. Esto garantiza que las mediciones de tiempo no se contaminen por compartir CPU entre solvers.
 - **Nunca matar tests prematuramente:** Siempre esperar a que terminen. Si un test tarda demasiado, es un resultado en si mismo (indica un bug de rendimiento o un solver demasiado lento). Registrar el tiempo como dato. Si hay sospecha de loop infinito, añadir logging o limites de tiempo en el codigo, no matar el proceso.
 - **Complejidad tipica vs peor caso:** Tras E026, la complejidad tipica y peor caso coinciden para todos los solvers. 2-opt converge en <=6 pasadas (O(1)) y or-opt en ~0.2*n pasadas (O(n)), verificado empiricamente en todas las instancias (n=51 a n=442). Safety limits reducidos de n^2 a max(20,n). Resultados identicos. Los safety limits en twoOpt y orOpt garantizan terminacion polinomica.
 - **Discrepancia de distancias TSPLIB:** TSPLIB define EUC_2D como `nint(sqrt(dx^2+dy^2))` (redondeada al entero). Nuestro codigo usa distancia euclidea real (sin redondeo). Esto causa que nuestros tours midan ~0.02-0.8% menos que en metrica TSPLIB. Los ratios de aproximacion tienen un pequeño sesgo optimista. Los valores de `optimalLength` en las instancias son los de TSPLIB (calculados con distancias enteras).
@@ -185,6 +186,16 @@ Todo solver debe tener KDoc en español con:
       - "Backlog" si la idea se completo o surgen ideas nuevas
       - Numero total de instancias si se importaron nuevas
 7. **Commit:** Formato `experiment(EXXX): SolverXN — descripcion breve`
+
+### Documentacion obligatoria — Backlog
+
+Cada item del backlog en RESEARCH_LOG.md debe incluir:
+- **Solver base:** Que solver se mejora y nombre del solver resultante
+- **Que:** Descripcion concreta de lo que se hara
+- **Objetivo:** Metrica concreta que se pretende mejorar (con numeros si es posible)
+- **Por que se cree factible:** Evidencia, razonamiento o analogia que sustenta la hipotesis
+- **Riesgo:** Que podria salir mal y por que
+- **Esfuerzo:** Bajo / Medio / Alto
 
 ### Convencion de idioma
 
