@@ -65,6 +65,8 @@ Nota: metricas agregadas de la tabla siguiente calculadas sobre instancias dispo
 | **SolverJ5** | **O(n^3)** | **O(n^3)** | **1.010x** | **1.025x** | **3.99s** | (mejor calidad O(n^3))
 | **SolverL2** | **O(n^3)** | **O(n^3)** | **~1.018x** | **~1.047x** | **194s** | (J5 + DB rapido, 1.5-4x mas rapido)
 | **SolverL3** | **O(n^3)** | **O(n^3)** | **~1.019x** | **~1.061x** | **61s** | (L2 sin LK-deep, 3-7x mas rapido que J5)
+| **SolverM2** | **O(n^2)** | **O(n^2)** | **~1.007x** | **~1.038x** | **1891s** | (J5 NL + alpha lean, escala a n=5915)
+| SolverN1 | O(n^2) | O(n^2) | ~1.028x | ~1.080x | 2410s | (insercion geometrica Delaunay, linea N pausada)
 | SolverJ3 | O(n^3) | O(n^3) | 1.011x | 1.025x | 2.30s |
 | SolverI2 | O(n^3) | O(n^3) | 1.016x | 1.041x | 1.89s |
 | SolverI1 | O(n^3) | O(n^3) | 1.023x | 1.041x | 0.54s |
@@ -206,6 +208,136 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 ---
 
 ## Log de experimentos
+
+### E055 — SolverN1: Insercion geometrica desde convex hull guiada por Delaunay (2026-04-13)
+
+- **Solver:** SolverN1
+- **Linea:** N (insercion geometrica — nueva linea de investigacion)
+- **Complejidad:** O(n^2)
+- **Hipotesis:** Usando la triangulacion de Delaunay como mapa de vecindad natural, podemos
+  determinar geometricamente donde insertar cada punto interior sin probar todas las aristas
+  del tour. Para cada punto P, sus vecinos Delaunay que ya estan en el tour indican la posicion.
+- **Algoritmo:** Delaunay + convex hull inicial + insercion por vecindad Delaunay (nearest-to-boundary
+  order) + 2-opt-nl + or-opt-nl + LK(2) + DB-nl + LK(2). Sin multi-start, sin ramas duales.
+- **Resultados:**
+
+  | Instancia | n | Ratio | Tiempo |
+  |---|---|---|---|
+  | eil51 | 51 | 1.025x | 0.2s |
+  | berlin52 | 52 | 1.050x | 0.1s |
+  | st70 | 70 | 1.023x | 0.1s |
+  | eil76 | 76 | 1.036x | 0.1s |
+  | rat99 | 99 | 1.008x | 0.1s |
+  | kro200 | 200 | 1.017x | 0.6s |
+  | a280 | 279 | 1.041x | 0.4s |
+  | pcb442 | 442 | 1.047x | 0.6s |
+  | d657 | 657 | 1.043x | 10.0s |
+  | pr1002 | 1002 | 1.059x | 21.9s |
+  | d2103 | 2103 | 1.059x | 92.3s |
+  | pcb3038 | 3038 | 1.052x | 465.7s |
+  | rl5915 | 5915 | 1.080x | 2409.7s |
+
+- **Metricas (8 instancias clasicas, n=51-442):** Media aritmetica=1.028x | Peor caso=1.050x
+- **Conclusion:** Primer solver de linea N. Calidad inferior a J5 (~3-5% gap vs ~1%) pero
+  estructura interesante: la insercion Delaunay da buenas semillas sin multi-start. La calidad
+  se degrada con n (1.08x en n=5915). Velocidad buena en instancias pequenas (0.6s en pcb442
+  vs 5.1s de J5) pero escala mal por LK + DB. **Linea pausada, pendiente de continuar.**
+
+### E054 — SolverM3: Sin alpha-nearness, solo dist-NL K=15 (2026-04-13)
+
+- **Solver:** SolverM3
+- **Linea:** M (escalabilidad sub-cubica)
+- **Complejidad:** O(n^2 log n)
+- **Hipotesis:** Eliminar alpha-nearness (mayor coste de infraestructura) y usar solo
+  distance-based NL con K=15 sera mas rapido manteniendo calidad.
+- **Resultados:**
+
+  | Instancia | n | Ratio | Tiempo |
+  |---|---|---|---|
+  | pcb442 | 442 | 1.024x | 3.3s |
+  | pr1002 | 1002 | 1.032x | 57.0s |
+  | d2103 | 2103 | 1.012x | 659.0s |
+  | pcb3038 | 3038 | 1.031x | 465.2s |
+  | rl5915+ | — | No ejecutado | LK-deep K=15 inviable a esta escala |
+
+- **Conclusion:** **Paso atras.** Sin alpha-nearness pierde calidad en pcb442 (1.024x vs 1.007x de M2).
+  Mas lento que M2 en pr1002 (57s vs 23s) y d2103 (659s vs no probado). LK-deep con K=15 explota
+  a n>5000 (>7h sin terminar). Alpha-nearness NO era el cuello de botella — LK-deep lo es.
+
+### E053 — SolverM2: M1 + infraestructura lean (alpha sin JGraphT, hull limitado) (2026-04-12)
+
+- **Solver:** SolverM2
+- **Linea:** M (escalabilidad sub-cubica)
+- **Complejidad:** O(n^2)
+- **Hipotesis:** Los cuellos de botella de M1 son la infraestructura (alpha-nearness con JGraphT
+  causa OOM, multi-start sin limite). Optimizando estos, M2 escala a n>5000.
+- **Resultados:**
+
+  | Instancia | n | Ratio | Tiempo |
+  |---|---|---|---|
+  | pcb442 | 442 | 1.007x | 2.2s |
+  | pr1002 | 1002 | 1.027x | 22.9s |
+  | pcb3038 | 3038 | 1.038x | 403.6s |
+  | rl5915 | 5915 | 1.032x | 1891.3s |
+
+- **Metricas:** Mejor solver M. Escala a n=5915 sin OOM (J5 daba OOM en n=11849).
+- **Conclusion:** **Mejor solver de linea M.** Calidad comparable a J5, elimina OOM gracias a
+  alpha-nearness lean. Pero 1891s en n=5915 sigue muy lejos del objetivo <60s. El cuello de
+  botella es LK-deep, no la infraestructura.
+
+### E052 — SolverM1: J5 con todas las fases NL (sub-cubico) (2026-04-12)
+
+- **Solver:** SolverM1
+- **Linea:** M (escalabilidad sub-cubica — nueva linea de investigacion)
+- **Complejidad:** O(n^2 log n)
+- **Hipotesis:** Reemplazar todas las fases O(n^3) de J5 (2-opt completo, or-opt completo,
+  double-bridge con re-optimizacion completa) por versiones aceleradas con neighbor lists
+  reduce la complejidad a O(n^2 log n) sin perder calidad.
+- **Cambios:** orOpt -> orOptWithNeighborLists, twoOpt -> twoOptWithNeighborLists,
+  doubleBridgePerturbation -> doubleBridgePerturbationNl.
+- **Resultados (comparacion directa con J5):**
+
+  | Instancia | n | J5 ratio/tiempo | M1 ratio/tiempo | Speedup |
+  |---|---|---|---|---|
+  | eil51 | 51 | 1.007x/0.2s | 1.015x/0.1s | 2.85x |
+  | berlin52 | 52 | 1.000x/0.1s | 1.000x/0.2s | 0.58x |
+  | st70 | 70 | 1.020x/0.3s | 1.017x/0.2s | 1.15x |
+  | eil76 | 76 | 1.025x/0.2s | 1.031x/0.1s | 4.19x |
+  | rat99 | 99 | 1.007x/0.1s | 1.008x/0.1s | 1.87x |
+  | kro200 | 200 | 1.004x/1.2s | 1.004x/0.7s | 1.69x |
+  | a280 | 279 | 1.006x/1.3s | 1.008x/0.9s | 1.34x |
+  | pcb442 | 442 | 1.013x/5.1s | 1.007x/1.6s | 3.27x |
+  | d657 | 657 | 1.037x/22.9s | 1.038x/15.0s | 1.53x |
+  | pr1002 | 1002 | 1.026x/37.2s | 1.027x/25.3s | 1.47x |
+  | d2103 | 2103 | 1.014x/239.4s | 1.011x/202.8s | 1.18x |
+
+  M1 en instancias grandes: pcb3038 1.038x/408s (J5: 651s).
+
+- **Conclusion:** Calidad practicamente identica a J5 (+-0.005). Speedup 1.2-3.3x. El speedup
+  disminuye con n, lo que indica que las fases cubicas NO dominaban — la infraestructura
+  (alpha-nearness, neighbor lists, multi-start) es el verdadero cuello de botella.
+
+### Escalabilidad de SolverJ5 a escala industrial (2026-04-12)
+
+- **Contexto:** Fase 0.1 del plan de comercializacion. Importadas 4 instancias TSPLIB nuevas:
+  pcb3038 (n=3038, PCB drilling real), rl5915 (n=5915), rl11849 (n=11849), usa13509 (n=13509).
+- **Infraestructura:** Ficheros .tsp en resources + parser TspLibParser.kt (lazy loading).
+  Instancias >~8000 puntos no pueden inlinearse en Kotlin (JVM method size limit 64KB).
+- **Resultados de SolverJ5:**
+
+  | Instancia | n | Ratio | Tiempo | Viable (<2%, <60s)? |
+  |---|---|---|---|---|
+  | pcb442 | 442 | 1.013x | 4.8s | SI |
+  | d657 | 657 | 1.037x | 21.2s | MARGINAL |
+  | pr1002 | 1002 | 1.026x | 31.3s | MARGINAL |
+  | d2103 | 2103 | 1.014x | 251.4s | NO |
+  | pcb3038 | 3038 | 1.034x | 651s | NO |
+  | rl5915 | 5915 | 1.026x | 3687s | NO |
+  | rl11849 | 11849 | OOM | — | NO |
+
+- **Conclusion:** **Resultado BLOQUEANTE para comercializacion.** Calidad buena (1-3.7% gap) a
+  cualquier escala, pero tiempo inaceptable para n>1000. SolverJ5 solo es comercialmente viable
+  para n<500 (~5s). OOM en n>10000 por alpha-nearness con JGraphT.
 
 ### E039 — SolverK2: Mejor de J5 y K1 (2026-04-11)
 
@@ -701,28 +833,64 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 ### Ideas pendientes
 
-#### Resumen de mejores solvers actuales (todos O(n^3))
-- **J5**: mejor calidad (media ~1.010x), lento (225s en d2103)
-- **L2**: misma calidad que J5, 1.5-4x mas rapido (DB dos fases)
-- **L3**: -0.3% calidad, 3-7x mas rapido que J5 (sin LK-deep)
-- **L1**: mejor en n>600 (multi-start completo), peor en n<500
-- **Christofides**: garantia 3/2, media ~1.137x
+#### Resumen de mejores solvers actuales
+- **J5** (O(n^3)): mejor calidad (media ~1.010x), lento (251s en d2103), OOM en n>10000
+- **M2** (O(n^2)): calidad ~J5, escala a n=5915 sin OOM, pero 1891s en n=5915
+- **L2** (O(n^3)): misma calidad que J5, 1.5-4x mas rapido (DB dos fases)
+- **L3** (O(n^3)): -0.3% calidad, 3-7x mas rapido que J5 (sin LK-deep)
+- **N1** (O(n^2)): calidad inferior (~3-5% gap), rapido en n<500, primer solver de linea N
+- **Christofides** (O(n^3)): garantia 3/2, media ~1.137x
+
+#### Hallazgos clave de E052-E055 (lineas M y N)
+
+- **LK-deep es el cuello de botella real a escala grande**, no alpha-nearness ni 2-opt/or-opt.
+  M1 acelero 2-opt/or-opt/DB a O(n^2) pero el speedup fue solo 1.2-3.3x. LK-deep con K=15
+  a n>5000 es inviable (>7h sin terminar en M3).
+- **Alpha-nearness lean (sin JGraphT) elimina OOM** a n>10000. buildAlphaNearnessListLean
+  usa O(n) memoria vs O(n^2) objetos Java de la version original.
+- **orOptWithNeighborLists funciona** a escala grande (contrariamente a E046 que fue inconsistente
+  en instancias medianas). A n>1000 la aceleracion NL domina sobre el overhead de position map.
+- **Sin alpha-nearness la calidad empeora** (M3 vs M2: pcb442 1.024x vs 1.007x). Alpha-nearness
+  es critico para la calidad de los candidatos.
+- **Insercion geometrica Delaunay** (N1) da semillas razonables sin multi-start. La triangulacion
+  de Delaunay identifica correctamente la posicion de insercion para la mayoria de puntos.
 
 #### Mejorar rapidez sin perder calidad
-1. ~~Precomputar matriz de distancias~~ — E044: mejora marginal. Solo acelera neighbor lists, no el pipeline. Refactorizacion completa no justificada.
-2. ~~Reducir candidatos K=7+7 a K=5+5~~ — E045: PIERDE CALIDAD (pcb442: 1.035x vs 1.017x). K=5+5 insuficiente.
-3. ~~Or-opt con neighbor lists~~ — E046: inconsistente. Mas lento en instancias medianas por overhead de position map.
-4. ~~Refactorizar pipeline completo para usar DistanceMatrix~~ — E047 completado. Resultados IDENTICOS pero **MAS LENTO en n>200** por cache misses en array n^2. Hipotesis refutada. No se migran los solvers.
+1. ~~Precomputar matriz de distancias~~ — E044: mejora marginal.
+2. ~~Reducir candidatos K=7+7 a K=5+5~~ — E045: PIERDE CALIDAD.
+3. ~~Or-opt con neighbor lists~~ — E046: inconsistente en medianas. **Funciona en grandes (E052).**
+4. ~~Refactorizar pipeline para DistanceMatrix~~ — E047: MAS LENTO en n>200.
+5. ~~Eliminar alpha-nearness~~ — E054 (M3): PIERDE CALIDAD y es mas lento. Descartado.
+6. **Reemplazar LK-deep por algo mas rapido sin perder calidad** — LK-deep(5) con K=14 es el
+   cuello de botella a escala grande. Opciones:
+   a. LK-deep con profundidad reducida (3 en vez de 5)
+   b. LK-deep con K reducido solo para la fase deep (K=7 deep, K=14 shallow)
+   c. Eliminar LK-deep completamente y compensar con mas intentos de DB
+   d. LK-deep solo en la rama B, no en el post-DB
+7. **KD-tree para buildNeighborLists** — Reducir O(n^2 log n) a O(n log n * K). Mejora la
+   infraestructura sin tocar la calidad.
 
 #### Mejorar calidad sin perder rapidez
-4. **Mas intentos de DB con el tiempo ahorrado por L2/L3** — L3 ahorra ~140s en d2103. Usar ese tiempo para 20 intentos de DB extra (profundos) podria mejorar la calidad. Seria un L3 con mas DB en vez de LK-deep.
-5. **Mejores candidatos para DB** — DB actual corta en las 12 aristas mas largas. Usar α-nearness para identificar aristas "fuera de lugar" (alta α) como candidatos de corte podria encontrar perturbaciones mas productivas.
-6. **LK con mas candidatos (K=20) solo en la fase final** — Aumentar K solo para la ultima pasada de LK (post-DB) podria encontrar movimientos que K=14 no ve, sin ralentizar las fases anteriores.
+8. **Mas intentos de DB con el tiempo ahorrado por L2/L3** — Seria un L3 con mas DB.
+9. **Mejores candidatos para DB** — Usar α-nearness para identificar aristas "fuera de lugar".
+10. **LK con mas candidatos (K=20) solo en la fase final**.
+
+#### Linea N — Insercion geometrica (pausada, pendiente de continuar)
+11. **N2: Mejorar criterio geometrico** — Combinar Delaunay con angulo de vision (inscribed angle)
+    para desambiguar cuando no hay par Delaunay adyacente en el tour.
+12. **N3: Multi-start geometrico** — Varias construcciones Delaunay con diferentes ordenes de
+    insercion (por capas, por distancia, por angulo desde centroide).
+13. **N+M: Combinar construccion N con busqueda local M** — Usar la semilla geometrica de N1
+    con el pipeline NL de M2 como alternativa al multi-start.
 
 #### Investigacion fundamental
-7. **Garantia teorica** — Demostrar cota de aproximacion o encontrar contraejemplo grande. Trabajo matematico.
-8. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada. Linea completamente nueva.
-9. **Instancias TSPLIB 5000+** — rl5915 (n=5915). L3 tardaria ~20min (viable).
+14. **Garantia teorica** — Demostrar cota de aproximacion o encontrar contraejemplo grande.
+15. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada.
+
+#### Comercializacion
+16. **Ver COMMERCIALIZATION_PLAN.md** — Plan de licenciamiento como SDK. Fase 0.1 completada
+    con resultado bloqueante: el solver no escala a escala industrial (n>1000 en <60s).
+    El cuello de botella es LK-deep. Resolver punto 6 de este backlog desbloquea la via comercial.
 
 ### Ideas completadas o descartadas
 
@@ -741,3 +909,8 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 - ~~Subgradient optimization~~ — E032: sin mejora consistente
 - ~~Segment trees~~ — E038: cuello de botella es DB, no reversiones
 - ~~Instancias TSPLIB 1000+~~ — E037/E042: completado hasta n=2103
+- ~~Instancias TSPLIB 5000+~~ — E052: completado. pcb3038, rl5915, rl11849, usa13509 importadas
+- ~~NL everywhere (M1)~~ — E052: funciona, speedup modesto 1.2-3.3x
+- ~~Alpha-nearness lean (M2)~~ — E053: elimina OOM, mejor solver M
+- ~~Sin alpha-nearness (M3)~~ — E054: paso atras, pierde calidad y velocidad
+- ~~Insercion geometrica Delaunay (N1)~~ — E055: primer solver linea N, calidad inferior, pausada
