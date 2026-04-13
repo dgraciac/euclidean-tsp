@@ -210,6 +210,30 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 ## Log de experimentos
 
+### E062 — SolverM10: M5 + alpha-nearness con binary lifting + KD-tree (2026-04-13)
+
+- **Solver:** SolverM10
+- **Linea:** M
+- **Cambio:** Reemplazar buildAlphaNearnessListLean (n DFS de O(n)) por buildAlphaNearnessHld
+  (binary lifting O(log n) por consulta, solo K'=4K candidatos por distancia via KD-tree).
+- **Validacion:** 0 mismatches vs buildAlphaNearnessListLean en pcb442 (442 puntos).
+- **Resultados:**
+
+  | Instancia | n | M5 tiempo | M10 tiempo | Speedup |
+  |---|---|---|---|---|
+  | pcb442 | 442 | 2.3s | 1.6s | 1.44x |
+  | d657 | 657 | 9.0s | 7.9s | 1.15x |
+  | pr1002 | 1002 | 15.2s | 21.1s | 0.72x (mas lento) |
+  | d2103 | 2103 | 101.6s | 137.1s | 0.74x (mas lento) |
+  | pcb3038 | 3038 | 376.2s | 356.1s | 1.06x |
+
+  Calidad identica (±0.004, varianza normal).
+
+- **Conclusion:** **No aporta mejora.** Mas lento en pr1002 y d2103. El overhead de binary
+  lifting + KD-tree + HashMap no compensa el ahorro de evitar n DFS. **Prim O(n^2) es el
+  verdadero cuello de botella** de alpha-nearness y no se puede evitar sin MST euclideo
+  mas eficiente (que requiere Delaunay triangulation como subgrafo).
+
 ### E061 — SolverM9: M5 + KD-tree para buildNeighborLists (2026-04-13)
 
 - **Solver:** SolverM9
@@ -995,16 +1019,9 @@ igual que M7. Combinar prof 3 + K=7 es demasiado agresivo. **Solo M5 no pierde c
 ~~**5. KD-tree para buildNeighborLists**~~ — E061 (M9): **COMPLETADO.** Sin mejora de velocidad
 en n<=3038. buildNeighborLists no es cuello de botella. KdTreeKnn disponible para n>10000.
 
-**6. Optimizar buildAlphaNearnessListLean**
-- **Solvers afectados:** M2, M1, J5 (todos los que usan alpha-nearness).
-- **Que:** El paso "n DFS desde cada nodo" para maxEdgeOnPath es O(n^2). Reemplazar por
-  una estructura que permita consultas maxEdgeOnPath en O(log n) tras O(n log n) preproceso
-  (Heavy-Light Decomposition o Euler Tour + sparse table).
-- **Objetivo:** Reducir alpha-nearness de O(n^2) a O(n log n). Para n=5915: de 35M a 70K ops.
-- **Por que se cree factible:** maxEdgeOnPath en un arbol es un problema clasico resuelto
-  con HLD o LCA + sparse table en O(log n) por consulta. La implementacion es moderada.
-- **Riesgo:** La constante del O(log n) podria ser alta. Solo impacta n>2000.
-- **Esfuerzo:** Medio-alto (implementar HLD o LCA sobre el MST).
+~~**6. HLD/binary lifting para alpha-nearness**~~ — E062 (M10): **COMPLETADO.** No aporta mejora.
+Mas lento en pr1002/d2103. Prim O(n^2) es el verdadero cuello de botella, no el DFS post-Prim.
+Para mejorar alpha-nearness hay que usar MST euclideo via Delaunay (O(n log n)) en vez de Prim.
 
 **Prioridad 3 — Mejorar calidad**
 
@@ -1133,3 +1150,4 @@ Cada item debe incluir:
 - ~~Combinar M4+M5+M6 (M7)~~ — E059: speedup 3x pero pierde calidad en pcb442 (+0.015). Inaceptable
 - ~~Combinar M4+M5 con post-DB (M8)~~ — E060: pierde calidad pcb442 (+0.014). Igual que M7
 - ~~KD-tree para neighborLists (M9)~~ — E061: sin mejora velocidad en n<=3038. No es cuello de botella
+- ~~HLD/binary lifting para alpha (M10)~~ — E062: mas lento en medianas. Prim O(n^2) domina, no DFS
