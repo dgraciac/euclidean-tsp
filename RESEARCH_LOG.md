@@ -1023,6 +1023,27 @@ en n<=3038. buildNeighborLists no es cuello de botella. KdTreeKnn disponible par
 Mas lento en pr1002/d2103. Prim O(n^2) es el verdadero cuello de botella, no el DFS post-Prim.
 Para mejorar alpha-nearness hay que usar MST euclideo via Delaunay (O(n log n)) en vez de Prim.
 
+**Prioridad 2b — MST euclideo via Delaunay (nuevo, surgido de E062)**
+
+**6b. MST euclideo via Delaunay en vez de Prim**
+- **Solvers afectados:** Todos los que usan alpha-nearness (M2, M5, J5 y derivados).
+- **Que:** Reemplazar Prim sobre grafo implicito completo (O(n^2)) por:
+  1. Triangulacion de Delaunay con JTS — O(n log n)
+  2. MST sobre el grafo Delaunay (O(n) aristas) con Kruskal — O(n log n)
+  El MST euclideo es un subgrafo de la triangulacion de Delaunay (propiedad conocida).
+  Esto elimina el Prim O(n^2) que es el cuello de botella de alpha-nearness.
+- **Objetivo:** Reducir alpha-nearness de O(n^2) a O(n log n). Para n=5915:
+  de ~35M ops (Prim) a ~70K ops (Delaunay+Kruskal). Speedup ~500x en esta fase.
+  Esto haria que la infraestructura completa (alpha + NL + multi-start) sea O(n^2)
+  dominada solo por multi-start (20 × NN O(n^2)), o O(n log n) si se combina con KD-tree.
+- **Por que se cree factible:** El MST euclideo es subgrafo de Delaunay es un teorema
+  clasico de geometria computacional. JTS ya tiene DelaunayTriangulationBuilder (usado
+  en SolverF1 y SolverN1). Solo hay que extraer las aristas, construir un grafo sparse
+  y ejecutar Kruskal. Implementacion directa.
+- **Riesgo:** JTS Delaunay podria tener problemas de precision con coordenadas reales
+  (floating point). Verificar que el MST resultante es correcto comparando con Prim.
+- **Esfuerzo:** Medio (usar JTS Delaunay + Kruskal manual o JGraphT sobre grafo sparse).
+
 **Prioridad 3 — Mejorar calidad**
 
 **7. Mas intentos de DB con tiempo ahorrado**
