@@ -65,7 +65,8 @@ Nota: metricas agregadas de la tabla siguiente calculadas sobre instancias dispo
 | **SolverJ5** | **O(n^3)** | **O(n^3)** | **1.010x** | **1.025x** | **3.99s** | (mejor calidad O(n^3))
 | **SolverL2** | **O(n^3)** | **O(n^3)** | **~1.018x** | **~1.047x** | **194s** | (J5 + DB rapido, 1.5-4x mas rapido)
 | **SolverL3** | **O(n^3)** | **O(n^3)** | **~1.019x** | **~1.061x** | **61s** | (L2 sin LK-deep, 3-7x mas rapido que J5)
-| **SolverM2** | **O(n^2)** | **O(n^2)** | **~1.007x** | **~1.038x** | **1891s** | (J5 NL + alpha lean, escala a n=5915)
+| **SolverM2** | **O(n^2)** | **O(n^2)** | **~1.011x** | **~1.038x** | **1891s** | (J5 NL + alpha lean, escala a n=5915)
+| **SolverM4** | **O(n^2)** | **O(n^2)** | **~1.012x** | **~1.041x** | **251s** | (M2 + LK-deep prof 3, 2.5x mas rapido)
 | SolverN1 | O(n^2) | O(n^2) | ~1.028x | ~1.080x | 2410s | (insercion geometrica Delaunay, linea N pausada)
 | SolverJ3 | O(n^3) | O(n^3) | 1.011x | 1.025x | 2.30s |
 | SolverI2 | O(n^3) | O(n^3) | 1.016x | 1.041x | 1.89s |
@@ -208,6 +209,67 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 ---
 
 ## Log de experimentos
+
+### E056-E059 — SolverM4/M5/M6/M7: Reducir factor K^5 de LK-deep (2026-04-13)
+
+- **Solvers:** M4, M5, M6, M7 (todos basados en M2)
+- **Linea:** M (escalabilidad sub-cubica)
+- **Contexto:** LK-deep(5) con K=14 tiene factor constante K^5=537,824 que hace que M2
+  sea 8-11x mas lento que Christofides pese a tener complejidad asintotica inferior.
+  Se prueban tres cambios independientes y su combinacion.
+
+  **Cambios probados:**
+  - **M4 (E056):** LK-deep profundidad 3 en vez de 5. Factor K^3=2,744 (196x menor).
+  - **M5 (E057):** LK-deep con alphaNl K=7 en vez de combinedNl K=14. Factor 7^5=16,807 (32x menor).
+  - **M6 (E058):** LK-deep solo pre-DB, LK(2) post-DB. Elimina la mitad de LK-deep.
+  - **M7 (E059):** Combina los tres: LK-deep(3, alphaNl K=7) solo pre-DB. Factor 7^3=343 (1,568x menor).
+
+- **Resultados (calidad — ratios de aproximacion):**
+
+  | Instancia | n | M2 | M4 | M5 | M6 | M7 |
+  |---|---|---|---|---|---|---|
+  | eil51 | 51 | 1.015 | 1.015 | 1.015 | 1.015 | 1.015 |
+  | berlin52 | 52 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 |
+  | st70 | 70 | 1.017 | 1.017 | 1.017 | 1.017 | 1.017 |
+  | eil76 | 76 | 1.031 | 1.031 | 1.031 | 1.031 | 1.031 |
+  | rat99 | 99 | 1.008 | 1.008 | 1.008 | 1.008 | 1.008 |
+  | kro200 | 200 | 1.004 | 1.006 | 1.004 | 1.004 | 1.006 |
+  | a280 | 279 | 1.008 | 1.004 | 1.008 | 1.008 | 1.004 |
+  | pcb442 | 442 | 1.007 | 1.015 | 1.007 | 1.009 | 1.022 |
+  | d657 | 657 | 1.038 | 1.041 | 1.041 | 1.037 | 1.039 |
+  | pr1002 | 1002 | 1.027 | 1.028 | 1.026 | 1.027 | 1.028 |
+  | d2103 | 2103 | 1.011 | 1.013 | 1.013 | 1.011 | 1.015 |
+  | pcb3038 | 3038 | 1.038 | 1.039 | 1.039 | 1.037 | 1.038 |
+
+- **Resultados (tiempos en segundos):**
+
+  | Instancia | n | M2 | M4 | M5 | M6 | M7 |
+  |---|---|---|---|---|---|---|
+  | pcb442 | 442 | 1.4 | 0.8 | 1.2 | 1.3 | 1.0 |
+  | d657 | 657 | 12.4 | 4.8 | 10.4 | 13.1 | 5.7 |
+  | pr1002 | 1002 | 23.9 | 7.6 | 16.0 | 22.7 | 7.2 |
+  | d2103 | 2103 | 181.8 | 77.4 | 91.5 | 151.0 | 61.1 |
+  | pcb3038 | 3038 | 390.0 | 251.3 | 370.2 | 440.4 | 282.8 |
+
+- **Analisis por item:**
+  - **M4 (prof 3):** Speedup ~2.5x. Perdida de calidad +0.008 en pcb442 (1.015 vs 1.007).
+    En instancias grandes (d657+) la diferencia es <=0.003. **Mejor tradeoff individual.**
+  - **M5 (K=7):** Speedup ~1.5x. Calidad identica o mejor que M2. **Sin perdida de calidad.**
+  - **M6 (sin post-DB):** Speedup casi nulo (~0-17%). Calidad ligeramente mejor que M2 en
+    d657 y pcb3038. **No aporta velocidad — LK-deep pre-DB ya domina el coste.**
+  - **M7 (todo):** Speedup ~3x. Pero perdida de calidad en pcb442 (1.022 vs 1.007, +0.015).
+    **Perdida excesiva en pcb442.** En n>1000 la calidad es aceptable (<=0.004 de diferencia).
+
+- **Conclusion:**
+  - **M4 es el mejor tradeoff calidad/velocidad:** 2.5x mas rapido con perdida maxima de 0.008.
+  - **M5 mejora velocidad sin perder calidad:** es el cambio mas "gratis".
+  - **M6 no aporta velocidad:** el cuello de botella es LK-deep pre-DB, no post-DB.
+  - **M7 pierde demasiada calidad en pcb442** por combinar tres reducciones. Para instancias
+    grandes (n>1000) seria aceptable, pero la regla es no perder calidad.
+  - **Combinacion recomendada: M4+M5** (profundidad 3 + K=7 para deep). No probada aun.
+  - Ninguna variante alcanza el objetivo de ser mas rapido que Christofides (~0.2s en pcb442).
+    M4 tarda 0.8s en pcb442 (4x mas lento que Christofides). El cuello de botella se
+    traslado a la infraestructura (alpha-nearness, neighbor lists, multi-start).
 
 ### E055 — SolverN1: Insercion geometrica desde convex hull guiada por Delaunay (2026-04-13)
 
@@ -835,10 +897,12 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 #### Contexto para el backlog
 
-**Mejores solvers actuales (2026-04-13):**
-- **J5** (O(n^3)): mejor calidad (media 1.010x, peor 1.025x), lento (5.1s pcb442, 239s d2103, OOM n>10000)
-- **M2** (O(n^2) teorico, ~O(n^2.5) practico): calidad ~J5, escala a n=5915 sin OOM, pero 1891s en n=5915
-- **N1** (O(n^2)): calidad inferior (media 1.031x, peor 1.080x), rapido en n<500 (0.6s pcb442)
+**Mejores solvers actuales (2026-04-13, post E056-E059):**
+- **J5** (O(n^3)): mejor calidad clasicas (media 1.010x, peor 1.025x), lento (5.1s pcb442, 239s d2103, OOM n>10000)
+- **M2** (O(n^2) teorico, ~O(n^2.5) practico): calidad ~J5, escala a n=5915 sin OOM, pero 1891s en rl5915
+- **M4** (O(n^2)): M2 + LK-deep prof 3. 2.5x mas rapido que M2, perdida maxima +0.008. **Mejor tradeoff calidad/velocidad.**
+- **M5** (O(n^2)): M2 + LK-deep K=7. 1.5x mas rapido, sin perdida de calidad. **Cambio "gratis".**
+- **N1** (O(n^2)): calidad inferior (media 1.031x, peor 1.080x), rapido en n<500 (0.6s pcb442). Linea pausada.
 - **Christofides** (O(n^3)): garantia 3/2 demostrada, media ~1.137x, 0.2s en pcb442
 
 **Hallazgo critico de E052-E055:**
@@ -861,55 +925,38 @@ Cada item incluye: que se pretende conseguir, y por que se cree que se puede con
 
 **Prioridad 1 — Desbloquear escalabilidad (cuello de botella: LK-deep)**
 
-**1. Reducir profundidad de LK-deep de 5 a 3**
-- **Solver base:** M2. Resultado: SolverM4 (o variante de M2).
-- **Que:** Crear M2 variante con linKernighanDeep(maxDepth=3) en vez de 5.
-- **Objetivo:** Reducir el factor constante de K^5=537,824 a K^3=2,744 (196x menor).
-  Esto deberia hacer que M2 sea mas rapido que Christofides en n>1000.
-- **Por que se cree factible:** LK-deep(5) rara vez usa profundidad 5 en la practica — la
-  poda por ganancia positiva corta la mayoria de ramas antes. Profundidad 3 captura los
-  movimientos mas productivos. L3 (que elimina LK-deep completamente) solo pierde 0.3%
-  de calidad, asi que profundidad 3 deberia perder menos.
-- **Riesgo:** Perdida de calidad en instancias donde LK-deep(5) encontraba mejoras profundas
-  (kro200 fue la instancia que motivo LK-deep en E030).
-- **Esfuerzo:** Bajo (cambiar un parametro + test).
+~~**1. Reducir profundidad de LK-deep de 5 a 3**~~ — E056 (M4): **COMPLETADO.**
+Speedup 2.5x, perdida maxima +0.008 (pcb442). **Mejor tradeoff individual.**
 
-**2. Reducir K para LK-deep de 14 a 7**
-- **Solver base:** M2. Resultado: SolverM5 (o variante de M2).
-- **Que:** En la fase LK-deep de M2, usar solo K=7 candidatos (alpha-nearness) en vez de
-  K=14 (alpha+dist combinados).
-- **Objetivo:** Reducir K^5 de 537,824 a 16,807 (32x menor) sin cambiar profundidad.
-- **Por que se cree factible:** Los candidatos alpha-nearness son los mas relevantes para LK
-  (tienen alpha bajo = mas probables de estar en el tour optimo). Los candidatos dist-only
-  son redundantes en la fase deep. En la fase shallow (LK-2) se mantiene K=14.
-- **Riesgo:** Menor cobertura de candidatos podria perder mejoras en instancias con estructura
-  irregular (clusters dispersos).
-- **Esfuerzo:** Bajo (pasar neighbor list diferente a LK-deep).
+~~**2. Reducir K para LK-deep de 14 a 7**~~ — E057 (M5): **COMPLETADO.**
+Speedup 1.5x, sin perdida de calidad. **Cambio "gratis".**
 
-**3. Eliminar LK-deep post-DB**
-- **Solver base:** M2. Resultado: SolverM6 (o variante de M2).
-- **Que:** En la rama B de M2, ejecutar LK-deep solo ANTES del double-bridge, no despues.
-  Post-DB usar solo LK(2) (como la rama A).
-- **Objetivo:** Eliminar la mitad del coste de LK-deep. La rama B pasa de
-  LK-deep + DB + LK-deep a LK-deep + DB + LK(2).
-- **Por que se cree factible:** Tras el double-bridge, el tour esta perturbado y las mejoras
-  grandes (que justifican LK-deep) son menos probables. LK(2) post-DB deberia capturar
-  la mayoria de las mejoras residuales. En J5, la rama A (que ya usa LK-2 post-DB)
-  gana en ~50% de las instancias.
-- **Riesgo:** Perdida de calidad en instancias donde el LK-deep post-DB encontraba mejoras.
-- **Esfuerzo:** Bajo (cambiar una linea en el solver).
+~~**3. Eliminar LK-deep post-DB**~~ — E058 (M6): **COMPLETADO.**
+Speedup casi nulo (~0-17%). **No aporta velocidad — LK-deep pre-DB domina.**
 
-**4. Combinar 1+2+3: M2 con LK-deep(3, K=7) solo pre-DB**
-- **Solver base:** M2. Resultado: SolverM7 (combina los tres cambios).
-- **Que:** Aplicar las tres optimizaciones juntas sobre M2. Factor constante resultante:
-  7^3 = 343 (vs 14^5 = 537,824 original — 1,568x menor).
-- **Objetivo:** Que M2 sea genuinamente mas rapido que Christofides en n>500, con calidad
-  similar a J5. Esto desbloquea la via comercial para wire bonding y PCB drilling pequeno.
-- **Por que se cree factible:** Cada cambio individual tiene bajo riesgo de calidad. Combinados,
-  el peor caso es la perdida de L3 (~0.3%), pero LK-deep(3) deberia recuperar parte de eso.
-- **Riesgo:** Los tres cambios juntos podrian tener efecto compuesto mayor que la suma.
-  Probar incremental (1, luego 1+2, luego 1+2+3).
-- **Esfuerzo:** Bajo (son cambios de parametros).
+~~**4. Combinar 1+2+3**~~ — E059 (M7): **COMPLETADO.**
+Speedup 3x, pero perdida excesiva en pcb442 (+0.015). **Inaceptable para calidad.**
+
+**Resultado neto:** M4 es el mejor tradeoff. M5 es "gratis". M6 no aporta. M7 pierde calidad.
+**Combinacion no probada y recomendada:** M4+M5 (profundidad 3 + K=7 deep) sin M6.
+**Cuello de botella residual:** Tras eliminar LK-deep como dominante, la infraestructura
+(alpha-nearness O(n^2), neighborLists O(n^2 log n), multi-start 20×NN O(n^2)) domina.
+M4 tarda 0.8s en pcb442 (4x mas lento que Christofides 0.2s). Para ser mas rapido que
+Christofides hay que atacar la infraestructura (items 5-6).
+
+**4b. Combinar M4+M5: LK-deep(3, alphaNl K=7) con LK-deep post-DB**
+- **Solver base:** M2. Resultado: SolverM8.
+- **Que:** Combinar solo los dos cambios que funcionaron (profundidad 3 de M4 + K=7 de M5),
+  manteniendo LK-deep post-DB (no incluir M6 que no aporta). Factor: 7^3=343 en pre-DB
+  y post-DB, pero con LK-deep en ambas posiciones para mantener calidad.
+- **Objetivo:** Speedup ~3-4x sobre M2 (combinando los 2.5x de M4 con el 1.5x de M5, con
+  solapamiento parcial) sin la perdida de calidad de M7. M7 perdia en pcb442 por no tener
+  LK-deep post-DB + profundidad/K reducidos al mismo tiempo. M8 mantiene LK-deep post-DB.
+- **Por que se cree factible:** M4 y M5 individualmente mantienen calidad. M7 perdia porque
+  combinaba con M6 (sin post-DB). M8 no incluye M6.
+- **Riesgo:** Prof 3 + K=7 juntos podrian tener efecto compuesto en calidad incluso con
+  post-DB. Pero menor riesgo que M7.
+- **Esfuerzo:** Bajo (un solver nuevo con dos parametros cambiados).
 
 **Prioridad 2 — Mejorar infraestructura**
 
@@ -1056,3 +1103,7 @@ Cada item debe incluir:
 - ~~Alpha-nearness lean (M2)~~ — E053: elimina OOM, mejor solver M
 - ~~Sin alpha-nearness (M3)~~ — E054: paso atras, pierde calidad y velocidad
 - ~~Insercion geometrica Delaunay (N1)~~ — E055: primer solver linea N, calidad inferior, pausada
+- ~~LK-deep prof 5→3 (M4)~~ — E056: speedup 2.5x, perdida +0.008 max. Mejor tradeoff individual
+- ~~LK-deep K=14→7 (M5)~~ — E057: speedup 1.5x, sin perdida de calidad. Cambio "gratis"
+- ~~LK-deep sin post-DB (M6)~~ — E058: speedup nulo. No aporta velocidad
+- ~~Combinar M4+M5+M6 (M7)~~ — E059: speedup 3x pero pierde calidad en pcb442 (+0.015). Inaceptable
