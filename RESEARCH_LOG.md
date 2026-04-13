@@ -833,64 +833,192 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 ### Ideas pendientes
 
-#### Resumen de mejores solvers actuales
-- **J5** (O(n^3)): mejor calidad (media ~1.010x), lento (251s en d2103), OOM en n>10000
-- **M2** (O(n^2)): calidad ~J5, escala a n=5915 sin OOM, pero 1891s en n=5915
-- **L2** (O(n^3)): misma calidad que J5, 1.5-4x mas rapido (DB dos fases)
-- **L3** (O(n^3)): -0.3% calidad, 3-7x mas rapido que J5 (sin LK-deep)
-- **N1** (O(n^2)): calidad inferior (~3-5% gap), rapido en n<500, primer solver de linea N
-- **Christofides** (O(n^3)): garantia 3/2, media ~1.137x
+#### Contexto para el backlog
 
-#### Hallazgos clave de E052-E055 (lineas M y N)
+**Mejores solvers actuales (2026-04-13):**
+- **J5** (O(n^3)): mejor calidad (media 1.010x, peor 1.025x), lento (5.1s pcb442, 239s d2103, OOM n>10000)
+- **M2** (O(n^2) teorico, ~O(n^2.5) practico): calidad ~J5, escala a n=5915 sin OOM, pero 1891s en n=5915
+- **N1** (O(n^2)): calidad inferior (media 1.031x, peor 1.080x), rapido en n<500 (0.6s pcb442)
+- **Christofides** (O(n^3)): garantia 3/2 demostrada, media ~1.137x, 0.2s en pcb442
 
-- **LK-deep es el cuello de botella real a escala grande**, no alpha-nearness ni 2-opt/or-opt.
-  M1 acelero 2-opt/or-opt/DB a O(n^2) pero el speedup fue solo 1.2-3.3x. LK-deep con K=15
-  a n>5000 es inviable (>7h sin terminar en M3).
-- **Alpha-nearness lean (sin JGraphT) elimina OOM** a n>10000. buildAlphaNearnessListLean
-  usa O(n) memoria vs O(n^2) objetos Java de la version original.
-- **orOptWithNeighborLists funciona** a escala grande (contrariamente a E046 que fue inconsistente
-  en instancias medianas). A n>1000 la aceleracion NL domina sobre el overhead de position map.
-- **Sin alpha-nearness la calidad empeora** (M3 vs M2: pcb442 1.024x vs 1.007x). Alpha-nearness
-  es critico para la calidad de los candidatos.
-- **Insercion geometrica Delaunay** (N1) da semillas razonables sin multi-start. La triangulacion
-  de Delaunay identifica correctamente la posicion de insercion para la mayoria de puntos.
+**Hallazgo critico de E052-E055:**
+Las complejidades asintoticas O(n^2) de M1/M2 son **tecnicamente correctas pero engañosas**.
+LK-deep(5) con K=14 es O(n^2) porque K es constante, pero K^5 = 537,824. Eso hace que
+M2 sea 8-11x mas lento que Christofides (O(n^3) con constante pequena) en todas las instancias
+probadas. El scaling real de M2 esta entre O(n^2) y O(n^3). La reduccion de complejidad
+asintotica NO se traduce en velocidad real hasta que se resuelva el factor K^5 de LK-deep.
 
-#### Mejorar rapidez sin perder calidad
-1. ~~Precomputar matriz de distancias~~ — E044: mejora marginal.
-2. ~~Reducir candidatos K=7+7 a K=5+5~~ — E045: PIERDE CALIDAD.
-3. ~~Or-opt con neighbor lists~~ — E046: inconsistente en medianas. **Funciona en grandes (E052).**
-4. ~~Refactorizar pipeline para DistanceMatrix~~ — E047: MAS LENTO en n>200.
-5. ~~Eliminar alpha-nearness~~ — E054 (M3): PIERDE CALIDAD y es mas lento. Descartado.
-6. **Reemplazar LK-deep por algo mas rapido sin perder calidad** — LK-deep(5) con K=14 es el
-   cuello de botella a escala grande. Opciones:
-   a. LK-deep con profundidad reducida (3 en vez de 5)
-   b. LK-deep con K reducido solo para la fase deep (K=7 deep, K=14 shallow)
-   c. Eliminar LK-deep completamente y compensar con mas intentos de DB
-   d. LK-deep solo en la rama B, no en el post-DB
-7. **KD-tree para buildNeighborLists** — Reducir O(n^2 log n) a O(n log n * K). Mejora la
-   infraestructura sin tocar la calidad.
+**Otros hallazgos:**
+- Alpha-nearness lean (sin JGraphT) elimina OOM y es critico para calidad (M3 sin alpha pierde).
+- orOptWithNeighborLists funciona a escala grande (contrariamente a E046 en medianas).
+- Insercion geometrica Delaunay (N1) da semillas razonables sin multi-start.
 
-#### Mejorar calidad sin perder rapidez
-8. **Mas intentos de DB con el tiempo ahorrado por L2/L3** — Seria un L3 con mas DB.
-9. **Mejores candidatos para DB** — Usar α-nearness para identificar aristas "fuera de lugar".
-10. **LK con mas candidatos (K=20) solo en la fase final**.
+---
 
-#### Linea N — Insercion geometrica (pausada, pendiente de continuar)
-11. **N2: Mejorar criterio geometrico** — Combinar Delaunay con angulo de vision (inscribed angle)
-    para desambiguar cuando no hay par Delaunay adyacente en el tour.
-12. **N3: Multi-start geometrico** — Varias construcciones Delaunay con diferentes ordenes de
-    insercion (por capas, por distancia, por angulo desde centroide).
-13. **N+M: Combinar construccion N con busqueda local M** — Usar la semilla geometrica de N1
-    con el pipeline NL de M2 como alternativa al multi-start.
+#### Backlog priorizado
 
-#### Investigacion fundamental
-14. **Garantia teorica** — Demostrar cota de aproximacion o encontrar contraejemplo grande.
-15. **PTAS de Arora** — Unica aproximacion polinomica con garantia (1+ε) demostrada.
+Cada item incluye: que se pretende conseguir, y por que se cree que se puede conseguir.
 
-#### Comercializacion
-16. **Ver COMMERCIALIZATION_PLAN.md** — Plan de licenciamiento como SDK. Fase 0.1 completada
-    con resultado bloqueante: el solver no escala a escala industrial (n>1000 en <60s).
-    El cuello de botella es LK-deep. Resolver punto 6 de este backlog desbloquea la via comercial.
+**Prioridad 1 — Desbloquear escalabilidad (cuello de botella: LK-deep)**
+
+**1. Reducir profundidad de LK-deep de 5 a 3**
+- **Que:** Crear M2 variante con linKernighanDeep(maxDepth=3) en vez de 5.
+- **Objetivo:** Reducir el factor constante de K^5=537,824 a K^3=2,744 (196x menor).
+  Esto deberia hacer que M2 sea mas rapido que Christofides en n>1000.
+- **Por que se cree factible:** LK-deep(5) rara vez usa profundidad 5 en la practica — la
+  poda por ganancia positiva corta la mayoria de ramas antes. Profundidad 3 captura los
+  movimientos mas productivos. L3 (que elimina LK-deep completamente) solo pierde 0.3%
+  de calidad, asi que profundidad 3 deberia perder menos.
+- **Riesgo:** Perdida de calidad en instancias donde LK-deep(5) encontraba mejoras profundas
+  (kro200 fue la instancia que motivo LK-deep en E030).
+- **Esfuerzo:** Bajo (cambiar un parametro + test).
+
+**2. Reducir K para LK-deep de 14 a 7**
+- **Que:** En la fase LK-deep, usar solo K=7 candidatos (alpha-nearness) en vez de K=14 (alpha+dist).
+- **Objetivo:** Reducir K^5 de 537,824 a 16,807 (32x menor) sin cambiar profundidad.
+- **Por que se cree factible:** Los candidatos alpha-nearness son los mas relevantes para LK
+  (tienen alpha bajo = mas probables de estar en el tour optimo). Los candidatos dist-only
+  son redundantes en la fase deep. En la fase shallow (LK-2) se mantiene K=14.
+- **Riesgo:** Menor cobertura de candidatos podria perder mejoras en instancias con estructura
+  irregular (clusters dispersos).
+- **Esfuerzo:** Bajo (pasar neighbor list diferente a LK-deep).
+
+**3. Eliminar LK-deep post-DB**
+- **Que:** En la rama B, ejecutar LK-deep solo ANTES del double-bridge, no despues.
+  Post-DB usar solo LK(2) (como la rama A).
+- **Objetivo:** Eliminar la mitad del coste de LK-deep. La rama B pasa de
+  LK-deep + DB + LK-deep a LK-deep + DB + LK(2).
+- **Por que se cree factible:** Tras el double-bridge, el tour esta perturbado y las mejoras
+  grandes (que justifican LK-deep) son menos probables. LK(2) post-DB deberia capturar
+  la mayoria de las mejoras residuales. En J5, la rama A (que ya usa LK-2 post-DB)
+  gana en ~50% de las instancias.
+- **Riesgo:** Perdida de calidad en instancias donde el LK-deep post-DB encontraba mejoras.
+- **Esfuerzo:** Bajo (cambiar una linea en el solver).
+
+**4. Combinar 1+2+3: M2 con LK-deep(3, K=7) solo pre-DB**
+- **Que:** Aplicar las tres optimizaciones juntas. Factor constante resultante: 7^3 = 343
+  (vs 14^5 = 537,824 original — 1,568x menor).
+- **Objetivo:** Que M2 sea genuinamente mas rapido que Christofides en n>500, con calidad
+  similar a J5. Esto desbloquea la via comercial para wire bonding y PCB drilling pequeno.
+- **Por que se cree factible:** Cada cambio individual tiene bajo riesgo de calidad. Combinados,
+  el peor caso es la perdida de L3 (~0.3%), pero LK-deep(3) deberia recuperar parte de eso.
+- **Riesgo:** Los tres cambios juntos podrian tener efecto compuesto mayor que la suma.
+  Probar incremental (1, luego 1+2, luego 1+2+3).
+- **Esfuerzo:** Bajo (son cambios de parametros).
+
+**Prioridad 2 — Mejorar infraestructura**
+
+**5. KD-tree para buildNeighborLists**
+- **Que:** Reemplazar el sort O(n log n) por punto por consultas K-nearest con KD-tree.
+- **Objetivo:** Reducir buildNeighborLists de O(n^2 log n) a O(n log n * K). Para n=5915
+  con K=15: de ~470M ops a ~170K ops (2,700x menor).
+- **Por que se cree factible:** KD-tree para K-nearest neighbors en 2D es una estructura
+  clasica, bien entendida, con implementaciones eficientes. JTS podria tener una utilizable.
+- **Riesgo:** El overhead de construir el KD-tree podria no compensar en instancias pequenas.
+  Solo impacta instancias grandes (n>2000) donde buildNeighborLists es costoso.
+- **Esfuerzo:** Medio (implementar KD-tree o integrar libreria).
+
+**6. Optimizar buildAlphaNearnessListLean**
+- **Que:** El paso "n DFS desde cada nodo" para maxEdgeOnPath es O(n^2). Reemplazar por
+  una estructura que permita consultas maxEdgeOnPath en O(log n) tras O(n log n) preproceso
+  (Heavy-Light Decomposition o Euler Tour + sparse table).
+- **Objetivo:** Reducir alpha-nearness de O(n^2) a O(n log n). Para n=5915: de 35M a 70K ops.
+- **Por que se cree factible:** maxEdgeOnPath en un arbol es un problema clasico resuelto
+  con HLD o LCA + sparse table en O(log n) por consulta. La implementacion es moderada.
+- **Riesgo:** La constante del O(log n) podria ser alta. Solo impacta n>2000.
+- **Esfuerzo:** Medio-alto (implementar HLD o LCA sobre el MST).
+
+**Prioridad 3 — Mejorar calidad**
+
+**7. Mas intentos de DB con tiempo ahorrado**
+- **Que:** Si los items 1-4 reducen el tiempo de LK-deep significativamente, reinvertir
+  ese tiempo en mas intentos de double-bridge (40-60 en vez de 20).
+- **Objetivo:** Mejorar calidad (0.1-0.5%) explorando mas perturbaciones.
+- **Por que se cree factible:** DB con re-optimizacion NL es O(n^2) por intento (gracias a M1).
+  Cada intento extra cuesta poco y tiene probabilidad no-cero de encontrar mejora.
+- **Riesgo:** Rendimientos decrecientes — los 20 primeros intentos ya cubren las perturbaciones
+  mas prometedoras (aristas mas largas).
+- **Esfuerzo:** Bajo (cambiar maxAttempts).
+
+**8. Candidatos alpha-nearness para DB**
+- **Que:** En doubleBridgePerturbation, usar aristas con alpha alto (fuera de lugar segun
+  alpha-nearness) como candidatos de corte, en vez de solo las aristas mas largas.
+- **Objetivo:** Encontrar perturbaciones mas productivas. Una arista larga puede ser correcta
+  si conecta clusters lejanos; una arista corta con alpha alto es mas sospechosa.
+- **Por que se cree factible:** Alpha-nearness mide "cuanto empeora el 1-tree si se fuerza
+  la arista". Aristas con alpha alto son las mas probables de no estar en el tour optimo.
+  Es exactamente el criterio para decidir donde perturbar.
+- **Riesgo:** Alpha no esta definido para aristas del tour de la misma forma. Hay que adaptar
+  la metrica. Podria no mejorar si las aristas largas ya correlacionan con alpha alto.
+- **Esfuerzo:** Medio (calcular alpha de aristas del tour, modificar DB).
+
+**Prioridad 4 — Linea N: Insercion geometrica (pausada)**
+
+**9. N2: Mejor criterio geometrico de insercion**
+- **Que:** Mejorar la seleccion de posicion de insercion en N1. Combinar Delaunay con angulo
+  de vision inscrito (inscribed angle theorem) para desambiguar cuando no hay par Delaunay
+  adyacente. El angulo inscrito da una medida geometrica directa de "cuanto pertenece un
+  punto a una arista".
+- **Objetivo:** Reducir el gap de N1 de ~3-5% a ~1-2% sin anadir multi-start.
+- **Por que se cree factible:** N1 usa fallback a "arista mas cercana" cuando Delaunay no da
+  par adyacente. El inscribed angle es un criterio geometrico mas preciso que la distancia
+  punto-segmento. El tour optimo tiende a insertar puntos en la arista que ven bajo el
+  angulo mas ancho.
+- **Riesgo:** La calidad de N1 esta dominada por la busqueda local posterior, no por la
+  construccion. Si la busqueda local es buena, la construccion importa poco (hallazgo E006-E010).
+- **Esfuerzo:** Medio.
+
+**10. N+M: Semilla N con pipeline M**
+- **Que:** Usar la construccion Delaunay de N1 como una de las construcciones del multi-start
+  de M2 (anadirla junto a farthest insertion, greedy, etc.).
+- **Objetivo:** Si la semilla Delaunay es mejor que alguna de las existentes, el multi-start
+  la elegira y mejorara el tour final sin coste adicional significativo.
+- **Por que se cree factible:** Delaunay da una semilla geometricamente fundamentada que es
+  diferente de NN, farthest insertion y greedy. La diversidad de semillas ayuda al multi-start.
+  Coste: O(n log n) para Delaunay — despreciable frente al pipeline.
+- **Riesgo:** Si la semilla Delaunay siempre pierde contra las existentes tras 2-opt-nl,
+  no aporta nada.
+- **Esfuerzo:** Bajo (anadir una linea al multi-start de M2).
+
+**Prioridad 5 — Investigacion fundamental**
+
+**11. Garantia teorica de aproximacion**
+- **Que:** Demostrar una cota superior de aproximacion para J5/M2, o encontrar un
+  contraejemplo que establezca una cota inferior.
+- **Objetivo:** Saber si nuestro solver tiene garantia mejor que 3/2 (Christofides).
+  Esto tiene valor tanto academico (publicacion) como comercial (argumento de venta).
+- **Por que se cree factible (parcialmente):** E033 no encontro contraejemplo en ~46
+  instancias (incluyendo adversariales). El peor caso empirico es 1.025x (eil76). Pero
+  la teoria (Chandra-Karloff-Tovey 1999) dice que 2-opt tiene peor caso Theta(log n / log log n),
+  que crece con n. Necesitamos instancias mas grandes para verificar.
+- **Riesgo:** Es probable que NO tengamos garantia mejor que 3/2. El peor caso teorico de
+  2-opt crece con n, y nuestro solver se basa en 2-opt. Un contraejemplo grande podria
+  destruir la hipotesis.
+- **Esfuerzo:** Alto (trabajo matematico o busqueda de contraejemplos a gran escala).
+
+**12. PTAS de Arora**
+- **Que:** Implementar el PTAS de Arora (1996) para TSP euclideo 2D. Unica aproximacion
+  polinomica con garantia (1+epsilon) demostrada para todo epsilon>0.
+- **Objetivo:** Tener un solver con garantia teorica demostrada de, por ejemplo, 1.01x.
+  Esto seria revolucionario en la practica si el tiempo es razonable.
+- **Por que se cree factible (con reservas):** La teoria dice que es polinomico para epsilon
+  fijo. Para epsilon=0.01, la complejidad es O(n * (log n)^O(100)) — polinomico pero
+  con constante astronomica. Nadie lo ha implementado de forma practica.
+- **Riesgo:** Muy alto. La constante hace que sea impractico para epsilon pequeno. Es mas
+  un ejercicio teorico que practico. Pero si se encuentra una variante eficiente, el impacto
+  seria enorme.
+- **Esfuerzo:** Muy alto (algoritmo complejo, implementacion no trivial).
+
+---
+
+#### Convencion del backlog
+
+Cada item debe incluir:
+- **Que:** Descripcion concreta de lo que se hara.
+- **Objetivo:** Que se pretende conseguir (metrica concreta si es posible).
+- **Por que se cree factible:** Evidencia, razonamiento o analogia que sustenta la hipotesis.
+- **Riesgo:** Que podria salir mal y por que.
+- **Esfuerzo:** Bajo / Medio / Alto.
 
 ### Ideas completadas o descartadas
 
