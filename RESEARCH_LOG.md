@@ -210,6 +210,31 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 ## Log de experimentos
 
+### E063 — SolverM11: M5 + alpha-nearness via Delaunay MST (2026-04-13)
+
+- **Solver:** SolverM11
+- **Linea:** M
+- **Cambio:** Reemplazar Prim O(n^2) por Delaunay+Kruskal O(n log n) para calcular el MST.
+  El MST euclideo es subgrafo de la triangulacion de Delaunay (teorema clasico).
+- **Validacion:** 0 mismatches vs buildAlphaNearnessListLean en pcb442.
+- **Resultados:**
+
+  | Instancia | n | M5 tiempo | M11 tiempo | Speedup |
+  |---|---|---|---|---|
+  | pcb442 | 442 | 1.8s | 1.3s | 1.41x |
+  | d657 | 657 | 8.6s | 7.3s | 1.17x |
+  | pr1002 | 1002 | 13.9s | 14.5s | 0.96x (mas lento) |
+  | d2103 | 2103 | 100.0s | 115.8s | 0.86x (mas lento) |
+  | pcb3038 | 3038 | 339.7s | 324.6s | 1.05x |
+
+  Calidad identica (varianza +-0.004).
+
+- **Conclusion:** **No aporta mejora neta.** Prim O(n^2) no es EL paso dominante — es uno
+  de varios O(n^2) (DFS, alpha-pairs, multi-start NN, LK-deep). Eliminar uno solo no
+  cambia el total. Para que Delaunay MST tenga impacto habria que eliminar TODOS los O(n^2)
+  simultaneamente, lo que requiere un rediseno completo del pipeline.
+  **Infraestructura buildAlphaNearnessDelaunay disponible** para uso futuro.
+
 ### E062 — SolverM10: M5 + alpha-nearness con binary lifting + KD-tree (2026-04-13)
 
 - **Solver:** SolverM10
@@ -1023,26 +1048,9 @@ en n<=3038. buildNeighborLists no es cuello de botella. KdTreeKnn disponible par
 Mas lento en pr1002/d2103. Prim O(n^2) es el verdadero cuello de botella, no el DFS post-Prim.
 Para mejorar alpha-nearness hay que usar MST euclideo via Delaunay (O(n log n)) en vez de Prim.
 
-**Prioridad 2b — MST euclideo via Delaunay (nuevo, surgido de E062)**
-
-**6b. MST euclideo via Delaunay en vez de Prim**
-- **Solvers afectados:** Todos los que usan alpha-nearness (M2, M5, J5 y derivados).
-- **Que:** Reemplazar Prim sobre grafo implicito completo (O(n^2)) por:
-  1. Triangulacion de Delaunay con JTS — O(n log n)
-  2. MST sobre el grafo Delaunay (O(n) aristas) con Kruskal — O(n log n)
-  El MST euclideo es un subgrafo de la triangulacion de Delaunay (propiedad conocida).
-  Esto elimina el Prim O(n^2) que es el cuello de botella de alpha-nearness.
-- **Objetivo:** Reducir alpha-nearness de O(n^2) a O(n log n). Para n=5915:
-  de ~35M ops (Prim) a ~70K ops (Delaunay+Kruskal). Speedup ~500x en esta fase.
-  Esto haria que la infraestructura completa (alpha + NL + multi-start) sea O(n^2)
-  dominada solo por multi-start (20 × NN O(n^2)), o O(n log n) si se combina con KD-tree.
-- **Por que se cree factible:** El MST euclideo es subgrafo de Delaunay es un teorema
-  clasico de geometria computacional. JTS ya tiene DelaunayTriangulationBuilder (usado
-  en SolverF1 y SolverN1). Solo hay que extraer las aristas, construir un grafo sparse
-  y ejecutar Kruskal. Implementacion directa.
-- **Riesgo:** JTS Delaunay podria tener problemas de precision con coordenadas reales
-  (floating point). Verificar que el MST resultante es correcto comparando con Prim.
-- **Esfuerzo:** Medio (usar JTS Delaunay + Kruskal manual o JGraphT sobre grafo sparse).
+~~**6b. MST euclideo via Delaunay en vez de Prim**~~ — E063 (M11): **COMPLETADO.** No aporta mejora
+neta. Prim es uno de varios O(n^2); eliminar uno solo no cambia el total. Mas lento en
+pr1002 (0.96x) y d2103 (0.86x) por overhead de JTS Delaunay. Infraestructura disponible.
 
 **Prioridad 3 — Mejorar calidad**
 
@@ -1172,3 +1180,4 @@ Cada item debe incluir:
 - ~~Combinar M4+M5 con post-DB (M8)~~ — E060: pierde calidad pcb442 (+0.014). Igual que M7
 - ~~KD-tree para neighborLists (M9)~~ — E061: sin mejora velocidad en n<=3038. No es cuello de botella
 - ~~HLD/binary lifting para alpha (M10)~~ — E062: mas lento en medianas. Prim O(n^2) domina, no DFS
+- ~~Delaunay MST para alpha (M11)~~ — E063: sin mejora neta. Varios O(n^2) dominan, no solo Prim
