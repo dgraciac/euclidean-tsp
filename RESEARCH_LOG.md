@@ -210,6 +210,29 @@ afirmar que su garantia de aproximacion sea mejor que 3/2.
 
 ## Log de experimentos
 
+### E060 — SolverM8: Combinar M4+M5 (prof 3, K=7) con post-DB (2026-04-13)
+
+- **Solver:** SolverM8
+- **Linea:** M
+- **Cambio:** LK-deep(3, alphaNl K=7) en pre-DB y post-DB (combina M4+M5, sin M6).
+- **Resultados:**
+
+  | Instancia | n | M2 ratio | M8 ratio | Diff | Speedup |
+  |---|---|---|---|---|---|
+  | eil51-rat99 | 51-99 | identico | identico | 0.000 | 1-6x |
+  | kro200 | 200 | 1.004 | 1.006 | +0.003 | 3.0x |
+  | a280 | 279 | 1.008 | 1.004 | -0.004 | 2.3x |
+  | pcb442 | 442 | 1.007 | 1.022 | **+0.014** | 1.6x |
+  | d657 | 657 | 1.038 | 1.039 | +0.001 | 2.3x |
+  | pr1002 | 1002 | 1.027 | 1.028 | +0.001 | 3.3x |
+  | d2103 | 2103 | 1.011 | 1.015 | +0.004 | 2.7x |
+  | pcb3038 | 3038 | 1.038 | 1.039 | +0.001 | 1.7x |
+
+- **Conclusion:** **Pierde calidad en pcb442 (+0.014), igual que M7.** Mantener LK-deep post-DB
+  no recupera calidad — la perdida viene de combinar profundidad 3 + K=7 simultaneamente.
+  Los cambios individuales (M4 o M5) funcionan; combinados son demasiado agresivos para pcb442.
+  **M5 (solo K=7, prof 5) es el unico cambio sin perdida de calidad alguna.**
+
 ### E056-E059 — SolverM4/M5/M6/M7: Reducir factor K^5 de LK-deep (2026-04-13)
 
 - **Solvers:** M4, M5, M6, M7 (todos basados en M2)
@@ -944,19 +967,12 @@ Speedup 3x, pero perdida excesiva en pcb442 (+0.015). **Inaceptable para calidad
 M4 tarda 0.8s en pcb442 (4x mas lento que Christofides 0.2s). Para ser mas rapido que
 Christofides hay que atacar la infraestructura (items 5-6).
 
-**4b. Combinar M4+M5: LK-deep(3, alphaNl K=7) con LK-deep post-DB**
-- **Solver base:** M2. Resultado: SolverM8.
-- **Que:** Combinar solo los dos cambios que funcionaron (profundidad 3 de M4 + K=7 de M5),
-  manteniendo LK-deep post-DB (no incluir M6 que no aporta). Factor: 7^3=343 en pre-DB
-  y post-DB, pero con LK-deep en ambas posiciones para mantener calidad.
-- **Objetivo:** Speedup ~3-4x sobre M2 (combinando los 2.5x de M4 con el 1.5x de M5, con
-  solapamiento parcial) sin la perdida de calidad de M7. M7 perdia en pcb442 por no tener
-  LK-deep post-DB + profundidad/K reducidos al mismo tiempo. M8 mantiene LK-deep post-DB.
-- **Por que se cree factible:** M4 y M5 individualmente mantienen calidad. M7 perdia porque
-  combinaba con M6 (sin post-DB). M8 no incluye M6.
-- **Riesgo:** Prof 3 + K=7 juntos podrian tener efecto compuesto en calidad incluso con
-  post-DB. Pero menor riesgo que M7.
-- **Esfuerzo:** Bajo (un solver nuevo con dos parametros cambiados).
+~~**4b. Combinar M4+M5 (M8)**~~ — E060: **COMPLETADO.** Pierde calidad en pcb442 (+0.014),
+igual que M7. Combinar prof 3 + K=7 es demasiado agresivo. **Solo M5 no pierde calidad.**
+
+**Situacion post items 1-4b:** El unico cambio a LK-deep que no pierde calidad es M5
+(K=7 alpha-only, speedup 1.5x). M4 (prof 3) pierde +0.008 en pcb442. Combinarlos pierde
++0.014. Para mas velocidad sin perder calidad, hay que atacar la infraestructura (items 5-6).
 
 **Prioridad 2 — Mejorar infraestructura**
 
@@ -1107,3 +1123,4 @@ Cada item debe incluir:
 - ~~LK-deep K=14→7 (M5)~~ — E057: speedup 1.5x, sin perdida de calidad. Cambio "gratis"
 - ~~LK-deep sin post-DB (M6)~~ — E058: speedup nulo. No aporta velocidad
 - ~~Combinar M4+M5+M6 (M7)~~ — E059: speedup 3x pero pierde calidad en pcb442 (+0.015). Inaceptable
+- ~~Combinar M4+M5 con post-DB (M8)~~ — E060: pierde calidad pcb442 (+0.014). Igual que M7
