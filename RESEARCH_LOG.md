@@ -862,6 +862,7 @@ Cada item incluye: que se pretende conseguir, y por que se cree que se puede con
 **Prioridad 1 — Desbloquear escalabilidad (cuello de botella: LK-deep)**
 
 **1. Reducir profundidad de LK-deep de 5 a 3**
+- **Solver base:** M2. Resultado: SolverM4 (o variante de M2).
 - **Que:** Crear M2 variante con linKernighanDeep(maxDepth=3) en vez de 5.
 - **Objetivo:** Reducir el factor constante de K^5=537,824 a K^3=2,744 (196x menor).
   Esto deberia hacer que M2 sea mas rapido que Christofides en n>1000.
@@ -874,7 +875,9 @@ Cada item incluye: que se pretende conseguir, y por que se cree que se puede con
 - **Esfuerzo:** Bajo (cambiar un parametro + test).
 
 **2. Reducir K para LK-deep de 14 a 7**
-- **Que:** En la fase LK-deep, usar solo K=7 candidatos (alpha-nearness) en vez de K=14 (alpha+dist).
+- **Solver base:** M2. Resultado: SolverM5 (o variante de M2).
+- **Que:** En la fase LK-deep de M2, usar solo K=7 candidatos (alpha-nearness) en vez de
+  K=14 (alpha+dist combinados).
 - **Objetivo:** Reducir K^5 de 537,824 a 16,807 (32x menor) sin cambiar profundidad.
 - **Por que se cree factible:** Los candidatos alpha-nearness son los mas relevantes para LK
   (tienen alpha bajo = mas probables de estar en el tour optimo). Los candidatos dist-only
@@ -884,7 +887,8 @@ Cada item incluye: que se pretende conseguir, y por que se cree que se puede con
 - **Esfuerzo:** Bajo (pasar neighbor list diferente a LK-deep).
 
 **3. Eliminar LK-deep post-DB**
-- **Que:** En la rama B, ejecutar LK-deep solo ANTES del double-bridge, no despues.
+- **Solver base:** M2. Resultado: SolverM6 (o variante de M2).
+- **Que:** En la rama B de M2, ejecutar LK-deep solo ANTES del double-bridge, no despues.
   Post-DB usar solo LK(2) (como la rama A).
 - **Objetivo:** Eliminar la mitad del coste de LK-deep. La rama B pasa de
   LK-deep + DB + LK-deep a LK-deep + DB + LK(2).
@@ -896,8 +900,9 @@ Cada item incluye: que se pretende conseguir, y por que se cree que se puede con
 - **Esfuerzo:** Bajo (cambiar una linea en el solver).
 
 **4. Combinar 1+2+3: M2 con LK-deep(3, K=7) solo pre-DB**
-- **Que:** Aplicar las tres optimizaciones juntas. Factor constante resultante: 7^3 = 343
-  (vs 14^5 = 537,824 original — 1,568x menor).
+- **Solver base:** M2. Resultado: SolverM7 (combina los tres cambios).
+- **Que:** Aplicar las tres optimizaciones juntas sobre M2. Factor constante resultante:
+  7^3 = 343 (vs 14^5 = 537,824 original — 1,568x menor).
 - **Objetivo:** Que M2 sea genuinamente mas rapido que Christofides en n>500, con calidad
   similar a J5. Esto desbloquea la via comercial para wire bonding y PCB drilling pequeno.
 - **Por que se cree factible:** Cada cambio individual tiene bajo riesgo de calidad. Combinados,
@@ -909,6 +914,7 @@ Cada item incluye: que se pretende conseguir, y por que se cree que se puede con
 **Prioridad 2 — Mejorar infraestructura**
 
 **5. KD-tree para buildNeighborLists**
+- **Solvers afectados:** Todos (M2, M1, J5, N1 — todos usan buildNeighborLists).
 - **Que:** Reemplazar el sort O(n log n) por punto por consultas K-nearest con KD-tree.
 - **Objetivo:** Reducir buildNeighborLists de O(n^2 log n) a O(n log n * K). Para n=5915
   con K=15: de ~470M ops a ~170K ops (2,700x menor).
@@ -919,6 +925,7 @@ Cada item incluye: que se pretende conseguir, y por que se cree que se puede con
 - **Esfuerzo:** Medio (implementar KD-tree o integrar libreria).
 
 **6. Optimizar buildAlphaNearnessListLean**
+- **Solvers afectados:** M2, M1, J5 (todos los que usan alpha-nearness).
 - **Que:** El paso "n DFS desde cada nodo" para maxEdgeOnPath es O(n^2). Reemplazar por
   una estructura que permita consultas maxEdgeOnPath en O(log n) tras O(n log n) preproceso
   (Heavy-Light Decomposition o Euler Tour + sparse table).
@@ -931,6 +938,7 @@ Cada item incluye: que se pretende conseguir, y por que se cree que se puede con
 **Prioridad 3 — Mejorar calidad**
 
 **7. Mas intentos de DB con tiempo ahorrado**
+- **Solver base:** El resultado de items 1-4 (M4/M5/M6/M7). Resultado: variante con maxAttempts mayor.
 - **Que:** Si los items 1-4 reducen el tiempo de LK-deep significativamente, reinvertir
   ese tiempo en mas intentos de double-bridge (40-60 en vez de 20).
 - **Objetivo:** Mejorar calidad (0.1-0.5%) explorando mas perturbaciones.
@@ -941,7 +949,8 @@ Cada item incluye: que se pretende conseguir, y por que se cree que se puede con
 - **Esfuerzo:** Bajo (cambiar maxAttempts).
 
 **8. Candidatos alpha-nearness para DB**
-- **Que:** En doubleBridgePerturbation, usar aristas con alpha alto (fuera de lugar segun
+- **Solver base:** M2 (o cualquier solver con doubleBridgePerturbationNl).
+- **Que:** En doubleBridgePerturbationNl, usar aristas con alpha alto (fuera de lugar segun
   alpha-nearness) como candidatos de corte, en vez de solo las aristas mas largas.
 - **Objetivo:** Encontrar perturbaciones mas productivas. Una arista larga puede ser correcta
   si conecta clusters lejanos; una arista corta con alpha alto es mas sospechosa.
@@ -955,6 +964,7 @@ Cada item incluye: que se pretende conseguir, y por que se cree que se puede con
 **Prioridad 4 — Linea N: Insercion geometrica (pausada)**
 
 **9. N2: Mejor criterio geometrico de insercion**
+- **Solver base:** N1. Resultado: SolverN2.
 - **Que:** Mejorar la seleccion de posicion de insercion en N1. Combinar Delaunay con angulo
   de vision inscrito (inscribed angle theorem) para desambiguar cuando no hay par Delaunay
   adyacente. El angulo inscrito da una medida geometrica directa de "cuanto pertenece un
@@ -968,7 +978,8 @@ Cada item incluye: que se pretende conseguir, y por que se cree que se puede con
   construccion. Si la busqueda local es buena, la construccion importa poco (hallazgo E006-E010).
 - **Esfuerzo:** Medio.
 
-**10. N+M: Semilla N con pipeline M**
+**10. N+M: Semilla Delaunay en pipeline M2**
+- **Solver base:** M2 + N1. Resultado: variante de M2 con construccion Delaunay anadida.
 - **Que:** Usar la construccion Delaunay de N1 como una de las construcciones del multi-start
   de M2 (anadirla junto a farthest insertion, greedy, etc.).
 - **Objetivo:** Si la semilla Delaunay es mejor que alguna de las existentes, el multi-start
@@ -983,6 +994,8 @@ Cada item incluye: que se pretende conseguir, y por que se cree que se puede con
 **Prioridad 5 — Investigacion fundamental**
 
 **11. Garantia teorica de aproximacion**
+- **Solvers afectados:** J5, M2 (y todos los derivados — comparten el mismo pipeline de
+  busqueda local). La garantia aplica al algoritmo, no a un solver especifico.
 - **Que:** Demostrar una cota superior de aproximacion para J5/M2, o encontrar un
   contraejemplo que establezca una cota inferior.
 - **Objetivo:** Saber si nuestro solver tiene garantia mejor que 3/2 (Christofides).
@@ -997,6 +1010,7 @@ Cada item incluye: que se pretende conseguir, y por que se cree que se puede con
 - **Esfuerzo:** Alto (trabajo matematico o busqueda de contraejemplos a gran escala).
 
 **12. PTAS de Arora**
+- **Solvers afectados:** Ninguno existente. Seria una linea completamente nueva (linea O o P).
 - **Que:** Implementar el PTAS de Arora (1996) para TSP euclideo 2D. Unica aproximacion
   polinomica con garantia (1+epsilon) demostrada para todo epsilon>0.
 - **Objetivo:** Tener un solver con garantia teorica demostrada de, por ejemplo, 1.01x.
